@@ -17,7 +17,7 @@ struct V128 {
 	uint64_t h;
 };
 
-extern V128 Hash(const uint8_t* msg, unsigned len, uint64_t seed=0) noexcept;
+extern V128 Hash(const uint8_t* msg, unsigned len) noexcept;
 
 } //pbf
 #endif // PAGE_BLOOM_FILTER_HASH_H

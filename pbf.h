@@ -18,7 +18,7 @@ template <typename Word>
 class Divisor {
 private:
 	static_assert(std::is_same<Word, uint8_t>::value || std::is_same<Word, uint16_t>::value
-				  || std::is_same<Word, uint32_t>::value);
+				  || std::is_same<Word, uint32_t>::value, "");
 	Word m_val = 0;
 #ifndef DISABLE_SOFT_DIVIDE
 	static constexpr unsigned BITWIDTH = sizeof(Word)*8;
@@ -121,10 +121,6 @@ public:
 	bool test(const uint8_t* data, unsigned len) const noexcept;
 	bool set(const uint8_t* data, unsigned len) noexcept;
 };
-
-#ifdef PAGE_BLOOM_FILTER_INTERNAL
-template <> bool PageBloomFilter<8>::test(const uint8_t* data, unsigned len) const noexcept;
-#endif
 
 extern template class PageBloomFilter<4>;
 extern template class PageBloomFilter<5>;

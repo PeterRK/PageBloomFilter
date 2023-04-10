@@ -11,8 +11,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 
 add_library(pbf pbf.cc hash.cc)
 
-add_executable(test test.cc pbf.cc hash.cc)
+add_executable(test test/test.cc pbf.cc hash.cc)
 target_link_libraries(test gtest)
 
-add_executable(bench bench.cc pbf.cc hash.cc)
-target_link_libraries(bench)
+add_executable(bench test/bench.cc pbf.cc hash.cc)
+
+#add_executable(set-bench test/set-bench.cc test/set-wrapper.cc)

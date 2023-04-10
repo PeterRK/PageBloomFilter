@@ -3,8 +3,18 @@
 // license that can be found in the LICENSE file.
 
 #include "hash.h"
+#ifdef USE_XXHASH
+#include "xxh3.h"
+#endif
 
 namespace pbf {
+
+#ifdef USE_XXHASH
+V128 Hash(const uint8_t* msg, unsigned len) noexcept {
+	auto ret = XXH3_128bits(msg, len);
+	return {ret.low64, ret.high64};
+}
+#else
 
 static FORCE_INLINE uint64_t Rot64(uint64_t x, unsigned k) {
 	return (x << k) | (x >> (64U - k));
@@ -40,11 +50,11 @@ static FORCE_INLINE void End(uint64_t& h0, uint64_t& h1, uint64_t& h2, uint64_t&
 }
 
 //SpookyHash
-V128 Hash(const uint8_t* msg, unsigned len, uint64_t seed) noexcept {
+V128 Hash(const uint8_t* msg, unsigned len) noexcept {
 	constexpr uint64_t magic = 0xdeadbeefdeadbeefULL;
 
-	uint64_t a = seed;
-	uint64_t b = seed;
+	uint64_t a = 0;
+	uint64_t b = 0;
 	uint64_t c = magic;
 	uint64_t d = magic;
 
@@ -56,7 +66,6 @@ V128 Hash(const uint8_t* msg, unsigned len, uint64_t seed) noexcept {
 		a += x[2];
 		b += x[3];
 	}
-  //len &= 0xffU;
 
 	if (len & 0x10U) {
 		auto x = (const uint64_t*)msg;
@@ -111,5 +120,7 @@ V128 Hash(const uint8_t* msg, unsigned len, uint64_t seed) noexcept {
 
 	return {a, b};
 }
+
+#endif
 
 } //pbf
