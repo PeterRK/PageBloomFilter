@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
 	const uint64_t n = 1000000;
 
 	auto start = std::chrono::steady_clock::now();
-	for (uint64_t i = 0; i < n; i+=2) {
+	for (uint64_t i = 0; i < n; i += 2) {
 		bf.set(reinterpret_cast<const uint8_t*>(&i), 8);
 	}
 	auto end = std::chrono::steady_clock::now();

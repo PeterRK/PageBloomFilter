@@ -3,13 +3,26 @@
 // license that can be found in the LICENSE file.
 
 #include "hash.h"
-#ifdef USE_XXHASH
+#if defined(USE_AESNI_HASH)
+#include "aesni-hash.h"
+#elif defined(USE_XXHASH)
 #include "xxh3.h"
 #endif
 
 namespace pbf {
 
-#ifdef USE_XXHASH
+#if defined(USE_AESNI_HASH)
+
+V128 Hash(const uint8_t* msg, unsigned len) noexcept {
+	union {
+		V128 v;
+		__m128i m;
+	} t;
+	t.m = AESNI_Hash128(msg, len);
+	return t.v;
+}
+
+#elif defined(USE_XXHASH)
 V128 Hash(const uint8_t* msg, unsigned len) noexcept {
 	auto ret = XXH3_128bits(msg, len);
 	return {ret.low64, ret.high64};

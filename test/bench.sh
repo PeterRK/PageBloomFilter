@@ -47,4 +47,13 @@ for w in 5 6 7 8; do
 	echo ""
 done
 
+for w in 5 6 7 8; do
+	${COMPILE} -DBENCHMARK_WAY=${w} -DUSE_AESNI_HASH ${SOURCE}
+	echo "way-simd-${w}-aesni"
+	for ((i=0;i<10;i++)); do
+		./a.out
+	done
+	echo ""
+done
+
 rm a.out
