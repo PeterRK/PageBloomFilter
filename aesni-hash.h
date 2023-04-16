@@ -69,7 +69,6 @@ static inline __m128i AESNI_Hash128(const uint8_t* msg, unsigned len, uint32_t s
 		case 1:
 			x |= msg[0];
 			mix(_mm_set_epi64x(0, x));
-			break;
 		case 0:
 			break;
 	}
