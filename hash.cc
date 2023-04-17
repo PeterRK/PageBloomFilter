@@ -9,6 +9,10 @@
 #include "xxh3.h"
 #endif
 
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#error "only support little endian"
+#endif
+
 namespace pbf {
 
 #if defined(USE_AESNI_HASH)

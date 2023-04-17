@@ -107,7 +107,7 @@ public:
 
 	// page_level should be (8-8/N) ~ 13
 	PageBloomFilter(unsigned page_level, unsigned page_num, size_t unique_cnt=0, const uint8_t* data=nullptr) {
-		if (page_level < (8-8/N) || page_level > 13) {
+		if (page_level < (8-8/N) || page_level > 13 || page_num == 0) {
 			return;
 		}
 		init(page_level, page_num, unique_cnt, data);
