@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 
-add_library(pbf pbf.cc hash.cc)
+add_library(pbf pbf.cc pbf-c.cc hash.cc)
 
 add_executable(test test/test.cc pbf.cc hash.cc)
 target_link_libraries(test gtest pthread)

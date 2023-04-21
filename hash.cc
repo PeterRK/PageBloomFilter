@@ -16,7 +16,6 @@
 namespace pbf {
 
 #if defined(USE_AESNI_HASH)
-
 V128 Hash(const uint8_t* msg, unsigned len) noexcept {
 	union {
 		V128 v;
@@ -25,7 +24,6 @@ V128 Hash(const uint8_t* msg, unsigned len) noexcept {
 	t.m = AESNI_Hash128(msg, len);
 	return t.v;
 }
-
 #elif defined(USE_XXHASH)
 V128 Hash(const uint8_t* msg, unsigned len) noexcept {
 	auto ret = XXH3_128bits(msg, len);
@@ -33,11 +31,11 @@ V128 Hash(const uint8_t* msg, unsigned len) noexcept {
 }
 #else
 
-static FORCE_INLINE uint64_t Rot64(uint64_t x, unsigned k) {
+static FORCE_INLINE uint64_t Rot64(uint64_t x, unsigned k) noexcept {
 	return (x << k) | (x >> (64U - k));
 }
 
-static FORCE_INLINE void Mix(uint64_t& h0, uint64_t& h1, uint64_t& h2, uint64_t& h3) {
+static FORCE_INLINE void Mix(uint64_t& h0, uint64_t& h1, uint64_t& h2, uint64_t& h3) noexcept {
 	h2 = Rot64(h2,50);  h2 += h3;  h0 ^= h2;
 	h3 = Rot64(h3,52);  h3 += h0;  h1 ^= h3;
 	h0 = Rot64(h0,30);  h0 += h1;  h2 ^= h0;
@@ -52,7 +50,7 @@ static FORCE_INLINE void Mix(uint64_t& h0, uint64_t& h1, uint64_t& h2, uint64_t&
 	h1 = Rot64(h1,36);  h1 += h2;  h3 ^= h1;
 }
 
-static FORCE_INLINE void End(uint64_t& h0, uint64_t& h1, uint64_t& h2, uint64_t& h3) {
+static FORCE_INLINE void End(uint64_t& h0, uint64_t& h1, uint64_t& h2, uint64_t& h3) noexcept {
 	h3 ^= h2;  h2 = Rot64(h2,15);  h3 += h2;
 	h0 ^= h3;  h3 = Rot64(h3,52);  h0 += h3;
 	h1 ^= h0;  h0 = Rot64(h0,26);  h1 += h0;

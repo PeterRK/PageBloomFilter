@@ -17,6 +17,7 @@ struct V128 {
 	uint64_t h;
 };
 
+
 extern V128 Hash(const uint8_t* msg, unsigned len) noexcept;
 
 } //pbf
