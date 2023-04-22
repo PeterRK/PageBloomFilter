@@ -5,6 +5,7 @@
 package pbf
 
 import (
+	"math"
 	"reflect"
 	"unsafe"
 )
@@ -16,10 +17,61 @@ type PageBloomFilter interface {
 	PageLevel() uint32
 	Way() uint32
 	Cap() int
-	Set(key string) bool
-	Test(key string) bool
+	Set(key string) bool  // return true if key not exists
+	Test(key string) bool // return true if key exists
 }
 
+// item: number of items to hold
+// fpr: expected false positive rate, 0.0005-0.1
+// New clean PageBloomFilter with auto-selected parameters
+func NewBloomFilter(item int, fpr float64) PageBloomFilter {
+	if item < 1 {
+		item = 1
+	}
+	if fpr > 0.1 {
+		fpr = 0.1
+	} else if fpr < 0.0005 {
+		fpr = 0.0005
+	}
+	w := -math.Log2(fpr)
+	bpi := w / (math.Ln2 * 8)
+	way := uint32(math.Round(w))
+	if way < 4 {
+		way = 4
+	} else if way > 8 {
+		way = 8
+		bpi *= 1.025
+	} else {
+		bpi *= 1.01
+	}
+
+	n := uint64(bpi * float64(item))
+	pageLevel := uint32(0)
+	for i := uint32(7); i < 12; i++ {
+		if n < (1 << (i + 2)) {
+			pageLevel = i
+			if pageLevel < (8 - 8/way) {
+				pageLevel++
+			}
+			break
+		}
+	}
+	if pageLevel == 0 {
+		pageLevel = 12
+	}
+
+	m := (n + (1 << pageLevel) - 1) >> pageLevel
+	if m > math.MaxInt32 {
+		return nil
+	}
+	pageNum := uint32(m)
+	return NewPageBloomFilter(way, pageLevel, pageNum)
+}
+
+// way: 4-8
+// pageLevel: log2(page size), 7-13
+// pageNum: number of pages
+// New clean PageBloomFilter
 func NewPageBloomFilter(way, pageLevel, pageNum uint32) PageBloomFilter {
 	if way < 4 || way > 8 || pageNum == 0 ||
 		pageLevel < (8-8/way) || pageLevel > 13 {
@@ -47,6 +99,7 @@ func NewPageBloomFilter(way, pageLevel, pageNum uint32) PageBloomFilter {
 	return nil
 }
 
+// Create PageBloomFilter with data
 func CreatePageBloomFilter(way, pageLevel uint32, data []byte) PageBloomFilter {
 	pageSize := int(1) << pageLevel
 	if pageSize == 0 || len(data)%pageSize != 0 {
@@ -66,6 +119,7 @@ type pageBloomFilter struct {
 	data      []byte
 }
 
+// clear data
 func (bf *pageBloomFilter) Clear() {
 	bf.uniqueCnt = 0
 	slc := (*reflect.SliceHeader)(unsafe.Pointer(&bf.data))
@@ -79,14 +133,17 @@ func (bf *pageBloomFilter) Clear() {
 	}
 }
 
+// get inner data
 func (bf *pageBloomFilter) Data() []byte {
 	return bf.data
 }
 
+// approximate number of unique items
 func (bf *pageBloomFilter) Unique() int {
 	return bf.uniqueCnt
 }
 
+// log2(page size)
 func (bf *pageBloomFilter) PageLevel() uint32 {
 	return bf.pageLevel
 }

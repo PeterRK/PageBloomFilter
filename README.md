@@ -11,7 +11,18 @@ It runs slower on EPYC-7K83 machine.
 
 ## Go Version
 
-An implement based on function injection techique is avaliable for AMD64. It uses code compiled by clang in Go without CGO. A benchmark with 500k elements on a Xeon-8374C machine shows new implement runs much fast than the pure go implement.
+```go
+// BloomFilter with 0.01 false positive rate for 500 items
+bf := NewBloomFilter(500, 0.01)
+if bf.Set("Hello") {
+	fmt.Println("set new Hello")
+}
+if bf.Test("Hello") {
+	fmt.Println("find Hello")
+}
+```
+
+An implement based on **function injection techique** is avaliable for AMD64. It uses code compiled by clang in Go without CGO. A benchmark with 500k elements on a Xeon-8374C machine shows new implement runs much fast than the pure go implement.
 
 ```
 name   old time/op  new time/op  delta

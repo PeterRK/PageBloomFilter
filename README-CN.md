@@ -11,6 +11,17 @@
 
 ## Go版本
 
+```go
+// 有效容量500，假阳率0.01
+bf := NewBloomFilter(500, 0.01)
+if bf.Set("Hello") {
+	fmt.Println("set new Hello")
+}
+if bf.Test("Hello") {
+	fmt.Println("find Hello")
+}
+```
+
 除了原生实现，在AMD64环境中还提供基于**函数注入技术**的实现，具体而言就是将C函数编译后注入到Go程序中以免除CGO的调用开销。在Xeon-8374C上测试50万元素，Go注入版较原生版有一倍左右的性能提升，仅比C++版略慢。
 
 ```

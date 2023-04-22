@@ -16,6 +16,14 @@ func assert(t *testing.T, state bool) {
 	}
 }
 
+func TestNew(t *testing.T) {
+	bf := NewBloomFilter(500, 0.01)
+	assert(t, bf != nil)
+	assert(t, bf.Way() == 7)
+	assert(t, bf.PageLevel() == 8)
+	assert(t, len(bf.Data()) == 768)
+}
+
 func doTest(t *testing.T, way uint32) {
 	bf := NewPageBloomFilter(way, 7, 3)
 	assert(t, bf != nil)
