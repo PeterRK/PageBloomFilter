@@ -76,7 +76,6 @@ func benchTest(b *testing.B, way uint32) {
 	for i := uint64(0); i < n; i++ {
 		slc := tmp[i*8 : (i+1)*8]
 		keys[i] = *(*string)(unsafe.Pointer(&slc))
-		binary.LittleEndian.PutUint64(slc, i)
 	}
 	bf := NewPageBloomFilter(way, 12, uint32(n/4096)+1)
 	for i := uint64(0); i < n/2; i++ {
