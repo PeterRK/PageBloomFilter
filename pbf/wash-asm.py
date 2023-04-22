@@ -18,15 +18,11 @@ def main(src, dest):
 	with open(src, 'r') as f:
 		for line in f:
 			line = line.strip('\n')
-			if _PTN_TEXT.match(line) is not None:
-				continue
 			if _PTN_FUNC_BEGIN.match(line) is not None:
 				assert func is None
 				func = [line]
 				continue
 			if func is None:
-				continue
-			if _PTN_SECTION.match(line) is not None:
 				continue
 			func.append(line)
 			if _PTN_FUNC_END.match(line) is not None:
@@ -34,10 +30,17 @@ def main(src, dest):
 				func = None
 
 	for i in range(len(parts)):
-		done = False
+		text = True
 		code = None
 		other = []
 		for line in parts[i]:
+			if _PTN_TEXT.match(line) is not None:
+				text = True
+				continue
+			if _PTN_SECTION.match(line) is not None:
+				text = False
+				continue
+
 			if code is None:
 				m = _PTN_GLOBAL_SYMBOL.match(line)
 				if m is not None:
@@ -46,18 +49,18 @@ def main(src, dest):
 					continue
 				other.append(line)
 				continue
-			if done:
+
+			if not text:
 				other.append(line)
 				continue
+
 			m = _PTN_FUNC_SIZE.match(line)
 			if m is not None:
 				target, size = m.groups()
-				assert target == name
-				done = True
 				continue
 			code.append(line)
 
-		assert done
+		assert target == name
 		parts[i] = (code, other, size)
 
 	with open(dest, 'w') as f:

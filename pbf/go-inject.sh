@@ -10,5 +10,3 @@ objdump -s --section=.text inject.o >func-data.txt && \
 objdump -d --section=.text inject.o >func-code.txt && \
 ./go-inject.py func-size.txt func-data.txt func-code.txt inject_amd64.s && \
 rm origin.asm washed.asm inject.o func-size.txt func-data.txt func-code.txt
-
-
