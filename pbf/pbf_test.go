@@ -37,11 +37,11 @@ func doTest(t *testing.T, way uint32) {
 	}
 }
 
-func Test_W4(t *testing.T) { doTest(t, 4) }
-func Test_W5(t *testing.T) { doTest(t, 5) }
-func Test_W6(t *testing.T) { doTest(t, 6) }
-func Test_W7(t *testing.T) { doTest(t, 7) }
-func Test_W8(t *testing.T) { doTest(t, 8) }
+func TestW4(t *testing.T) { doTest(t, 4) }
+func TestW5(t *testing.T) { doTest(t, 5) }
+func TestW6(t *testing.T) { doTest(t, 6) }
+func TestW7(t *testing.T) { doTest(t, 7) }
+func TestW8(t *testing.T) { doTest(t, 8) }
 
 func benchSet(b *testing.B, way uint32) {
 	b.StopTimer()
@@ -84,13 +84,13 @@ func benchTest(b *testing.B, way uint32) {
 	}
 }
 
-func Benchmark_Set4(b *testing.B)  { benchSet(b, 4) }
-func Benchmark_Test4(b *testing.B) { benchTest(b, 4) }
-func Benchmark_Set5(b *testing.B)  { benchSet(b, 5) }
-func Benchmark_Test5(b *testing.B) { benchTest(b, 5) }
-func Benchmark_Set6(b *testing.B)  { benchSet(b, 6) }
-func Benchmark_Test6(b *testing.B) { benchTest(b, 6) }
-func Benchmark_Set7(b *testing.B)  { benchSet(b, 7) }
-func Benchmark_Test7(b *testing.B) { benchTest(b, 7) }
-func Benchmark_Set8(b *testing.B)  { benchSet(b, 8) }
-func Benchmark_Test8(b *testing.B) { benchTest(b, 8) }
+func BenchmarkSet4(b *testing.B)  { benchSet(b, 4) }
+func BenchmarkTest4(b *testing.B) { benchTest(b, 4) }
+func BenchmarkSet5(b *testing.B)  { benchSet(b, 5) }
+func BenchmarkTest5(b *testing.B) { benchTest(b, 5) }
+func BenchmarkSet6(b *testing.B)  { benchSet(b, 6) }
+func BenchmarkTest6(b *testing.B) { benchTest(b, 6) }
+func BenchmarkSet7(b *testing.B)  { benchSet(b, 7) }
+func BenchmarkTest7(b *testing.B) { benchTest(b, 7) }
+func BenchmarkSet8(b *testing.B)  { benchSet(b, 8) }
+func BenchmarkTest8(b *testing.B) { benchTest(b, 8) }
