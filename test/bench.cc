@@ -4,7 +4,7 @@
 
 #include <chrono>
 #include <iostream>
-#include "../pbf.h"
+#include "pbf.h"
 
 int main(int argc, char* argv[]) {
 #ifndef BENCHMARK_WAY

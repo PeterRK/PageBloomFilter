@@ -1,6 +1,6 @@
 #!/bin/bash
 
-COMPILE="clang++ -O3 -std=c++14 -march=native"
+COMPILE="clang++ -O3 -std=c++14 -march=native -I../include"
 
 echo "robin-hood-set"
 ${COMPILE} set-wrapper.cc set-bench.cc
@@ -9,7 +9,7 @@ ${COMPILE} set-wrapper.cc set-bench.cc
 	done
 echo ""
 
-SOURCE="../hash.cc ../pbf.cc bench.cc"
+SOURCE="../src/hash.cc ../src/pbf.cc bench.cc"
 
 for w in 4 5 6 7 8; do
 	echo "way-${w}"

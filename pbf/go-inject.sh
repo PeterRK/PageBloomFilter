@@ -2,7 +2,7 @@
 
 clang -O3 -std=c++14 -march=native \
 	-fno-asynchronous-unwind-tables -fno-exceptions  \
-	-DC_ALL_IN_ONE -S -fPIE ../pbf-c.cc -o origin.asm && \
+	-DC_ALL_IN_ONE -S -fPIE -I../include ../src/pbf-c.cc -o origin.asm && \
 ./wash-asm.py origin.asm washed.asm && \
 as washed.asm -o inject.o && \
 objdump -s --section=.rodata.func_size inject.o >func-size.txt && \

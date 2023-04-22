@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 #include <gtest/gtest.h>
-#include "../pbf.h"
+#include "pbf.h"
 
 int main(int argc,char **argv){
 	testing::InitGoogleTest(&argc,argv);
