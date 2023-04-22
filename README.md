@@ -22,7 +22,7 @@ if bf.Test("Hello") {
 }
 ```
 
-An implement based on **function injection techique** is avaliable for AMD64. It uses code compiled by clang in Go without CGO. A benchmark with 500k elements on a Xeon-8374C machine shows new implement runs much fast than the pure go implement.
+**Function injection techique** is avaliable for AMD64. It uses code compiled by clang in Go without CGO. A benchmark with 500k elements on a Xeon-8374C machine shows new implement runs much fast than the pure go implement.
 
 ```
 name   old time/op  new time/op  delta
