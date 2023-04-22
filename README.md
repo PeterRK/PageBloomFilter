@@ -40,6 +40,15 @@ Test8  44.8ns ± 2%  18.4ns ± 7%  -58.86%  (p=0.000 n=19+20)
 
 We suggest that user should execute [go-inject.sh](pbf/go-inject.sh) to gnerate new injecting code before build. Clang, binutils and python are needed.
 
+[Benchmark](https://gist.github.com/PeterRK/b0df9e80caaaee1e9349e295cb435a67) shows it's 3x time fast than another famous bloom filter implement [bits-and-blooms](https://github.com/bits-and-blooms/bloom):
+```
+cpu: Intel(R) Core(TM) i7-10710U CPU @ 1.10GHz
+BenchmarkBitsAndBloomSet-6               1000000               140.0 ns/op
+BenchmarkBitsAndBloomTest-6              1000000                81.68 ns/op
+BenchmarkPageBloomFilterSet-6            1000000                32.12 ns/op
+BenchmarkPageBloomFilterTest-6           1000000                20.58 ns/op
+```
+
 ## Theoretical Analysis
 
 ### Bytes per element - False positive rate
