@@ -6,6 +6,11 @@
 
 package pbf
 
+import (
+	"encoding/binary"
+	"unsafe"
+)
+
 func (bf *pbfW4) Set(key string) bool {
 	return bf.set(4, key)
 }
@@ -179,20 +184,25 @@ func (s *state) end() {
 	s.b += s.a
 }
 
-func getU64(str string) uint64 {
-	return uint64(str[0]) | (uint64(str[1]) << 8) |
-		(uint64(str[2]) << 16) | (uint64(str[3]) << 24) |
-		(uint64(str[4]) << 32) | (uint64(str[5]) << 40) |
-		(uint64(str[6]) << 48) | (uint64(str[7]) << 56)
+func unsafeStrToBytes(s string) []byte {
+	return *(*[]byte)(unsafe.Pointer(
+		&struct {
+			string
+			Cap int
+		}{s, len(s)},
+	))
 }
 
-func getU32(str string) uint32 {
-	return uint32(str[0]) | (uint32(str[1]) << 8) |
-		(uint32(str[2]) << 16) | (uint32(str[3]) << 24)
+func u64to64(str string) uint64 {
+	return binary.LittleEndian.Uint64(unsafeStrToBytes(str))
 }
 
-func getU16(str string) uint16 {
-	return uint16(str[0]) | (uint16(str[1]) << 8)
+func u32to64(str string) uint64 {
+	return uint64(binary.LittleEndian.Uint32(unsafeStrToBytes(str)))
+}
+
+func u16to64(str string) uint64 {
+	return uint64(binary.LittleEndian.Uint16(unsafeStrToBytes(str)))
 }
 
 func hash128(str string) (uint64, uint64) {
@@ -201,15 +211,15 @@ func hash128(str string) (uint64, uint64) {
 	l := uint64(len(str))
 
 	for ; len(str) >= 32; str = str[32:] {
-		s.c += getU64(str)
-		s.d += getU64(str[8:])
+		s.c += u64to64(str)
+		s.d += u64to64(str[8:])
 		s.mix()
-		s.a += getU64(str[16:])
-		s.b += getU64(str[24:])
+		s.a += u64to64(str[16:])
+		s.b += u64to64(str[24:])
 	}
 	if len(str) >= 16 {
-		s.c += getU64(str)
-		s.d += getU64(str[8:])
+		s.c += u64to64(str)
+		s.d += u64to64(str[8:])
 		s.mix()
 		str = str[16:]
 	}
@@ -217,52 +227,50 @@ func hash128(str string) (uint64, uint64) {
 	s.d += l << 56
 	switch len(str) {
 	case 15:
-		s.d += (uint64(str[14]) << 48) |
-			(uint64(getU16(str[12:])) << 32) |
-			uint64(getU32(str[8:]))
-		s.c += getU64(str)
+		s.d += uint64(str[14]) << 48
+		fallthrough
 	case 14:
-		s.d += (uint64(getU16(str[12:])) << 32) |
-			uint64(getU32(str[8:]))
-		s.c += getU64(str)
+		s.d += uint64(str[13]) << 40
+		fallthrough
 	case 13:
-		s.d += (uint64(str[12]) << 32) | uint64(getU32(str[8:]))
-		s.c += getU64(str)
+		s.d += uint64(str[12]) << 32
+		fallthrough
 	case 12:
-		s.d += uint64(getU32(str[8:]))
-		s.c += getU64(str)
+		s.d += u32to64(str[8:])
+		s.c += u64to64(str)
 	case 11:
-		s.d += (uint64(str[10]) << 16) | uint64(getU16(str[8:]))
-		s.c += getU64(str)
+		s.d += uint64(str[10]) << 16
+		fallthrough
 	case 10:
-		s.d += uint64(getU16(str[8:]))
-		s.c += getU64(str)
+		s.d += uint64(str[9]) << 8
+		fallthrough
 	case 9:
 		s.d += uint64(str[8])
-		s.c += getU64(str)
+		fallthrough
 	case 8:
-		s.c += getU64(str)
+		s.c += u64to64(str)
 	case 7:
-		s.c += (uint64(str[6]) << 48) |
-			(uint64(getU16(str[4:])) << 32) |
-			uint64(getU32(str))
+		s.c += uint64(str[6]) << 48
+		fallthrough
 	case 6:
-		s.c += (uint64(getU16(str[4:])) << 32) |
-			uint64(getU32(str))
+		s.c += uint64(str[5]) << 40
+		fallthrough
 	case 5:
-		s.c += (uint64(str[4]) << 32) | uint64(getU32(str))
+		s.c += uint64(str[4]) << 32
+		fallthrough
 	case 4:
-		s.c += uint64(getU32(str))
+		s.c += u32to64(str)
 	case 3:
-		s.c += (uint64(str[2]) << 16) | uint64(getU16(str))
+		s.c += uint64(str[2]) << 16
+		fallthrough
 	case 2:
-		s.c += uint64(getU16(str))
+		s.c += uint64(str[1]) << 8
+		fallthrough
 	case 1:
 		s.c += uint64(str[0])
 	case 0:
 		s.c += magic
 		s.d += magic
-
 	}
 	s.end()
 	return s.a, s.b

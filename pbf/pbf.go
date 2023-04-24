@@ -5,6 +5,7 @@
 package pbf
 
 import (
+	"bytes"
 	"math"
 	"reflect"
 	"unsafe"
@@ -77,13 +78,15 @@ func NewPageBloomFilter(way, pageLevel, pageNum uint32) PageBloomFilter {
 		pageLevel < (8-8/way) || pageLevel > 13 {
 		return nil
 	}
-	bf := &pageBloomFilter{
+	return cast(way, &pageBloomFilter{
 		pageLevel: pageLevel,
 		pageNum:   pageNum,
 		uniqueCnt: 0,
 		data:      make([]byte, int(pageNum)<<pageLevel),
-	}
+	})
+}
 
+func cast(way uint32, bf *pageBloomFilter) PageBloomFilter {
 	switch way {
 	case 4:
 		return (*pbfW4)(unsafe.Pointer(bf))
@@ -100,16 +103,20 @@ func NewPageBloomFilter(way, pageLevel, pageNum uint32) PageBloomFilter {
 }
 
 // Create PageBloomFilter with data
-func CreatePageBloomFilter(way, pageLevel uint32, data []byte) PageBloomFilter {
+func CreatePageBloomFilter(way, pageLevel uint32, data []byte,
+	uniqueCnt int) PageBloomFilter {
 	pageSize := int(1) << pageLevel
-	if pageSize == 0 || len(data)%pageSize != 0 {
+	if way < 4 || way > 8 ||
+		pageLevel < (8-8/way) || pageLevel > 13 ||
+		len(data) == 0 || len(data)%pageSize != 0 {
 		return nil
 	}
-	bf := NewPageBloomFilter(way, pageLevel, uint32(len(data)/pageSize))
-	if bf != nil {
-		copy(bf.Data(), data)
-	}
-	return bf
+	return cast(way, &pageBloomFilter{
+		pageLevel: pageLevel,
+		pageNum:   uint32(len(data) / pageSize),
+		uniqueCnt: uniqueCnt,
+		data:      bytes.Clone(data),
+	})
 }
 
 type pageBloomFilter struct {
