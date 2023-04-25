@@ -9,7 +9,7 @@
 ![](images/EPYC-7K83.png)
 在EPYC-7K83上测试表现略逊，SIMD加速效果不明显。
 
-## Go版本
+## Go版
 
 ```go
 // 有效容量500，假阳率0.01
@@ -40,13 +40,33 @@ Test8  44.8ns ± 2%  18.4ns ± 7%  -58.86%  (p=0.000 n=19+20)
 
 AMD64环境中注入版默认开启，编译前最好先执行[go-inject.sh](pbf/go-inject.sh)生成新的注入函数。注入函数生成脚本依赖clang和binutils，以及python，建议在Linux环境执行。
 
-[测评](https://gist.github.com/PeterRK/b0df9e80caaaee1e9349e295cb435a67) 发现本实现比知名的 [bits-and-blooms](https://github.com/bits-and-blooms/bloom)要快3倍：
+[测评](https://gist.github.com/PeterRK/b0df9e80caaaee1e9349e295cb435a67) 表明本实现比知名的 [bits-and-blooms](https://github.com/bits-and-blooms/bloom)要快3倍：
 ```
 cpu: Intel(R) Core(TM) i7-10710U CPU @ 1.10GHz
 BenchmarkBitsAndBloomSet-6               1000000               140.0 ns/op
 BenchmarkBitsAndBloomTest-6              1000000                81.68 ns/op
 BenchmarkPageBloomFilterSet-6            1000000                32.12 ns/op
 BenchmarkPageBloomFilterTest-6           1000000                20.58 ns/op
+```
+
+## Java版
+```java
+PageBloomFilter bf = PageBloomFilter.New(500, 0.01);
+byte[] hello = "Hello".getBytes("UTF-8");
+if (bf.set(hello)) {
+	System.out.println("set new Hello")
+}
+if (bf.test(hello)) {
+	System.out.println("find Hello")
+}
+```
+[测评](java/src/test/java/rk/pbf/Benchmark.java) 表明本实现比Google的Guava要快很多。不过，由于缺少针对性优化，Java版没有Go版快。
+```
+// i7-10710U & OpenJDK-17
+pbf-set:     61.864632 ns/op
+pbf-test:    45.849427 ns/op
+guava-set:  144.784601 ns/op
+guava-test: 122.613304 ns/op
 ```
 
 ## 理论分析
