@@ -407,20 +407,22 @@ TEXT PBF4_Set(SB), NOSPLIT, $0
 	WORD $0x8948; BYTE $0xc6
 	// shr    $0x20,%rsi
 	LONG $0x20eec148
-	// rorx   $0x2,%edx,%eax
-	LONG $0xf07be3c4; WORD $0x02c2
+	// rorx   $0x1c,%edx,%edi
+	LONG $0xf07be3c4; WORD $0x1cfa
 	// shr    $0x20,%rdx
 	LONG $0x20eac148
-	// rorx   $0x6,%ecx,%edi
-	LONG $0xf07be3c4; WORD $0x06f9
-	// rorx   $0x4,%esi,%ebp
-	LONG $0xf07be3c4; WORD $0x04ee
+	// rorx   $0x18,%ecx,%eax
+	LONG $0xf07be3c4; WORD $0x18c1
+	// rorx   $0x1a,%esi,%ebp
+	LONG $0xf07be3c4; WORD $0x1aee
+	// xor    %eax,%edi
+	WORD $0xc731
+	// xor    %ebp,%edi
+	WORD $0xef31
+	// rorx   $0x1e,%edx,%eax
+	LONG $0xf07be3c4; WORD $0x1ec2
 	// xor    %edi,%eax
 	WORD $0xf831
-	// xor    %edx,%eax
-	WORD $0xd031
-	// xor    %ebp,%eax
-	WORD $0xe831
 	// xor    %edx,%edx
 	WORD $0xd231
 	// div    %r15d
@@ -555,20 +557,22 @@ TEXT PBF4_Test(SB), NOSPLIT, $0
 	WORD $0x8948; BYTE $0xc6
 	// shr    $0x20,%rsi
 	LONG $0x20eec148
-	// rorx   $0x2,%edx,%eax
-	LONG $0xf07be3c4; WORD $0x02c2
+	// rorx   $0x1c,%edx,%edi
+	LONG $0xf07be3c4; WORD $0x1cfa
 	// shr    $0x20,%rdx
 	LONG $0x20eac148
-	// rorx   $0x6,%ecx,%edi
-	LONG $0xf07be3c4; WORD $0x06f9
-	// rorx   $0x4,%esi,%ebp
-	LONG $0xf07be3c4; WORD $0x04ee
+	// rorx   $0x18,%ecx,%eax
+	LONG $0xf07be3c4; WORD $0x18c1
+	// rorx   $0x1a,%esi,%ebp
+	LONG $0xf07be3c4; WORD $0x1aee
+	// xor    %eax,%edi
+	WORD $0xc731
+	// xor    %ebp,%edi
+	WORD $0xef31
+	// rorx   $0x1e,%edx,%eax
+	LONG $0xf07be3c4; WORD $0x1ec2
 	// xor    %edi,%eax
 	WORD $0xf831
-	// xor    %edx,%eax
-	WORD $0xd031
-	// xor    %ebp,%eax
-	WORD $0xe831
 	// xor    %edx,%edx
 	WORD $0xd231
 	// div    %r15d
@@ -597,7 +601,7 @@ TEXT PBF4_Test(SB), NOSPLIT, $0
 	LONG $0x156cb60f; BYTE $0x00
 	// test   %ebp,%edi
 	WORD $0xef85
-	// je     509 <PBF4_Test+0xe9>
+	// je     50f <PBF4_Test+0xef>
 	WORD $0x7374
 	// mov    $0xffffffff,%eax
 	LONG $0xffffffb8; BYTE $0xff
@@ -625,7 +629,7 @@ TEXT PBF4_Test(SB), NOSPLIT, $0
 	LONG $0x3a3cb60f
 	// test   %ebp,%edi
 	WORD $0xef85
-	// je     507 <PBF4_Test+0xe7>
+	// je     50d <PBF4_Test+0xed>
 	WORD $0x4274
 	// and    %eax,%esi
 	WORD $0xc621
@@ -645,7 +649,7 @@ TEXT PBF4_Test(SB), NOSPLIT, $0
 	LONG $0x3234b60f
 	// test   %ebp,%esi
 	WORD $0xee85
-	// je     507 <PBF4_Test+0xe7>
+	// je     50d <PBF4_Test+0xed>
 	WORD $0x2174
 	// shr    $0x30,%rcx
 	LONG $0x30e9c148
@@ -667,7 +671,7 @@ TEXT PBF4_Test(SB), NOSPLIT, $0
 	WORD $0xc185
 	// setne  %al
 	WORD $0x950f; BYTE $0xc0
-	// jmp    509 <PBF4_Test+0xe9>
+	// jmp    50f <PBF4_Test+0xef>
 	WORD $0x02eb
 	// xor    %eax,%eax
 	WORD $0xc031
@@ -715,18 +719,22 @@ TEXT PBF5_Set(SB), NOSPLIT, $0
 	WORD $0x8948; BYTE $0xf7
 	// shr    $0x20,%rdi
 	LONG $0x20efc148
-	// shr    $0x20,%rdx
-	LONG $0x20eac148
-	// rorx   $0x6,%esi,%ecx
-	LONG $0xf07be3c4; WORD $0x06ce
-	// rorx   $0x4,%edi,%ebp
-	LONG $0xf07be3c4; WORD $0x04ef
-	// rorx   $0x2,%r8d,%eax
-	LONG $0xf07bc3c4; WORD $0x02c0
-	// xor    %ecx,%eax
-	WORD $0xc831
-	// xor    %edx,%eax
-	WORD $0xd031
+	// mov    %rdx,%rax
+	WORD $0x8948; BYTE $0xd0
+	// shr    $0x20,%rax
+	LONG $0x20e8c148
+	// rorx   $0x18,%esi,%edx
+	LONG $0xf07be3c4; WORD $0x18d6
+	// rorx   $0x1a,%edi,%ecx
+	LONG $0xf07be3c4; WORD $0x1acf
+	// rorx   $0x1c,%r8d,%ebp
+	LONG $0xf07bc3c4; WORD $0x1ce8
+	// xor    %edx,%ebp
+	WORD $0xd531
+	// xor    %ecx,%ebp
+	WORD $0xcd31
+	// rorx   $0x1e,%eax,%eax
+	LONG $0xf07be3c4; WORD $0x1ec0
 	// xor    %ebp,%eax
 	WORD $0xe831
 	// xor    %edx,%edx
@@ -877,24 +885,26 @@ TEXT PBF5_Test(SB), NOSPLIT, $0
 	WORD $0x8948; BYTE $0xc1
 	// mov    %rdx,%rbp
 	WORD $0x8948; BYTE $0xd5
-	// rorx   $0x6,%ecx,%edx
-	LONG $0xf07be3c4; WORD $0x06d1
-	// mov    %rax,%rdi
-	WORD $0x8948; BYTE $0xc7
-	// shr    $0x20,%rdi
-	LONG $0x20efc148
-	// rorx   $0x2,%ebp,%eax
-	LONG $0xf07be3c4; WORD $0x02c5
+	// rorx   $0x18,%ecx,%eax
+	LONG $0xf07be3c4; WORD $0x18c1
+	// mov    %rcx,%rdx
+	WORD $0x8948; BYTE $0xca
+	// shr    $0x20,%rdx
+	LONG $0x20eac148
+	// rorx   $0x1c,%ebp,%edi
+	LONG $0xf07be3c4; WORD $0x1cfd
 	// mov    %rbp,%rsi
 	WORD $0x8948; BYTE $0xee
 	// shr    $0x20,%rsi
 	LONG $0x20eec148
-	// rorx   $0x4,%edi,%edi
-	LONG $0xf07be3c4; WORD $0x04ff
-	// xor    %edx,%eax
-	WORD $0xd031
-	// xor    %esi,%eax
-	WORD $0xf031
+	// rorx   $0x1a,%edx,%edx
+	LONG $0xf07be3c4; WORD $0x1ad2
+	// xor    %eax,%edi
+	WORD $0xc731
+	// xor    %edx,%edi
+	WORD $0xd731
+	// rorx   $0x1e,%esi,%eax
+	LONG $0xf07be3c4; WORD $0x1ec6
 	// xor    %edi,%eax
 	WORD $0xf831
 	// xor    %edx,%edx
@@ -931,18 +941,18 @@ TEXT PBF5_Test(SB), NOSPLIT, $0
 	LONG $0xc0dbf5c5
 	// vpsrld $0x5,%ymm0,%ymm1
 	LONG $0xd072f5c5; BYTE $0x05
-	// vmovdqa 0x4b(%rip),%ymm2        # 720 <PBF5_Test+0xe0>
-	QUAD $0x0000004b156ffdc5
+	// vmovdqa 0x45(%rip),%ymm2        # 720 <PBF5_Test+0xe0>
+	QUAD $0x00000045156ffdc5
 	// vpcmpeqd %ymm3,%ymm3,%ymm3
 	LONG $0xdb76e5c5
 	// vpgatherdd %ymm2,(%rax,%ymm1,4),%ymm3
 	LONG $0x906de2c4; WORD $0x881c
-	// vpbroadcastd 0x58(%rip),%ymm1        # 740 <PBF5_Test+0x100>
-	QUAD $0x0000580d587de2c4; BYTE $0x00
+	// vpbroadcastd 0x52(%rip),%ymm1        # 740 <PBF5_Test+0x100>
+	QUAD $0x0000520d587de2c4; BYTE $0x00
 	// vpand  %ymm1,%ymm0,%ymm0
 	LONG $0xc1dbfdc5
-	// vpbroadcastd 0x4f(%rip),%ymm1        # 744 <PBF5_Test+0x104>
-	QUAD $0x00004f0d587de2c4; BYTE $0x00
+	// vpbroadcastd 0x49(%rip),%ymm1        # 744 <PBF5_Test+0x104>
+	QUAD $0x0000490d587de2c4; BYTE $0x00
 	// vpsllvd %ymm0,%ymm1,%ymm0
 	LONG $0x4775e2c4; BYTE $0xc0
 	// vpandn %ymm0,%ymm3,%ymm1
@@ -965,8 +975,8 @@ TEXT PBF5_Test(SB), NOSPLIT, $0
 	WORD $0xf8c5; BYTE $0x77
 	// ret    
 	BYTE $0xc3
-	// data 52
-	QUAD $0x0000841f0f2e6666; QUAD $0xffffffff90000000; QUAD $0xffffffffffffffff; QUAD $0xffffffff00000000; QUAD $0x00000000ffffffff; QUAD $0x0000001f00000000; LONG $0x00000001
+	// data 46
+	QUAD $0xffff0000441f0f66; QUAD $0xffffffffffffffff; QUAD $0xffff00000000ffff; QUAD $0x0000ffffffffffff; QUAD $0x001f000000000000; LONG $0x00010000; WORD $0x0000
 
 TEXT PBF6_Set(SB), NOSPLIT, $0
 	// push   %rbp
@@ -999,18 +1009,22 @@ TEXT PBF6_Set(SB), NOSPLIT, $0
 	WORD $0x8949; BYTE $0xc0
 	// shr    $0x20,%r8
 	LONG $0x20e8c149
-	// shr    $0x20,%rdx
-	LONG $0x20eac148
-	// rorx   $0x6,%esi,%edi
-	LONG $0xf07be3c4; WORD $0x06fe
-	// rorx   $0x4,%r8d,%ebp
-	LONG $0xf07bc3c4; WORD $0x04e8
-	// rorx   $0x2,%ecx,%eax
-	LONG $0xf07be3c4; WORD $0x02c1
-	// xor    %edi,%eax
-	WORD $0xf831
-	// xor    %edx,%eax
-	WORD $0xd031
+	// mov    %rdx,%rax
+	WORD $0x8948; BYTE $0xd0
+	// shr    $0x20,%rax
+	LONG $0x20e8c148
+	// rorx   $0x18,%esi,%edx
+	LONG $0xf07be3c4; WORD $0x18d6
+	// rorx   $0x1a,%r8d,%edi
+	LONG $0xf07bc3c4; WORD $0x1af8
+	// rorx   $0x1c,%ecx,%ebp
+	LONG $0xf07be3c4; WORD $0x1ce9
+	// xor    %edx,%ebp
+	WORD $0xd531
+	// xor    %edi,%ebp
+	WORD $0xfd31
+	// rorx   $0x1e,%eax,%eax
+	LONG $0xf07be3c4; WORD $0x1ec0
 	// xor    %ebp,%eax
 	WORD $0xe831
 	// xor    %edx,%edx
@@ -1185,24 +1199,26 @@ TEXT PBF6_Test(SB), NOSPLIT, $0
 	WORD $0x8948; BYTE $0xc1
 	// mov    %rdx,%rbp
 	WORD $0x8948; BYTE $0xd5
-	// rorx   $0x6,%ecx,%edx
-	LONG $0xf07be3c4; WORD $0x06d1
-	// mov    %rax,%rdi
-	WORD $0x8948; BYTE $0xc7
-	// shr    $0x20,%rdi
-	LONG $0x20efc148
-	// rorx   $0x2,%ebp,%eax
-	LONG $0xf07be3c4; WORD $0x02c5
+	// rorx   $0x18,%ecx,%eax
+	LONG $0xf07be3c4; WORD $0x18c1
+	// mov    %rcx,%rdx
+	WORD $0x8948; BYTE $0xca
+	// shr    $0x20,%rdx
+	LONG $0x20eac148
+	// rorx   $0x1c,%ebp,%edi
+	LONG $0xf07be3c4; WORD $0x1cfd
 	// mov    %rbp,%rsi
 	WORD $0x8948; BYTE $0xee
 	// shr    $0x20,%rsi
 	LONG $0x20eec148
-	// rorx   $0x4,%edi,%edi
-	LONG $0xf07be3c4; WORD $0x04ff
-	// xor    %edx,%eax
-	WORD $0xd031
-	// xor    %esi,%eax
-	WORD $0xf031
+	// rorx   $0x1a,%edx,%edx
+	LONG $0xf07be3c4; WORD $0x1ad2
+	// xor    %eax,%edi
+	WORD $0xc731
+	// xor    %edx,%edi
+	WORD $0xd731
+	// rorx   $0x1e,%esi,%eax
+	LONG $0xf07be3c4; WORD $0x1ec6
 	// xor    %edi,%eax
 	WORD $0xf831
 	// xor    %edx,%edx
@@ -1239,18 +1255,18 @@ TEXT PBF6_Test(SB), NOSPLIT, $0
 	LONG $0xc0dbf5c5
 	// vpsrld $0x5,%ymm0,%ymm1
 	LONG $0xd072f5c5; BYTE $0x05
-	// vmovdqa 0x4b(%rip),%ymm2        # 9a0 <PBF6_Test+0xe0>
-	QUAD $0x0000004b156ffdc5
+	// vmovdqa 0x45(%rip),%ymm2        # 9a0 <PBF6_Test+0xe0>
+	QUAD $0x00000045156ffdc5
 	// vpcmpeqd %ymm3,%ymm3,%ymm3
 	LONG $0xdb76e5c5
 	// vpgatherdd %ymm2,(%rax,%ymm1,4),%ymm3
 	LONG $0x906de2c4; WORD $0x881c
-	// vpbroadcastd 0x58(%rip),%ymm1        # 9c0 <PBF6_Test+0x100>
-	QUAD $0x0000580d587de2c4; BYTE $0x00
+	// vpbroadcastd 0x52(%rip),%ymm1        # 9c0 <PBF6_Test+0x100>
+	QUAD $0x0000520d587de2c4; BYTE $0x00
 	// vpand  %ymm1,%ymm0,%ymm0
 	LONG $0xc1dbfdc5
-	// vpbroadcastd 0x4f(%rip),%ymm1        # 9c4 <PBF6_Test+0x104>
-	QUAD $0x00004f0d587de2c4; BYTE $0x00
+	// vpbroadcastd 0x49(%rip),%ymm1        # 9c4 <PBF6_Test+0x104>
+	QUAD $0x0000490d587de2c4; BYTE $0x00
 	// vpsllvd %ymm0,%ymm1,%ymm0
 	LONG $0x4775e2c4; BYTE $0xc0
 	// vpandn %ymm0,%ymm3,%ymm1
@@ -1273,8 +1289,8 @@ TEXT PBF6_Test(SB), NOSPLIT, $0
 	WORD $0xf8c5; BYTE $0x77
 	// ret    
 	BYTE $0xc3
-	// data 52
-	QUAD $0x0000841f0f2e6666; QUAD $0xffffffff90000000; QUAD $0xffffffffffffffff; QUAD $0xffffffff00000000; QUAD $0xffffffffffffffff; QUAD $0x0000001f00000000; LONG $0x00000001
+	// data 46
+	QUAD $0xffff0000441f0f66; QUAD $0xffffffffffffffff; QUAD $0xffff00000000ffff; QUAD $0xffffffffffffffff; QUAD $0x001f00000000ffff; LONG $0x00010000; WORD $0x0000
 
 TEXT PBF7_Set(SB), NOSPLIT, $0
 	// push   %rbp
@@ -1311,16 +1327,18 @@ TEXT PBF7_Set(SB), NOSPLIT, $0
 	WORD $0x8949; BYTE $0xd0
 	// shr    $0x20,%r8
 	LONG $0x20e8c149
-	// rorx   $0x6,%esi,%edx
-	LONG $0xf07be3c4; WORD $0x06d6
-	// rorx   $0x4,%r9d,%edi
-	LONG $0xf07bc3c4; WORD $0x04f9
-	// rorx   $0x2,%ecx,%eax
-	LONG $0xf07be3c4; WORD $0x02c1
-	// xor    %edx,%eax
-	WORD $0xd031
-	// xor    %r8d,%eax
-	WORD $0x3144; BYTE $0xc0
+	// rorx   $0x18,%esi,%eax
+	LONG $0xf07be3c4; WORD $0x18c6
+	// rorx   $0x1a,%r9d,%edx
+	LONG $0xf07bc3c4; WORD $0x1ad1
+	// rorx   $0x1c,%ecx,%edi
+	LONG $0xf07be3c4; WORD $0x1cf9
+	// xor    %eax,%edi
+	WORD $0xc731
+	// xor    %edx,%edi
+	WORD $0xd731
+	// rorx   $0x1e,%r8d,%eax
+	LONG $0xf07bc3c4; WORD $0x1ec0
 	// xor    %edi,%eax
 	WORD $0xf831
 	// xor    %edx,%edx
@@ -1515,24 +1533,26 @@ TEXT PBF7_Test(SB), NOSPLIT, $0
 	WORD $0x8948; BYTE $0xc1
 	// mov    %rdx,%rbp
 	WORD $0x8948; BYTE $0xd5
-	// rorx   $0x6,%ecx,%edx
-	LONG $0xf07be3c4; WORD $0x06d1
-	// mov    %rax,%rdi
-	WORD $0x8948; BYTE $0xc7
-	// shr    $0x20,%rdi
-	LONG $0x20efc148
-	// rorx   $0x2,%ebp,%eax
-	LONG $0xf07be3c4; WORD $0x02c5
+	// rorx   $0x18,%ecx,%eax
+	LONG $0xf07be3c4; WORD $0x18c1
+	// mov    %rcx,%rdx
+	WORD $0x8948; BYTE $0xca
+	// shr    $0x20,%rdx
+	LONG $0x20eac148
+	// rorx   $0x1c,%ebp,%edi
+	LONG $0xf07be3c4; WORD $0x1cfd
 	// mov    %rbp,%rsi
 	WORD $0x8948; BYTE $0xee
 	// shr    $0x20,%rsi
 	LONG $0x20eec148
-	// rorx   $0x4,%edi,%edi
-	LONG $0xf07be3c4; WORD $0x04ff
-	// xor    %edx,%eax
-	WORD $0xd031
-	// xor    %esi,%eax
-	WORD $0xf031
+	// rorx   $0x1a,%edx,%edx
+	LONG $0xf07be3c4; WORD $0x1ad2
+	// xor    %eax,%edi
+	WORD $0xc731
+	// xor    %edx,%edi
+	WORD $0xd731
+	// rorx   $0x1e,%esi,%eax
+	LONG $0xf07be3c4; WORD $0x1ec6
 	// xor    %edi,%eax
 	WORD $0xf831
 	// xor    %edx,%edx
@@ -1569,18 +1589,18 @@ TEXT PBF7_Test(SB), NOSPLIT, $0
 	LONG $0xc0dbf5c5
 	// vpsrld $0x5,%ymm0,%ymm1
 	LONG $0xd072f5c5; BYTE $0x05
-	// vmovdqa 0x4b(%rip),%ymm2        # c40 <PBF7_Test+0xe0>
-	QUAD $0x0000004b156ffdc5
+	// vmovdqa 0x45(%rip),%ymm2        # c40 <PBF7_Test+0xe0>
+	QUAD $0x00000045156ffdc5
 	// vpcmpeqd %ymm3,%ymm3,%ymm3
 	LONG $0xdb76e5c5
 	// vpgatherdd %ymm2,(%rax,%ymm1,4),%ymm3
 	LONG $0x906de2c4; WORD $0x881c
-	// vpbroadcastd 0x58(%rip),%ymm1        # c60 <PBF7_Test+0x100>
-	QUAD $0x0000580d587de2c4; BYTE $0x00
+	// vpbroadcastd 0x52(%rip),%ymm1        # c60 <PBF7_Test+0x100>
+	QUAD $0x0000520d587de2c4; BYTE $0x00
 	// vpand  %ymm1,%ymm0,%ymm0
 	LONG $0xc1dbfdc5
-	// vpbroadcastd 0x4f(%rip),%ymm1        # c64 <PBF7_Test+0x104>
-	QUAD $0x00004f0d587de2c4; BYTE $0x00
+	// vpbroadcastd 0x49(%rip),%ymm1        # c64 <PBF7_Test+0x104>
+	QUAD $0x0000490d587de2c4; BYTE $0x00
 	// vpsllvd %ymm0,%ymm1,%ymm0
 	LONG $0x4775e2c4; BYTE $0xc0
 	// vpandn %ymm0,%ymm3,%ymm1
@@ -1603,8 +1623,8 @@ TEXT PBF7_Test(SB), NOSPLIT, $0
 	WORD $0xf8c5; BYTE $0x77
 	// ret    
 	BYTE $0xc3
-	// data 52
-	QUAD $0x0000841f0f2e6666; QUAD $0xffffffff90000000; QUAD $0xffffffffffffffff; QUAD $0xffffffffffffffff; QUAD $0xffffffffffffffff; QUAD $0x0000001f00000000; LONG $0x00000001
+	// data 46
+	QUAD $0xffff0000441f0f66; QUAD $0xffffffffffffffff; QUAD $0xffffffffffffffff; QUAD $0xffffffffffffffff; QUAD $0x001f00000000ffff; LONG $0x00010000; WORD $0x0000
 
 TEXT PBF8_Set(SB), NOSPLIT, $0
 	// push   %rbp
@@ -1641,16 +1661,18 @@ TEXT PBF8_Set(SB), NOSPLIT, $0
 	WORD $0x8949; BYTE $0xd0
 	// shr    $0x20,%r8
 	LONG $0x20e8c149
-	// rorx   $0x6,%esi,%edx
-	LONG $0xf07be3c4; WORD $0x06d6
-	// rorx   $0x4,%r10d,%edi
-	LONG $0xf07bc3c4; WORD $0x04fa
-	// rorx   $0x2,%ecx,%eax
-	LONG $0xf07be3c4; WORD $0x02c1
-	// xor    %edx,%eax
-	WORD $0xd031
-	// xor    %r8d,%eax
-	WORD $0x3144; BYTE $0xc0
+	// rorx   $0x18,%esi,%eax
+	LONG $0xf07be3c4; WORD $0x18c6
+	// rorx   $0x1a,%r10d,%edx
+	LONG $0xf07bc3c4; WORD $0x1ad2
+	// rorx   $0x1c,%ecx,%edi
+	LONG $0xf07be3c4; WORD $0x1cf9
+	// xor    %eax,%edi
+	WORD $0xc731
+	// xor    %edx,%edi
+	WORD $0xd731
+	// rorx   $0x1e,%r8d,%eax
+	LONG $0xf07bc3c4; WORD $0x1ec0
 	// xor    %edi,%eax
 	WORD $0xf831
 	// xor    %edx,%edx
@@ -1867,24 +1889,26 @@ TEXT PBF8_Test(SB), NOSPLIT, $0
 	WORD $0x8948; BYTE $0xc1
 	// mov    %rdx,%rbp
 	WORD $0x8948; BYTE $0xd5
-	// rorx   $0x6,%ecx,%edx
-	LONG $0xf07be3c4; WORD $0x06d1
-	// mov    %rax,%rdi
-	WORD $0x8948; BYTE $0xc7
-	// shr    $0x20,%rdi
-	LONG $0x20efc148
-	// rorx   $0x2,%ebp,%eax
-	LONG $0xf07be3c4; WORD $0x02c5
+	// rorx   $0x18,%ecx,%eax
+	LONG $0xf07be3c4; WORD $0x18c1
+	// mov    %rcx,%rdx
+	WORD $0x8948; BYTE $0xca
+	// shr    $0x20,%rdx
+	LONG $0x20eac148
+	// rorx   $0x1c,%ebp,%edi
+	LONG $0xf07be3c4; WORD $0x1cfd
 	// mov    %rbp,%rsi
 	WORD $0x8948; BYTE $0xee
 	// shr    $0x20,%rsi
 	LONG $0x20eec148
-	// rorx   $0x4,%edi,%edi
-	LONG $0xf07be3c4; WORD $0x04ff
-	// xor    %edx,%eax
-	WORD $0xd031
-	// xor    %esi,%eax
-	WORD $0xf031
+	// rorx   $0x1a,%edx,%edx
+	LONG $0xf07be3c4; WORD $0x1ad2
+	// xor    %eax,%edi
+	WORD $0xc731
+	// xor    %edx,%edi
+	WORD $0xd731
+	// rorx   $0x1e,%esi,%eax
+	LONG $0xf07be3c4; WORD $0x1ec6
 	// xor    %edi,%eax
 	WORD $0xf831
 	// xor    %edx,%edx
@@ -1927,12 +1951,12 @@ TEXT PBF8_Test(SB), NOSPLIT, $0
 	LONG $0xdbefe1c5
 	// vpgatherdd %ymm2,(%rax,%ymm1,4),%ymm3
 	LONG $0x906de2c4; WORD $0x881c
-	// vpbroadcastd 0x2c(%rip),%ymm1        # ef0 <PBF8_Test+0xd0>
-	QUAD $0x00002c0d587de2c4; BYTE $0x00
+	// vpbroadcastd 0x2e(%rip),%ymm1        # ef8 <PBF8_Test+0xd8>
+	QUAD $0x00002e0d587de2c4; BYTE $0x00
 	// vpand  %ymm1,%ymm0,%ymm0
 	LONG $0xc1dbfdc5
-	// vpbroadcastd 0x23(%rip),%ymm1        # ef4 <PBF8_Test+0xd4>
-	QUAD $0x0000230d587de2c4; BYTE $0x00
+	// vpbroadcastd 0x25(%rip),%ymm1        # efc <PBF8_Test+0xdc>
+	QUAD $0x0000250d587de2c4; BYTE $0x00
 	// vpsllvd %ymm0,%ymm1,%ymm0
 	LONG $0x4775e2c4; BYTE $0xc0
 	// vpandn %ymm0,%ymm3,%ymm1
@@ -1955,6 +1979,6 @@ TEXT PBF8_Test(SB), NOSPLIT, $0
 	WORD $0xf8c5; BYTE $0x77
 	// ret    
 	BYTE $0xc3
-	// data 8
-	QUAD $0x000000010000001f
+	// data 10
+	QUAD $0x00010000001f9066; WORD $0x0000
 

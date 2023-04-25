@@ -86,13 +86,13 @@ func (bf *pageBloomFilter) test(way uint32, key string) bool {
 }
 
 func rot32(x uint32, k int) uint32 {
-	return (x >> k) | (x << (32 - k))
+	return (x << k) | (x >> (32 - k))
 }
 
 func hash(str string) (uint32, [8]uint16) {
 	l, h := hash128(str)
 	w := [4]uint32{uint32(l), uint32(l >> 32), uint32(h), uint32(h >> 32)}
-	return rot32(w[0], 6) ^ rot32(w[1], 4) ^ rot32(w[2], 2) ^ w[3],
+	return rot32(w[0], 8) ^ rot32(w[1], 6) ^ rot32(w[2], 4) ^ rot32(w[3], 2),
 		[8]uint16{
 			uint16(w[0]), uint16(w[0] >> 16),
 			uint16(w[1]), uint16(w[1] >> 16),

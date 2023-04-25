@@ -103,7 +103,7 @@ public class PageBloomFilter {
     }
 
     private static int rot(int x, int k) {
-        return (x >>> k) | (x << (32 - k));
+        return (x << k) | (x >>> (32 - k));
     }
 
     private static final class HashResult {
@@ -117,7 +117,7 @@ public class PageBloomFilter {
         int w2 = (int)code.high;
         int w3 = (int)(code.high>>>32);
         HashResult ret = new HashResult();
-        long x = rot(w0, 6) ^ rot(w1, 4) ^ rot(w2, 2) ^ w3;
+        long x = rot(w0, 8) ^ rot(w1, 6) ^ rot(w2, 4) ^ rot(w3, 2);
         ret.offset = (int)((x & 0xffffffffL) % pageNum);
         ret.offset <<= pageLevel;
         ret.codes[0] = w0 & 0xffff;

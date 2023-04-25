@@ -19,11 +19,11 @@ union V128X {
 };
 
 static FORCE_INLINE uint32_t Rot32(uint32_t x, unsigned k) noexcept {
-	return (x >> k) | (x << (32U - k));
+	return (x << k) | (x >> (32U - k));
 }
 
 static FORCE_INLINE uint32_t PageHash(V128X t) noexcept {
-	return Rot32(t.w[0], 6) ^ Rot32(t.w[1], 4) ^ Rot32(t.w[2], 2) ^ t.w[3];
+	return Rot32(t.w[0], 8) ^ Rot32(t.w[1], 6) ^ Rot32(t.w[2], 4) ^ Rot32(t.w[3], 2);
 }
 
 template <unsigned N>
