@@ -32,21 +32,21 @@ public class Benchmark {
     private static DeltaTime benchmark( PageBloomFilter bf) {
         byte[] key = new byte[8];
 
-        long start = System.nanoTime();
+        long begin = System.nanoTime();
         for (long i = 0; i < N; i += 2) {
             intToKey(i, key);
             bf.set(key);
         }
         long end = System.nanoTime();
-        long deltaSet = end - start;
+        long deltaSet = end - begin;
 
-        start = System.nanoTime();
+        begin = System.nanoTime();
         for (long i = 0; i < N; i++) {
             intToKey(i, key);
             bf.test(key);
         }
         end = System.nanoTime();
-        long deltaTest = end - start;
+        long deltaTest = end - begin;
 
         return new DeltaTime(deltaSet,deltaTest);
     }
@@ -54,21 +54,21 @@ public class Benchmark {
     private static DeltaTime benchmark(BloomFilter<byte[]> bf) {
         byte[] key = new byte[8];
 
-        long start = System.nanoTime();
+        long begin = System.nanoTime();
         for (long i = 0; i < N; i += 2) {
             intToKey(i, key);
             bf.put(key);
         }
         long end = System.nanoTime();
-        long deltaSet = end - start;
+        long deltaSet = end - begin;
 
-        start = System.nanoTime();
+        begin = System.nanoTime();
         for (long i = 0; i < N; i++) {
             intToKey(i, key);
             bf.mightContain(key);
         }
         end = System.nanoTime();
-        long deltaTest = end - start;
+        long deltaTest = end - begin;
 
         return new DeltaTime(deltaSet,deltaTest);
     }

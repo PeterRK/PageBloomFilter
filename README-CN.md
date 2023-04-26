@@ -15,10 +15,10 @@
 // 有效容量500，假阳率0.01
 bf := NewBloomFilter(500, 0.01)
 if bf.Set("Hello") {
-	fmt.Println("set new Hello")
+    fmt.Println("set new Hello")
 }
 if bf.Test("Hello") {
-	fmt.Println("find Hello")
+    fmt.Println("find Hello")
 }
 ```
 
@@ -54,10 +54,10 @@ BenchmarkPageBloomFilterTest-6           1000000                20.58 ns/op
 PageBloomFilter bf = PageBloomFilter.New(500, 0.01);
 byte[] hello = "Hello".getBytes("UTF-8");
 if (bf.set(hello)) {
-	System.out.println("set new Hello")
+    System.out.println("set new Hello");
 }
 if (bf.test(hello)) {
-	System.out.println("find Hello")
+    System.out.println("find Hello");
 }
 ```
 [测评](java/src/test/java/rk/pbf/Benchmark.java) 表明本实现比Google的Guava要快很多。不过，由于缺少针对性优化，Java版没有Go版快。
@@ -67,6 +67,39 @@ pbf-set:     61.864632 ns/op
 pbf-test:    45.849427 ns/op
 guava-set:  144.784601 ns/op
 guava-test: 122.613304 ns/op
+```
+
+## C#版
+```csharp
+var bf = PageBloomFilter.New(N, 0.01);
+var hello = Encoding.ASCII.GetBytes("Hello")
+if (bf.Set(hello)) {
+    Console.WriteLine("set new Hello");
+}
+if (bf.Test(hello)) {
+    Console.WriteLine("find Hello");
+}
+```
+C#版代码和Java版高度一致，不过跑出来要慢不少。
+```
+// i7-10710U & .NET-7
+pbf-set:  84.150676 ns/op
+pbf-test: 76.069641 ns/op
+```
+
+## Python版
+```python
+bf = pbf.create(500, 0.01)
+if bf.set("Hello"):
+    print("set new Hello")
+if bf.test("Hello"):
+    print("find Hello")
+```
+Python版基于C扩展实现，不过还是慢。
+```
+// i7-10710U & Python-3.11.3
+pbf-set:  307.835638 ns/op
+pbf-test: 289.679349 ns/op
 ```
 
 ## 理论分析

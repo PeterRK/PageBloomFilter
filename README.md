@@ -54,10 +54,10 @@ BenchmarkPageBloomFilterTest-6           1000000                20.58 ns/op
 PageBloomFilter bf = PageBloomFilter.New(500, 0.01);
 byte[] hello = "Hello".getBytes("UTF-8");
 if (bf.set(hello)) {
-	System.out.println("set new Hello")
+	System.out.println("set new Hello");
 }
 if (bf.test(hello)) {
-	System.out.println("find Hello")
+	System.out.println("find Hello");
 }
 ```
 [Benchmark](java/src/test/java/rk/pbf/Benchmark.java) shows it runs much faster than Google's Guava. We see Java version without dedicated optimization is inferior to the Go version.
@@ -67,6 +67,39 @@ pbf-set:     61.864632 ns/op
 pbf-test:    45.849427 ns/op
 guava-set:  144.784601 ns/op
 guava-test: 122.613304 ns/op
+```
+
+## C# Version
+```csharp
+var bf = PageBloomFilter.New(500, 0.01);
+var hello = Encoding.ASCII.GetBytes("Hello")
+if (bf.Set(hello)) {
+	Console.WriteLine("set new Hello");
+}
+if (bf.Test(hello)) {
+	Console.WriteLine("find Hello");
+}
+```
+C# code is very similar to Java code, but runs slower.
+```
+// i7-10710U & .NET-7
+pbf-set:  84.150676 ns/op
+pbf-test: 76.069641 ns/op
+```
+
+## Python Version
+```python
+bf = pbf.create(500, 0.01)
+if bf.set("Hello"):
+    print("set new Hello")
+if bf.test("Hello"):
+    print("find Hello")
+```
+Python with c extension is still slow.
+```
+// i7-10710U & Python-3.11.3
+pbf-set:  307.835638 ns/op
+pbf-test: 289.679349 ns/op
 ```
 
 ## Theoretical Analysis
