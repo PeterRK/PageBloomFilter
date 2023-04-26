@@ -19,7 +19,7 @@ public class PageBloomFilter {
     public int getPageNum() { return pageNum; }
 
     public long getUniqueCnt() { return uniqueCnt; }
-    public final byte[] getData() { return data; }
+    public byte[] getData() { return data; }
 
     private static final double LN2 = Math.log(2);
 
@@ -99,7 +99,7 @@ public class PageBloomFilter {
         this.pageLevel = pageLevel;
         this.pageNum = data.length / pageSize;
         this.uniqueCnt = uniqueCnt;
-        this.data = Arrays.copyOf(data, data.length);
+        this.data = (byte[])data.clone();
     }
 
     public void clear() {

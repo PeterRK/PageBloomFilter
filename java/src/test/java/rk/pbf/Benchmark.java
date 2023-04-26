@@ -77,7 +77,7 @@ public class Benchmark {
         int loop = 100;
 
         PageBloomFilter bf1 = PageBloomFilter.New(N, 0.01);
-        benchmark(bf1); //warm-up
+        benchmark(bf1); //warm up
 
         long set = 0;
         long test = 0;
@@ -92,7 +92,7 @@ public class Benchmark {
 
 
         BloomFilter<byte[]> bf2 = BloomFilter.create(Funnels.byteArrayFunnel(), N, 0.01);
-        benchmark(bf2); //warm-up
+        benchmark(bf2); //warm up
 
         set = 0;
         test = 0;
