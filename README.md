@@ -95,11 +95,13 @@ if bf.set("Hello"):
 if bf.test("Hello"):
     print("find Hello")
 ```
-Python with c extension is still slow.
+Python with c extension is still slow, but 8x time faster than [pybloom](https://github.com/jaybaird/python-bloomfilter).
 ```
 // i7-10710U & Python-3.11.3
-pbf-set:  307.835638 ns/op
-pbf-test: 289.679349 ns/op
+pbf-set:       307.835638 ns/op
+pbf-test:      289.679349 ns/op
+pybloom-set:  2770.372372 ns/op
+pybloom-test: 2417.377588 ns/op
 ```
 
 ## Theoretical Analysis

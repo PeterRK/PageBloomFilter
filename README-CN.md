@@ -95,11 +95,13 @@ if bf.set("Hello"):
 if bf.test("Hello"):
     print("find Hello")
 ```
-Python版基于C扩展实现，不过还是慢。
+Python版基于C扩展实现，虽然还是慢，不过足以吊打[pybloom](https://github.com/jaybaird/python-bloomfilter)。
 ```
 // i7-10710U & Python-3.11.3
-pbf-set:  307.835638 ns/op
-pbf-test: 289.679349 ns/op
+pbf-set:       307.835638 ns/op
+pbf-test:      289.679349 ns/op
+pybloom-set:  2770.372372 ns/op
+pybloom-test: 2417.377588 ns/op
 ```
 
 ## 理论分析
