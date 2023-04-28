@@ -9,6 +9,17 @@
 ![](images/EPYC-7K83.png)
 在EPYC-7K83上测试表现略逊，SIMD加速效果不明显。
 
+## API
+```cpp
+auto bf = NEW_BLOOM_FILTER(500, 0.01);
+if (bf.set("Hello")) {
+    std::cout << "set new Hello" << std::endl;
+}
+if (bf.test("Hello")) {
+    std::cout << "find Hello" << std::endl;
+}
+```
+
 ## Go版
 
 ```go

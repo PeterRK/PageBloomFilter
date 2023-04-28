@@ -10,6 +10,14 @@ int main(int argc,char **argv){
 	return RUN_ALL_TESTS();
 }
 
+TEST(PBF, New) {
+	auto bf = NEW_BLOOM_FILTER(500, 0.01);
+	ASSERT_FALSE(!bf);
+	ASSERT_EQ(bf.way(), 7);
+	ASSERT_EQ(bf.page_level(), 8);
+	ASSERT_EQ(bf.data_size(), 768);
+}
+
 template <unsigned N>
 void DoTest() {
 	pbf::PageBloomFilter<N> bf(7, 3);

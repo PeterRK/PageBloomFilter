@@ -9,16 +9,27 @@ We got average latency per operation under 25ns in a benchmark with 500k element
 ![](images/EPYC-7K83.png)
 It runs slower on EPYC-7K83 machine.
 
+## API
+```cpp
+auto bf = NEW_BLOOM_FILTER(500, 0.01);
+if (bf.set("Hello")) {
+    std::cout << "set new Hello" << std::endl;
+}
+if (bf.test("Hello")) {
+    std::cout << "find Hello" << std::endl;
+}
+```
+
 ## Go Version
 
 ```go
 // BloomFilter with 0.01 false positive rate for 500 items
 bf := NewBloomFilter(500, 0.01)
 if bf.Set("Hello") {
-	fmt.Println("set new Hello")
+    fmt.Println("set new Hello")
 }
 if bf.Test("Hello") {
-	fmt.Println("find Hello")
+    fmt.Println("find Hello")
 }
 ```
 
@@ -54,10 +65,10 @@ BenchmarkPageBloomFilterTest-6           1000000                20.58 ns/op
 PageBloomFilter bf = PageBloomFilter.New(500, 0.01);
 byte[] hello = "Hello".getBytes("UTF-8");
 if (bf.set(hello)) {
-	System.out.println("set new Hello");
+    System.out.println("set new Hello");
 }
 if (bf.test(hello)) {
-	System.out.println("find Hello");
+    System.out.println("find Hello");
 }
 ```
 [Benchmark](java/src/test/java/rk/pbf/Benchmark.java) shows it runs much faster than Google's Guava. We see Java version without dedicated optimization is inferior to the Go version.
@@ -74,10 +85,10 @@ guava-test: 122.613304 ns/op
 var bf = PageBloomFilter.New(500, 0.01);
 var hello = Encoding.ASCII.GetBytes("Hello")
 if (bf.Set(hello)) {
-	Console.WriteLine("set new Hello");
+    Console.WriteLine("set new Hello");
 }
 if (bf.Test(hello)) {
-	Console.WriteLine("find Hello");
+    Console.WriteLine("find Hello");
 }
 ```
 C# code is very similar to Java code, but runs slower.

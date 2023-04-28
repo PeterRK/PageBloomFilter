@@ -72,7 +72,7 @@ def create(item, fpr):
 
     n = int(bpi * item)
     page_level = None
-    for i in range(7, 13):
+    for i in range(6, 12):
         if n >= (1 << (i+2)):
             continue
         page_level = i

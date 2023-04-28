@@ -6,9 +6,12 @@
 #ifndef PAGE_BLOOM_FILTER_H
 #define PAGE_BLOOM_FILTER_H
 
+#include <cmath>
 #include <cstdint>
 #include <cstddef>
+#include <cassert>
 #include <memory>
+#include <algorithm>
 #include <type_traits>
 
 namespace pbf {
@@ -117,6 +120,7 @@ public:
 	size_t capacity() const noexcept {
 		return data_size() * 8 / N;
 	}
+	unsigned way() const noexcept { return N; }
 
 	bool test(const uint8_t* data, unsigned len) const noexcept;
 	bool set(const uint8_t* data, unsigned len) noexcept;
@@ -127,6 +131,53 @@ extern template class PageBloomFilter<5>;
 extern template class PageBloomFilter<6>;
 extern template class PageBloomFilter<7>;
 extern template class PageBloomFilter<8>;
+
+static constexpr unsigned BestWay(float fpr) noexcept {
+	fpr = std::min(std::max(fpr, 0.0005f), 0.1f);
+	auto n = static_cast<unsigned>(2.0f / fpr);
+	n += 1;
+	for (unsigned i = 1; i < 32; i++) {
+		if ((n & (0xfffffffe << i)) == 0) {
+			return std::min(std::max(i, 4u), 8u);
+		}
+	}
+	return 0;
+}
+
+template <unsigned N>
+static PageBloomFilter<N> New(size_t item, float fpr) {
+	assert(N == BestWay(fpr));
+	item = std::max(item, 1UL);
+	fpr = std::min(std::max(fpr, 0.0005f), 0.1f);
+	auto w = -std::log2(fpr);
+	auto bpi = w / (std::log(2) * 8);
+	if (w > 8) {
+		bpi *= 1.025;
+	} else if (w > 4) {
+		bpi *= 1.01;
+	}
+	auto n = static_cast<size_t>(bpi * static_cast<double>(item));
+	unsigned page_level = 0;
+	for (unsigned i = 6; i < 12; i++) {
+		if (n < (1UL << (i + 2))) {
+			page_level = i;
+			if (page_level < (8 - 8/N)) {
+				page_level++;
+			}
+			break;
+		}
+	}
+	if (page_level == 0) {
+		page_level = 12;
+	}
+	size_t page_num = (n + (1UL << page_level) - 1) >> page_level;
+	if (page_num > INT32_MAX) {
+		page_num = 0;
+	}
+	return PageBloomFilter<N>(page_level, page_num);
+}
+
+#define NEW_BLOOM_FILTER(item, fpr) pbf::New<pbf::BestWay(fpr)>(item, fpr)
 
 } //pbf
 #endif //PAGE_BLOOM_FILTER_H

@@ -48,7 +48,7 @@ func NewBloomFilter(item int, fpr float64) PageBloomFilter {
 
 	n := uint64(bpi * float64(item))
 	pageLevel := uint32(0)
-	for i := uint32(7); i < 12; i++ {
+	for i := uint32(6); i < 12; i++ {
 		if n < (1 << (i + 2)) {
 			pageLevel = i
 			if pageLevel < (8 - 8/way) {

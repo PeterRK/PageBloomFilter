@@ -46,7 +46,7 @@ public class PageBloomFilter {
 
         long n = (long)(bytesPerItem * item);
         int pageLevel = 0;
-        for (int i = 7; i < 12; i++) {
+        for (int i = 6; i < 12; i++) {
             if (n < (1L << (i + 2))) {
                 pageLevel = i;
                 if (pageLevel < (8 - 8/way)) {
