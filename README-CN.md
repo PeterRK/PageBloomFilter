@@ -115,6 +115,24 @@ pybloom-set:  2770.372372 ns/op
 pybloom-test: 2417.377588 ns/op
 ```
 
+## Rust版
+```rust
+let mut bf = pbf::new_bloom_filter(n, 0.01);
+let hello = "Hello".as_bytes();
+if (bf.set(hello)) {
+    println!("set new Hello");
+}
+if (bf.test(hello)) {
+    println!("find Hello");
+}
+```
+Rust版也缺少针对性优化，照样吊打Java。由于我是Rust新手，或许Rust版本应更快。
+```
+// i7-10710U & Rust-1.65.0
+pbf-set:  45.99ns/op
+pbf-test: 27.81ns/op
+```
+
 ## 理论分析
 
 ### 每元素字节数与假阳率的关系

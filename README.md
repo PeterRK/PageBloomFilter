@@ -115,6 +115,24 @@ pybloom-set:  2770.372372 ns/op
 pybloom-test: 2417.377588 ns/op
 ```
 
+## Rust Version
+```rust
+let mut bf = pbf::new_bloom_filter(n, 0.01);
+let hello = "Hello".as_bytes();
+if (bf.set(hello)) {
+    println!("set new Hello");
+}
+if (bf.test(hello)) {
+    println!("find Hello");
+}
+```
+Rust verison is also lack of dedicated optimiztion, but faster than Java version a lot. I believe it sould be a more faster, because I am new at this language.
+```
+// i7-10710U & Rust-1.65.0
+pbf-set:  45.99ns/op
+pbf-test: 27.81ns/op
+```
+
 ## Theoretical Analysis
 
 ### Bytes per element - False positive rate
