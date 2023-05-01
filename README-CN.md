@@ -117,7 +117,7 @@ pybloom-test: 2417.377588 ns/op
 
 ## Rust版
 ```rust
-let mut bf = pbf::new_bloom_filter(n, 0.01);
+let mut bf = pbf::new_bloom_filter(500, 0.01);
 let hello = "Hello".as_bytes();
 if (bf.set(hello)) {
     println!("set new Hello");
