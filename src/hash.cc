@@ -21,7 +21,7 @@ V128 Hash(const uint8_t* msg, unsigned len) noexcept {
 		V128 v;
 		__m128i m;
 	} t;
-	t.m = AESNI_Hash128(msg, len);
+	t.m = aesni::Hash128(msg, len);
 	return t.v;
 }
 #elif defined(USE_XXHASH)
