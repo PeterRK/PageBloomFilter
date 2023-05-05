@@ -9,41 +9,20 @@
 #include <stdint.h>
 #include <immintrin.h>
 
-namespace aesni {
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-template <bool TURBO>
-static __m128i _Hash128(const uint8_t* msg, unsigned len, uint32_t seed) noexcept {
-	auto a = _mm_set1_epi32(seed);
-	auto b = _mm_set1_epi32(len);
-	auto m = _mm_set_epi32(0xdeadbeef, 0xffff0000, 0x01234567, 0x89abcdef);
-	auto s = _mm_set_epi8(3,7,11,15, 2,6,10,14, 1,5,9,13, 0,4,8,12);
+static inline __m128i AESNI_Hash128(const uint8_t* msg, unsigned len, uint32_t seed=0) {
+	__m128i a = _mm_set1_epi32(seed);
+	__m128i b = _mm_set1_epi32(len);
+	__m128i c = _mm_set_epi32(0xdeadbeef, 0xffff0000, 0x01234567, 0x89abcdef);
 
-	if (TURBO && len >= 64) { // TURBO mode is faster with lower quality
-		auto c = _mm_aesenc_si128(a, m);
-		auto d = _mm_aesdec_si128(b, m);
-		do {
-			a = _mm_aesenc_si128(_mm_lddqu_si128((const __m128i*)msg), a);
-			b = _mm_aesdec_si128(_mm_lddqu_si128((const __m128i*)(msg+16)), b);
-			c = _mm_aesenc_si128(_mm_lddqu_si128((const __m128i*)(msg+32)), c);
-			d = _mm_aesdec_si128(_mm_lddqu_si128((const __m128i*)(msg+48)), d);
-			a = _mm_aesenc_si128(a, m);
-			b = _mm_aesdec_si128(b, m);
-			c = _mm_aesenc_si128(c, m);
-			d = _mm_aesdec_si128(d, m);
-			msg += 64;
-			len -= 64;
-		} while (len >= 64);
-		a = _mm_aesenc_si128(a, c);
-		b = _mm_aesdec_si128(b, d);
-		a = _mm_aesenc_si128(a, m);
-		b = _mm_aesdec_si128(b, m);
-	}
-
-	auto mix = [&a, &b, m, s](__m128i x) {
+	auto mix = [&a, &b, &c](__m128i x) {
 		a = _mm_aesenc_si128(x, a);
-		a = _mm_aesenc_si128(a, m);
-		b = _mm_aesdec_si128(_mm_xor_si128(x, b), m);
-		b = _mm_shuffle_epi8(b, s);
+		b = _mm_aesdec_si128(x, b);
+		a = _mm_aesenc_si128(a, c);
+		b = _mm_aesdec_si128(b, c);
 	};
 
 	while (len >= 16) {
@@ -96,31 +75,17 @@ static __m128i _Hash128(const uint8_t* msg, unsigned len, uint32_t seed) noexcep
 	return _mm_aesenc_si128(a, b);
 }
 
-static inline __m128i Hash128(const uint8_t* msg, unsigned len, uint32_t seed=0) {
-	return aesni::_Hash128<false>(msg, len, seed);
-}
-
-static inline uint64_t Hash64(const uint8_t* msg, unsigned len, uint32_t seed=0) {
+static inline uint64_t AESNI_Hash64(const uint8_t* msg, unsigned len, uint32_t seed=0) {
 	union {
 		uint64_t x[2];
 		__m128i v;
 	} t;
-	t.v = aesni::_Hash128<false>(msg, len, seed);
+	t.v = AESNI_Hash128(msg, len, seed);
 	return t.x[0];
 }
 
-static inline __m128i Hash128T(const uint8_t* msg, unsigned len, uint32_t seed=0) {
-	return aesni::_Hash128<true>(msg, len, seed);
+#ifdef __cplusplus
 }
+#endif
 
-static inline uint64_t Hash64T(const uint8_t* msg, unsigned len, uint32_t seed=0) {
-	union {
-		uint64_t x[2];
-		__m128i v;
-	} t;
-	t.v = aesni::_Hash128<true>(msg, len, seed);
-	return t.x[0] ^ t.x[1];
-}
-
-} // aesni
 #endif
