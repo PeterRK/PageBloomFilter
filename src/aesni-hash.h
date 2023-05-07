@@ -26,14 +26,14 @@ static __m128i AESNI_Hash128(const uint8_t* msg, unsigned len, uint32_t seed = 0
 		auto c = _mm_aesenc_si128(a, m);
 		auto d = _mm_aesdec_si128(b, m);
 		do {
-			a = _mm_aesenc_si128(_mm_xor_si128(a, _mm_lddqu_si128((const __m128i*)msg)), m);
-			b = _mm_aesdec_si128(_mm_xor_si128(b, _mm_lddqu_si128((const __m128i*)(msg + 16))), m);
-			c = _mm_aesenc_si128(_mm_xor_si128(c, _mm_lddqu_si128((const __m128i*)(msg + 32))), m);
-			d = _mm_aesdec_si128(_mm_xor_si128(d, _mm_lddqu_si128((const __m128i*)(msg + 48))), m);
-			a = _mm_shuffle_epi8(a, s);
-			b = _mm_shuffle_epi8(b, s);
-			c = _mm_shuffle_epi8(c, s);
-			d = _mm_shuffle_epi8(d, s);
+			a = _mm_xor_si128(a, _mm_lddqu_si128((const __m128i*)msg));
+			b = _mm_xor_si128(b, _mm_lddqu_si128((const __m128i*)(msg + 16)));
+			c = _mm_xor_si128(c, _mm_lddqu_si128((const __m128i*)(msg + 32)));
+			d = _mm_xor_si128(d, _mm_lddqu_si128((const __m128i*)(msg + 48)));
+			a = _mm_shuffle_epi8(_mm_aesenc_si128(a, m), s);
+			b = _mm_shuffle_epi8(_mm_aesdec_si128(b, m), s);
+			c = _mm_shuffle_epi8(_mm_aesenc_si128(c, m), s);
+			d = _mm_shuffle_epi8(_mm_aesdec_si128(d, m), s);
 			msg += 64;
 			len -= 64;
 		} while (len > 80);
