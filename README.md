@@ -10,7 +10,7 @@ We got average latency per operation under 25ns in a benchmark with 500k element
 It runs slower on EPYC-7K83 machine.
 
 ![](images/Xeon-8475B.png)
-Running test with SIMD on Xeon-8475B machine, we found aesni-hash helps a lot.
+Running test with SIMD on Xeon-8475B machine, we found aesni-hash helps a lot (**amazing fast test operation under 7ns**).
 
 ![](images/EPYC-9T24.png)
 Running test with SIMD on EPYC-9T24 machine, we found aesni-hash helps a little.

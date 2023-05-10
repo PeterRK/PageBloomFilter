@@ -10,7 +10,7 @@
 在EPYC-7K83上测试表现略逊，SIMD加速效果不明显。
 
 ![](images/Xeon-8475B.png)
-在Xeon-8475B上测试SIMD模式，使用aesni-hash可获得显著加速。
+在Xeon-8475B上测试SIMD模式，使用aesni-hash可获得显著加速（**小于7ns的test操作**）。
 
 ![](images/EPYC-9T24.png)
 在EPYC-9T24上测试SIMD模式，使用aesni-hash也可获得显著加速，但没有Intel平台上显著。
