@@ -66,7 +66,7 @@ fn test_new() {
 #[test]
 fn test_operate() {
     let _doit = |way: u8| {
-        let mut bf = pbf::PageBloomFilter::new(way, 7, 3);
+        let mut bf = pbf::new_pbf(way, 7, 3);
         for i in 0..200 {
             assert!(bf.set(&(i as u64).to_le_bytes()));
         }

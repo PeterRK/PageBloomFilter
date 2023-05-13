@@ -6,15 +6,19 @@ use crate::hash::hash128;
 use std::cmp::min;
 use std::cmp::max;
 
-pub struct PageBloomFilter {
-    way: u8,
-    page_level: u8,
-    page_num: u32,
-    unique_cnt: usize,
-    data: Vec<u8>,
+pub trait BloomFilter {
+    fn get_way(&self) -> u8;
+    fn get_page_level(&self) -> u8;
+    fn get_page_num(&self) -> u32;
+    fn get_unique_cnt(&self) -> usize;
+    fn get_data(&self) -> &Vec<u8>;
+    fn clear(&mut self);
+    fn valid(&self) -> bool;
+    fn set(&mut self, key: &[u8]) -> bool;
+    fn test(&self, key: &[u8]) -> bool;
 }
 
-pub fn new_bloom_filter(item: usize, fpr: f32) ->PageBloomFilter {
+pub fn new_bloom_filter(item: usize, fpr: f32) -> Box<dyn BloomFilter> {
     let mut rate = fpr;
     if rate < 0.0005 {
         rate = 0.0005;
@@ -50,82 +54,76 @@ pub fn new_bloom_filter(item: usize, fpr: f32) ->PageBloomFilter {
     if page_num > 0xffffffff {
         panic!("too many items");
     }
-    return PageBloomFilter::new(way, page_level, page_num as u32);
+
+    match way {
+        8 => Box::new(PageBloomFilter::<8>::new(page_level, page_num as u32)),
+        7 => Box::new(PageBloomFilter::<7>::new(page_level, page_num as u32)),
+        6 => Box::new(PageBloomFilter::<6>::new(page_level, page_num as u32)),
+        5 => Box::new(PageBloomFilter::<5>::new(page_level, page_num as u32)),
+        4 => Box::new(PageBloomFilter::<4>::new(page_level, page_num as u32)),
+        _ => panic!("no way"),
+    }
 }
 
-impl PageBloomFilter {
-    pub fn get_way(&self) -> u8 {
-        return self.way;
+pub fn new_pbf(way: u8, page_level: u8, page_num: u32) -> Box<dyn BloomFilter> {
+    match way {
+        8 => Box::new(PageBloomFilter::<8>::new(page_level, page_num)),
+        7 => Box::new(PageBloomFilter::<7>::new(page_level, page_num)),
+        6 => Box::new(PageBloomFilter::<6>::new(page_level, page_num)),
+        5 => Box::new(PageBloomFilter::<5>::new(page_level, page_num)),
+        4 => Box::new(PageBloomFilter::<4>::new(page_level, page_num)),
+        _ => panic!("no way"),
     }
-    pub fn get_page_level(&self) -> u8 {
+}
+
+pub fn recover_pbf(way: u8, page_level: u8, data: &Vec<u8>, unique_cnt: usize) -> Box<dyn BloomFilter> {
+    match way {
+        8 => Box::new(PageBloomFilter::<8>::recover(page_level, data, unique_cnt)),
+        7 => Box::new(PageBloomFilter::<7>::recover(page_level, data, unique_cnt)),
+        6 => Box::new(PageBloomFilter::<6>::recover(page_level, data, unique_cnt)),
+        5 => Box::new(PageBloomFilter::<5>::recover(page_level, data, unique_cnt)),
+        4 => Box::new(PageBloomFilter::<4>::recover(page_level, data, unique_cnt)),
+        _ => panic!("no way"),
+    }
+}
+
+pub struct PageBloomFilter<const W : u8> {
+    page_level: u8,
+    page_num: u32,
+    unique_cnt: usize,
+    data: Vec<u8>,
+}
+
+impl<const W : u8> BloomFilter for PageBloomFilter<W> {
+    fn get_way(&self) -> u8 {
+        return W;
+    }
+    fn get_page_level(&self) -> u8 {
         return self.page_level;
     }
-    pub fn get_page_num(&self) -> u32 {
+    fn get_page_num(&self) -> u32 {
         return self.page_num;
     }
-    pub fn get_unique_cnt(&self) -> usize {
+    fn get_unique_cnt(&self) -> usize {
         return self.unique_cnt;
     }
-    pub fn get_data(&self) -> &Vec<u8> {
+    fn get_data(&self) -> &Vec<u8> {
         return &self.data;
     }
 
-    pub fn new(way: u8, page_level: u8, page_num: u32) -> Self {
-        if way < 4 || way > 8 {
-            panic!("way should be 4-8");
-        }
-        if page_level < (8-8/way) || page_level > 13 {
-            panic!("pageLevel should be 7-13");
-        }
-        if page_num <= 0 {
-            panic!("pageNum should be positive");
-        }
-        return Self {
-            way: way,
-            page_level: page_level,
-            page_num: page_num,
-            unique_cnt: 0,
-            data: vec![0_u8; (page_num as usize) << page_level],
-        };
-    }
-
-    pub fn recover(way: u8, page_level: u8, data: &Vec<u8>, unique_cnt: usize) -> Self {
-        if way < 4 || way > 8 {
-            panic!("way should be 4-8");
-        }
-        if page_level < (8-8/way) || page_level > 13 {
-            panic!("pageLevel should be 7-13");
-        }
-        let page_size = 1_usize << page_level;
-        if data.len() == 0 || data.len()%page_size != 0 {
-            panic!("illegal data size");
-        }
-        let page_num = data.len() / page_size;
-        if page_num > 0xffffffff {
-            panic!("too big data");
-        }
-        return Self {
-            way: way,
-            page_level: page_level,
-            page_num: page_num as u32,
-            unique_cnt: unique_cnt,
-            data: data.clone(),
-        };
-    }
-
-    pub fn clear(&mut self) {
+    fn clear(&mut self) {
         self.data.fill(0_u8);
     }
-    pub fn valid(&self) -> bool {
+    fn valid(&self) -> bool {
         return self.data.len() != 0;
     }
 
-    pub fn set(&mut self, key: &[u8]) -> bool {
+    fn set(&mut self, key: &[u8]) -> bool {
         let (code, v) = page_hash(key);
         let off = ((code % self.page_num) as usize) << self.page_level;
         let mut hit = 1_u8;
         let mask = ((1 << (self.page_level + 3)) - 1) as u16;
-        for i in 0..self.way {
+        for i in 0..W {
             let idx = v[i as usize] & mask;
             let bit = 1_u8 << (idx & 7);
             hit &= self.data[off+(idx>>3) as usize] >> (idx & 7);
@@ -138,12 +136,12 @@ impl PageBloomFilter {
         return true;
     }
 
-    pub fn test(&self, key: &[u8]) -> bool {
+    fn test(&self, key: &[u8]) -> bool {
         let (code, v) = page_hash(key);
         let off = ((code % self.page_num) as usize) << self.page_level;
 
         let mask = ((1 << (self.page_level + 3)) - 1) as u16;
-        for i in 0..self.way {
+        for i in 0..W {
             let idx = v[i as usize] & mask;
             let bit = 1_u8 << (idx & 7);
             if (self.data[off+(idx>>3) as usize] & bit) == 0 {
@@ -154,12 +152,55 @@ impl PageBloomFilter {
     }
 }
 
+impl<const W : u8> PageBloomFilter<W> {
+    pub fn new(page_level: u8, page_num: u32) -> Self {
+        if W < 4 || W > 8 {
+            panic!("way should be 4-8");
+        }
+        if page_level < (8-8/W) || page_level > 13 {
+            panic!("pageLevel should be 7-13");
+        }
+        if page_num <= 0 {
+            panic!("pageNum should be positive");
+        }
+        return Self {
+            page_level: page_level,
+            page_num: page_num,
+            unique_cnt: 0,
+            data: vec![0_u8; (page_num as usize) << page_level],
+        };
+    }
+
+    pub fn recover(page_level: u8, data: &Vec<u8>, unique_cnt: usize) -> Self {
+        if W < 4 || W > 8 {
+            panic!("way should be 4-8");
+        }
+        if page_level < (8-8/W) || page_level > 13 {
+            panic!("pageLevel should be 7-13");
+        }
+        let page_size = 1_usize << page_level;
+        if data.len() == 0 || data.len()%page_size != 0 {
+            panic!("illegal data size");
+        }
+        let page_num = data.len() / page_size;
+        if page_num > 0xffffffff {
+            panic!("too big data");
+        }
+        return Self {
+            page_level: page_level,
+            page_num: page_num as u32,
+            unique_cnt: unique_cnt,
+            data: data.clone(),
+        };
+    }
+}
+
 #[inline(always)]
 fn rot(x: u32, k: u8) -> u32 {
     return (x << k) | (x >> (32 - k));
 }
 
-#[inline]
+#[inline(always)]
 fn page_hash(key: &[u8]) -> (u32, [u16; 8]) {
     let code = hash128(key);
     let w = [
@@ -167,10 +208,10 @@ fn page_hash(key: &[u8]) -> (u32, [u16; 8]) {
         code[1] as u32, (code[1] >> 32) as u32,
     ];
     return (rot(w[0], 8) ^ rot(w[1], 6) ^ rot(w[2], 4) ^ rot(w[3], 2),
-        [
-            w[0] as u16, (w[0] >> 16) as u16,
-            w[1] as u16, (w[1] >> 16) as u16,
-            w[2] as u16, (w[2] >> 16) as u16,
-            w[3] as u16, (w[3] >> 16) as u16,
-        ])
+            [
+                w[0] as u16, (w[0] >> 16) as u16,
+                w[1] as u16, (w[1] >> 16) as u16,
+                w[2] as u16, (w[2] >> 16) as u16,
+                w[3] as u16, (w[3] >> 16) as u16,
+            ])
 }
