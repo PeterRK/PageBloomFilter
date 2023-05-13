@@ -132,7 +132,7 @@ if (bf.test(hello)) {
     println!("find Hello");
 }
 ```
-Rust verison is also lack of dedicated optimiztion, but faster than Java version a lot. I believe it sould be a more faster, because I am new at this language.
+Rust verison is also lack of dedicated optimiztion, but faster than Java version a lot. I believe it sould be faster, because I am new at this language.
 ```
 // i7-10710U & Rust-1.65.0
 pbf-set:  45.99ns/op
