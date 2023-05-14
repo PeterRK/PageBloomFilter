@@ -139,6 +139,10 @@ pbf-set:  45.99ns/op
 pbf-test: 27.81ns/op
 ```
 
+# Ranking
+![](images/i7-10710U.png)
+With test data on i7-10710U machine, we got performance rank: C++, Go, Rust, Java, C#, Python.
+
 ## Theoretical Analysis
 
 ### Bytes per element - False positive rate
