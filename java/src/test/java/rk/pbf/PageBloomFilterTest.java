@@ -36,7 +36,7 @@ public class PageBloomFilterTest {
     }
 
     private void test(int way) {
-        PageBloomFilter bf = new PageBloomFilter(way, 7, 3);
+        PageBloomFilter bf = PageBloomFilter.New(way, 7, 3);
         byte[] key = new byte[8];
         for (long i = 0; i < 200; i++) {
             intToKey(i, key);

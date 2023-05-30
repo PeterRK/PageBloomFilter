@@ -73,6 +73,29 @@ public class Benchmark {
         return new DeltaTime(deltaSet,deltaTest);
     }
 
+
+    private static DeltaTime benchmark(bloomfilter.mutable.BloomFilter<byte[]> bf) {
+        byte[] key = new byte[8];
+
+        long begin = System.nanoTime();
+        for (long i = 0; i < N; i += 2) {
+            intToKey(i, key);
+            bf.add(key);
+        }
+        long end = System.nanoTime();
+        long deltaSet = end - begin;
+
+        begin = System.nanoTime();
+        for (long i = 0; i < N; i++) {
+            intToKey(i, key);
+            bf.mightContain(key);
+        }
+        end = System.nanoTime();
+        long deltaTest = end - begin;
+
+        return new DeltaTime(deltaSet,deltaTest);
+    }
+
     public static void main(String[] argv) {
         int loop = 100;
 
@@ -104,5 +127,22 @@ public class Benchmark {
         }
         System.out.printf("guava-set: %f ns/op\n", set / (double)(loop*N/2));
         System.out.printf("guava-test: %f ns/op\n", test / (double)(loop*N));
+
+
+        bloomfilter.mutable.BloomFilter<byte[]> bf3 = bloomfilter.mutable.BloomFilter.apply(
+                N, 0.01,
+                bloomfilter.CanGenerateHashFrom.CanGenerateHashFromByteArray$.MODULE$);
+        benchmark(bf3); //warm up
+
+        set = 0;
+        test = 0;
+        for (int i = 0; i < loop; i++) {
+            DeltaTime delta = benchmark(bf3);
+            set += delta.set;
+            test += delta.test;
+            // no clean api
+        }
+        System.out.printf("nikitin-set: %f ns/op\n", set / (double)(loop*N/2));
+        System.out.printf("nikitin-test: %f ns/op\n", test / (double)(loop*N));
     }
 }

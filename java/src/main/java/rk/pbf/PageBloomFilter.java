@@ -7,20 +7,22 @@ package rk.pbf;
 import java.lang.Math;
 import java.util.Arrays;
 
-public class PageBloomFilter {
-    private int way = 0;
+public abstract class PageBloomFilter {
     private int pageLevel = 0;
     private int pageNum = 0;
     private long uniqueCnt = 0;
     private byte[] data = null;
 
-    public int getWay() { return way; }
+    public abstract int getWay();
     public int getPageLevel() { return pageLevel; }
     public int getPageNum() { return pageNum; }
 
     public long getUniqueCnt() { return uniqueCnt; }
     public byte[] getData() { return data; }
 
+    public abstract boolean set(byte[] key);
+    public abstract boolean test(byte[] key);
+    
     private static final double LN2 = Math.log(2);
 
     public static PageBloomFilter New(long item, double falsePositiveRate) {
@@ -63,10 +65,21 @@ public class PageBloomFilter {
         if (pageNum > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("too many items");
         }
-        return new PageBloomFilter(way, pageLevel, (int)pageNum);
+        return New(way, pageLevel, (int)pageNum);
     }
 
-    public PageBloomFilter(int way, int pageLevel, int pageNum) {
+    public static PageBloomFilter New(int way, int pageLevel, int pageNum) {
+        switch (way) {
+            case 4: return new PageBloomFilter.Way4(pageLevel, pageNum);
+            case 5: return new PageBloomFilter.Way5(pageLevel, pageNum);
+            case 6: return new PageBloomFilter.Way6(pageLevel, pageNum);
+            case 7: return new PageBloomFilter.Way7(pageLevel, pageNum);
+            case 8: return new PageBloomFilter.Way8(pageLevel, pageNum);
+            default: throw new RuntimeException("illegal way");
+        }
+    }
+
+    protected PageBloomFilter(int way, int pageLevel, int pageNum) {
         if (way < 4 || way > 8) {
             throw new IllegalArgumentException("way should be 4-8");
         }
@@ -76,15 +89,13 @@ public class PageBloomFilter {
         if (pageNum <= 0) {
             throw new IllegalArgumentException("pageNum should be positive");
         }
-
-        this.way = way;
         this.pageLevel = pageLevel;
         this.pageNum = pageNum;
         this.uniqueCnt = 0;
         this.data = new byte[pageNum<<pageLevel];
     }
 
-    public PageBloomFilter(int way, int pageLevel, byte[] data, long uniqueCnt) {
+    protected PageBloomFilter(int way, int pageLevel, byte[] data, long uniqueCnt) {
         if (way < 4 || way > 8) {
             throw new IllegalArgumentException("way should be 4-8");
         }
@@ -95,7 +106,6 @@ public class PageBloomFilter {
         if (data == null || data.length == 0 || data.length%pageSize != 0) {
             throw new IllegalArgumentException("illegal data size");
         }
-        this.way = way;
         this.pageLevel = pageLevel;
         this.pageNum = data.length / pageSize;
         this.uniqueCnt = uniqueCnt;
@@ -135,7 +145,7 @@ public class PageBloomFilter {
         return ret;
     }
 
-    public boolean set(byte[] key) {
+    protected boolean set(int way, byte[] key) {
         HashResult h = hash(key);
         int mask = (1 << (pageLevel+3)) - 1;
         byte hit = 1;
@@ -152,7 +162,7 @@ public class PageBloomFilter {
         return true;
     }
 
-    public boolean test(byte[] key) {
+    protected boolean test(int way, byte[] key) {
         HashResult h = hash(key);
         int mask = (1 << (pageLevel+3)) - 1;
         for (int i = 0; i < way; i++) {
@@ -164,4 +174,131 @@ public class PageBloomFilter {
         }
         return true;
     }
+
+
+    public static class Way4 extends PageBloomFilter {
+        private static final int WAY = 4;
+
+        public Way4(int pageLevel, int pageNum) {
+            super(WAY, pageLevel, pageNum);
+        }
+
+        public Way4(int pageLevel, byte[] data, long uniqueCnt) {
+            super(WAY, pageLevel, data, uniqueCnt);
+        }
+
+        @Override
+        public int getWay() { return WAY; }
+
+        @Override
+        public boolean set(byte[] key) {
+            return set(WAY, key);
+        }
+
+        @Override
+        public boolean test(byte[] key) {
+            return test(WAY, key);
+        }
+    }
+
+    public static class Way5 extends PageBloomFilter {
+        private static final int WAY = 5;
+
+        public Way5(int pageLevel, int pageNum) {
+            super(WAY, pageLevel, pageNum);
+        }
+
+        public Way5(int pageLevel, byte[] data, long uniqueCnt) {
+            super(WAY, pageLevel, data, uniqueCnt);
+        }
+
+        @Override
+        public int getWay() { return WAY; }
+
+        @Override
+        public boolean set(byte[] key) {
+            return set(WAY, key);
+        }
+
+        @Override
+        public boolean test(byte[] key) {
+            return test(WAY, key);
+        }
+    }
+
+    public static class Way6 extends PageBloomFilter {
+        private static final int WAY = 6;
+
+        public Way6(int pageLevel, int pageNum) {
+            super(WAY, pageLevel, pageNum);
+        }
+
+        public Way6(int pageLevel, byte[] data, long uniqueCnt) {
+            super(WAY, pageLevel, data, uniqueCnt);
+        }
+
+        @Override
+        public int getWay() { return WAY; }
+
+        @Override
+        public boolean set(byte[] key) {
+            return set(WAY, key);
+        }
+
+        @Override
+        public boolean test(byte[] key) {
+            return test(WAY, key);
+        }
+    }
+
+    public static class Way7 extends PageBloomFilter {
+        private static final int WAY = 7;
+
+        public Way7(int pageLevel, int pageNum) {
+            super(WAY, pageLevel, pageNum);
+        }
+
+        public Way7(int pageLevel, byte[] data, long uniqueCnt) {
+            super(WAY, pageLevel, data, uniqueCnt);
+        }
+
+        @Override
+        public int getWay() { return WAY; }
+
+        @Override
+        public boolean set(byte[] key) {
+            return set(WAY, key);
+        }
+
+        @Override
+        public boolean test(byte[] key) {
+            return test(WAY, key);
+        }
+    }
+
+    public static class Way8 extends PageBloomFilter {
+        private static final int WAY = 8;
+
+        public Way8(int pageLevel, int pageNum) {
+            super(WAY, pageLevel, pageNum);
+        }
+
+        public Way8(int pageLevel, byte[] data, long uniqueCnt) {
+            super(WAY, pageLevel, data, uniqueCnt);
+        }
+
+        @Override
+        public int getWay() { return WAY; }
+
+        @Override
+        public boolean set(byte[] key) {
+            return set(WAY, key);
+        }
+
+        @Override
+        public boolean test(byte[] key) {
+            return test(WAY, key);
+        }
+    }
+
 }

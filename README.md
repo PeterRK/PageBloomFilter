@@ -77,13 +77,15 @@ if (bf.test(hello)) {
     System.out.println("find Hello");
 }
 ```
-[Benchmark](java/src/test/java/rk/pbf/Benchmark.java) shows it runs much faster than Google's Guava. We see Java version without dedicated optimization is inferior to the Go version.
+[Benchmark](java/src/test/java/rk/pbf/Benchmark.java) shows it runs much faster than Google's Guava and Alexandr Nikitin's bloom-filter-scala. We see Java version without dedicated optimization is inferior to the Go version.
 ```
 // i7-10710U & OpenJDK-17
-pbf-set:     61.864632 ns/op
-pbf-test:    45.849427 ns/op
-guava-set:  144.784601 ns/op
-guava-test: 122.613304 ns/op
+pbf-set:      50.962245 ns/op
+pbf-test:     40.465323 ns/op
+guava-set:   133.513980 ns/op
+guava-test:  112.318321 ns/op
+nikitin-set:  86.930928 ns/op
+nikitin-test: 62.133052 ns/op
 ```
 
 ## C# Version
@@ -100,8 +102,8 @@ if (bf.Test(hello)) {
 C# code is very similar to Java code, but runs slower.
 ```
 // i7-10710U & .NET-7
-pbf-set:  84.150676 ns/op
-pbf-test: 76.069641 ns/op
+pbf-set:  83.461274 ns/op
+pbf-test: 74.953785 ns/op
 ```
 
 ## Python Version

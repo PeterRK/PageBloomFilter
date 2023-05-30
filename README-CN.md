@@ -80,10 +80,12 @@ if (bf.test(hello)) {
 [测评](java/src/test/java/rk/pbf/Benchmark.java) 表明本实现比Google的Guava要快很多。不过，由于缺少针对性优化，Java版没有Go版快。
 ```
 // i7-10710U & OpenJDK-17
-pbf-set:     61.864632 ns/op
-pbf-test:    45.849427 ns/op
-guava-set:  144.784601 ns/op
-guava-test: 122.613304 ns/op
+pbf-set:      50.962245 ns/op
+pbf-test:     40.465323 ns/op
+guava-set:   133.513980 ns/op
+guava-test:  112.318321 ns/op
+nikitin-set:  86.930928 ns/op
+nikitin-test: 62.133052 ns/op
 ```
 
 ## C#版
@@ -100,8 +102,8 @@ if (bf.Test(hello)) {
 C#版代码和Java版高度一致，不过跑出来要慢不少。
 ```
 // i7-10710U & .NET-7
-pbf-set:  84.150676 ns/op
-pbf-test: 76.069641 ns/op
+pbf-set:  83.461274 ns/op
+pbf-test: 74.953785 ns/op
 ```
 
 ## Python版
@@ -132,7 +134,7 @@ if (bf.test(hello)) {
     println!("find Hello");
 }
 ```
-Rust版也缺少针对性优化，照样吊打Java。由于我是Rust新手，或许Rust版本应更快。
+Rust版也缺少针对性优化，照样快过Java。由于我是Rust新手，或许Rust版本应更快。
 ```
 // i7-10710U & Rust-1.65.0
 pbf-set:  45.99ns/op
