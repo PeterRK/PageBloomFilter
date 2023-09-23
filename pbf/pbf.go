@@ -5,7 +5,6 @@
 package pbf
 
 import (
-	"bytes"
 	"math"
 	"reflect"
 	"unsafe"
@@ -111,11 +110,13 @@ func CreatePageBloomFilter(way, pageLevel uint32, data []byte,
 		len(data) == 0 || len(data)%pageSize != 0 {
 		return nil
 	}
+	temp := make([]byte, len(data))
+	copy(temp, data)
 	return cast(way, &pageBloomFilter{
 		pageLevel: pageLevel,
 		pageNum:   uint32(len(data) / pageSize),
 		uniqueCnt: uniqueCnt,
-		data:      bytes.Clone(data),
+		data:      temp,
 	})
 }
 
