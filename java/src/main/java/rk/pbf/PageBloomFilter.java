@@ -20,6 +20,15 @@ public abstract class PageBloomFilter {
     public long getUniqueCnt() { return uniqueCnt; }
     public byte[] getData() { return data; }
 
+    public long capacity() {
+         return (long)data.length * 8 / getWay();
+    }
+    public long virtualCapacity(double falsePositiveRate) {
+        double t = Math.log1p(-Math.pow(falsePositiveRate, 1.0/getWay()))
+                / Math.log1p(-1.0/(data.length * 8));
+        return (long)t / getWay();
+    }
+
     public abstract boolean set(byte[] key);
     public abstract boolean test(byte[] key);
     

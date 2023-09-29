@@ -16,6 +16,15 @@ namespace PageBloomFilter {
         public long UniqueCnt { get => uniqueCnt; }
         public byte[] Data { get => data; }
 
+        public long Capacity {
+            get => data.LongLength * 8 / Way;
+        }
+        public long VirtualCapacity(double falsePositiveRate) {
+            var t = Math.Log(1.0 - Math.Pow(falsePositiveRate, 1.0 / Way))
+                / Math.Log(1.0 - 1.0 / (data.LongLength * 8));
+            return (long)t / Way;
+        }
+
         public abstract bool Set(byte[] key);
         public abstract bool Test(byte[] key);
 
@@ -82,6 +91,7 @@ namespace PageBloomFilter {
             if (pageNum <= 0) {
                 throw new ArgumentException("pageNum should be positive");
             }
+
             this.pageLevel = pageLevel;
             this.pageNum = pageNum;
             this.uniqueCnt = 0;

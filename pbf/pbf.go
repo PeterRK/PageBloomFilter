@@ -17,6 +17,7 @@ type PageBloomFilter interface {
 	PageLevel() uint32
 	Way() uint32
 	Cap() int
+	VirtualCap(fpr float64) int
 	Set(key string) bool  // return true if key not exists
 	Test(key string) bool // return true if key exists
 }
@@ -156,6 +157,12 @@ func (bf *pageBloomFilter) PageLevel() uint32 {
 	return bf.pageLevel
 }
 
+func (bf *pageBloomFilter) virtualCap(way uint32, fpr float64) int {
+	t := math.Log1p(-math.Pow(fpr, 1.0/float64(way))) /
+		math.Log1p(-1.0/float64(len(bf.data)*8))
+	return int(int64(t) / int64(way))
+}
+
 type pbfW4 struct {
 	pageBloomFilter
 }
@@ -166,6 +173,10 @@ func (bf *pbfW4) Way() uint32 {
 
 func (bf *pbfW4) Cap() int {
 	return len(bf.data) * 8 / int(bf.Way())
+}
+
+func (bf *pbfW4) VirtualCap(fpr float64) int {
+	return bf.virtualCap(bf.Way(), fpr)
 }
 
 type pbfW5 struct {
@@ -180,6 +191,10 @@ func (bf *pbfW5) Cap() int {
 	return len(bf.data) * 8 / int(bf.Way())
 }
 
+func (bf *pbfW5) VirtualCap(fpr float64) int {
+	return bf.virtualCap(bf.Way(), fpr)
+}
+
 type pbfW6 struct {
 	pageBloomFilter
 }
@@ -190,6 +205,10 @@ func (bf *pbfW6) Way() uint32 {
 
 func (bf *pbfW6) Cap() int {
 	return len(bf.data) * 8 / int(bf.Way())
+}
+
+func (bf *pbfW6) VirtualCap(fpr float64) int {
+	return bf.virtualCap(bf.Way(), fpr)
 }
 
 type pbfW7 struct {
@@ -204,6 +223,10 @@ func (bf *pbfW7) Cap() int {
 	return len(bf.data) * 8 / int(bf.Way())
 }
 
+func (bf *pbfW7) VirtualCap(fpr float64) int {
+	return bf.virtualCap(bf.Way(), fpr)
+}
+
 type pbfW8 struct {
 	pageBloomFilter
 }
@@ -214,4 +237,8 @@ func (bf *pbfW8) Way() uint32 {
 
 func (bf *pbfW8) Cap() int {
 	return len(bf.data) * 8 / int(bf.Way())
+}
+
+func (bf *pbfW8) VirtualCap(fpr float64) int {
+	return bf.virtualCap(bf.Way(), fpr)
 }

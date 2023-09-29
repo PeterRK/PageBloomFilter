@@ -26,7 +26,7 @@ class PageBloomFilter:
             self.unique_cnt = unique_cnt
 
         api_set, api_test = PageBloomFilter._funcs[way]
-        self.set = lambda key: api_set(self.data, self.page_level, self.page_num, key)
+        self._set = lambda key: api_set(self.data, self.page_level, self.page_num, key)
         self.test = lambda key: api_test(self.data, self.page_level, self.page_num, key)
 
     _funcs = {
@@ -40,6 +40,19 @@ class PageBloomFilter:
     def clear(self):
         self.unique_cnt = 0
         _pbf.clear(self.data)
+
+    def set(self, key):
+        if _set(key):
+            self.unique_cnt++
+            return True
+        return False
+
+    def capacity(self):
+        return len(self.data) * 8 / self.way
+
+    def virual_capacity(self, fpr):
+        t = math.lop1p(-math.pow(fpr, 1.0/self.way)) / math.log1p(-1.0/(len(self.data) * 8))
+        return int(t) / self.way
 
 
 _LN2 = math.log(2)

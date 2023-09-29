@@ -120,6 +120,10 @@ public:
 	size_t capacity() const noexcept {
 		return data_size() * 8 / N;
 	}
+	size_t virual_capacity(float fpr) const noexcept {
+		auto t = std::log1p(-std::pow(static_cast<double>(fpr), 1.0 / N)) / std::log1p(-1.0 / (data_size()*8));
+		return static_cast<size_t>(t) / N;
+	}
 	unsigned way() const noexcept { return N; }
 
 	bool test(const uint8_t* data, unsigned len) const noexcept;

@@ -60,7 +60,5 @@ public class HashTest {
             V128 code = Hash.hash128(Arrays.copyOfRange(buf, 0, i));
             Assertions.assertEquals(code, expected[i]);
         }
-
-
     }
 }

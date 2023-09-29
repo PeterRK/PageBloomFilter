@@ -12,6 +12,8 @@ pub trait BloomFilter {
     fn get_page_num(&self) -> u32;
     fn get_unique_cnt(&self) -> usize;
     fn get_data(&self) -> &Vec<u8>;
+    fn capacity(&self) -> usize;
+    fn virtual_capacity(&self, fpr: f32) -> usize;
     fn clear(&mut self);
     fn valid(&self) -> bool;
     fn set(&mut self, key: &[u8]) -> bool;
@@ -109,6 +111,15 @@ impl<const W : u8> BloomFilter for PageBloomFilter<W> {
     }
     fn get_data(&self) -> &Vec<u8> {
         return &self.data;
+    }
+
+    fn capacity(&self) -> usize {
+        return self.data.len() * 8 / W as usize;
+    }
+    fn virtual_capacity(&self, fpr: f32) -> usize {
+        let t = f64::ln_1p(-f64::powf(fpr as f64, 1.0 / W as f64)) /
+            f64::ln_1p(-1.0 / (self.data.len() * 8) as f64);
+        return t as usize / W as usize;
     }
 
     fn clear(&mut self) {
