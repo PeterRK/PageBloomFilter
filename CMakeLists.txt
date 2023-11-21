@@ -11,7 +11,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 
 include_directories(include)
 
-add_library(pbf src/pbf.cc src/hash.cc)
+add_library(pbf SHARED src/pbf.cc src/hash.cc)
 
 add_executable(test test/test.cc src/pbf.cc src/hash.cc)
 target_link_libraries(test gtest pthread)

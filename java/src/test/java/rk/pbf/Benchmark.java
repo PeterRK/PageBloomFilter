@@ -29,7 +29,7 @@ public class Benchmark {
 
     private static final long N = 1000000;
 
-    private static DeltaTime benchmark( PageBloomFilter bf) {
+    private static DeltaTime benchmark(PageBloomFilter bf) {
         byte[] key = new byte[8];
 
         long begin = System.nanoTime();
@@ -105,10 +105,10 @@ public class Benchmark {
         long set = 0;
         long test = 0;
         for (int i = 0; i < loop; i++) {
+            bf1.clear();
             DeltaTime delta = benchmark(bf1);
             set += delta.set;
             test += delta.test;
-            bf1.clear();
         }
         System.out.printf("pbf-set: %f ns/op\n", set / (double)(loop*N/2));
         System.out.printf("pbf-test: %f ns/op\n", test / (double)(loop*N));
@@ -120,10 +120,10 @@ public class Benchmark {
         set = 0;
         test = 0;
         for (int i = 0; i < loop; i++) {
+            // no clean api
             DeltaTime delta = benchmark(bf2);
             set += delta.set;
             test += delta.test;
-            // no clean api
         }
         System.out.printf("guava-set: %f ns/op\n", set / (double)(loop*N/2));
         System.out.printf("guava-test: %f ns/op\n", test / (double)(loop*N));
@@ -137,10 +137,10 @@ public class Benchmark {
         set = 0;
         test = 0;
         for (int i = 0; i < loop; i++) {
+            // no clean api
             DeltaTime delta = benchmark(bf3);
             set += delta.set;
             test += delta.test;
-            // no clean api
         }
         System.out.printf("nikitin-set: %f ns/op\n", set / (double)(loop*N/2));
         System.out.printf("nikitin-test: %f ns/op\n", test / (double)(loop*N));
