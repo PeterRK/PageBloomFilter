@@ -18,4 +18,10 @@ target_link_libraries(test gtest pthread)
 
 add_executable(bench test/bench.cc src/pbf.cc src/hash.cc)
 
+#include_directories(3rd-party/include)
+#link_directories(3rd-party/lib)
+
 #add_executable(set-bench test/set-bench.cc test/set-wrapper.cc)
+
+#add_executable(peer-bench test/peer-bench.cc)
+#target_link_libraries(peer-bench bloom pbf bf)
