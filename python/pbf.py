@@ -42,8 +42,8 @@ class PageBloomFilter:
         _pbf.clear(self.data)
 
     def set(self, key):
-        if _set(key):
-            self.unique_cnt++
+        if self._set(key):
+            self.unique_cnt += 1
             return True
         return False
 
