@@ -155,9 +155,10 @@ static PageBloomFilter<N> New(size_t item, float fpr) {
 	fpr = std::min(std::max(fpr, 0.0005f), 0.1f);
 	auto w = -std::log2(fpr);
 	auto bpi = w / (std::log(2) * 8);
-	if (w > 8) {
-		bpi *= 1.025;
-	} else if (w > 4) {
+	if (w > 8.5) {
+		auto x = w - 7;
+		bpi *= 1 + 0.0025*x*x;
+	} else if (w > 3) {
 		bpi *= 1.01;
 	}
 	auto n = static_cast<size_t>(bpi * static_cast<double>(item));

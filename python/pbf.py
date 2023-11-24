@@ -74,14 +74,17 @@ def create(item, fpr):
 
     w = -math.log2(fpr)
     bpi = w / (_LN2 * 8)
+    if w > 8.5:
+        x = w - 7
+        bpi *= 1 + 0.0025*x*x
+    elif w > 3:
+        bpi *= 1.01
+
     way = round(w)
     if way < 4:
         way = 4
     elif way > 8:
         way = 8
-        bpi *= 1.025
-    else:
-        bpi *= 1.01
 
     n = int(bpi * item)
     page_level = None

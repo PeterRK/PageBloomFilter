@@ -36,14 +36,17 @@ func NewBloomFilter(item int, fpr float64) PageBloomFilter {
 	}
 	w := -math.Log2(fpr)
 	bpi := w / (math.Ln2 * 8)
+	if w > 8.5 {
+		x := w - 7
+		bpi *= 1 + 0.0025*x*x
+	} else if w > 3 {
+		bpi *= 1.01
+	}
 	way := uint32(math.Round(w))
 	if way < 4 {
 		way = 4
 	} else if way > 8 {
 		way = 8
-		bpi *= 1.025
-	} else {
-		bpi *= 1.01
 	}
 
 	n := uint64(bpi * float64(item))

@@ -45,14 +45,17 @@ public abstract class PageBloomFilter {
         }
         double w = -Math.log(falsePositiveRate) / LN2;
         double bytesPerItem = w / (LN2 * 8);
+        if (w > 8.5) {
+            double x = w - 7;
+            bytesPerItem *= 1 + 0.0025*x*x;
+        } else if (w > 3) {
+            bytesPerItem *= 1.01;
+        }
         int way = Math.round((float)w);
         if (way < 4) {
             way = 4;
         } else if (way > 8) {
             way = 8;
-            bytesPerItem *= 1.025;
-        } else {
-            bytesPerItem *= 1.01;
         }
 
         long n = (long)(bytesPerItem * item);
