@@ -164,7 +164,7 @@ static PageBloomFilter<N> New(size_t item, float fpr) {
 	auto n = static_cast<size_t>(bpi * static_cast<double>(item));
 	unsigned page_level = 0;
 	for (unsigned i = 6; i < 12; i++) {
-		if (n < (1UL << (i + 2))) {
+		if (n < (1UL << (i + 4))) {
 			page_level = i;
 			if (page_level < (8 - 8/N)) {
 				page_level++;

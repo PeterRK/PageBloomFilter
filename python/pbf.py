@@ -89,7 +89,7 @@ def create(item, fpr):
     n = int(bpi * item)
     page_level = None
     for i in range(6, 12):
-        if n >= (1 << (i+2)):
+        if n >= (1 << (i+4)):
             continue
         page_level = i
         if page_level < (8 - 8/way):
@@ -105,9 +105,9 @@ def create(item, fpr):
 def _test_create():
     bf = create(500, 0.01)
     assert bf.way == 7
-    assert bf.page_level == 8
+    assert bf.page_level == 7
     assert bf.page_num == 3
-    assert len(bf.data) == 768
+    assert len(bf.data) == 640
 
 
 def _test_operate(way):

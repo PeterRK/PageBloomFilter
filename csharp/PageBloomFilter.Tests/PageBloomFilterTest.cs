@@ -12,8 +12,8 @@ namespace PageBloomFilter.Tests {
         public void CreateTest() {
             var bf = PageBloomFilter.New(500, 0.01);
             Assert.IsTrue(bf.Way == 7);
-            Assert.IsTrue(bf.PageLevel == 8);
-            Assert.IsTrue(bf.Data.Length == 768);
+            Assert.IsTrue(bf.PageLevel == 7);
+            Assert.IsTrue(bf.Data.Length == 640);
         }
 
         private void doTest(int way) {

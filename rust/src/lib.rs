@@ -59,8 +59,8 @@ fn test_new() {
     let bf = pbf::new_bloom_filter(500, 0.01);
     assert!(bf.valid());
     assert_eq!(bf.get_way(), 7);
-    assert_eq!(bf.get_page_level(), 8);
-    assert_eq!(bf.get_data().len(), 768);
+    assert_eq!(bf.get_page_level(), 7);
+    assert_eq!(bf.get_data().len(), 640);
 }
 
 #[test]

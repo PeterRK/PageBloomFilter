@@ -20,8 +20,8 @@ func TestNew(t *testing.T) {
 	bf := NewBloomFilter(500, 0.01)
 	assert(t, bf != nil)
 	assert(t, bf.Way() == 7)
-	assert(t, bf.PageLevel() == 8)
-	assert(t, len(bf.Data()) == 768)
+	assert(t, bf.PageLevel() == 7)
+	assert(t, len(bf.Data()) == 640)
 }
 
 func doTest(t *testing.T, way uint32) {

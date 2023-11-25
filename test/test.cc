@@ -14,8 +14,8 @@ TEST(PBF, New) {
 	auto bf = NEW_BLOOM_FILTER(500, 0.01);
 	ASSERT_FALSE(!bf);
 	ASSERT_EQ(bf.way(), 7);
-	ASSERT_EQ(bf.page_level(), 8);
-	ASSERT_EQ(bf.data_size(), 768);
+	ASSERT_EQ(bf.page_level(), 7);
+	ASSERT_EQ(bf.data_size(), 640);
 }
 
 template <unsigned N>

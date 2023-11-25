@@ -41,7 +41,7 @@ pub fn new_bloom_filter(item: usize, fpr: f32) -> Box<dyn BloomFilter> {
     let n = (bpi * max(item, 1) as f64) as usize;
     let mut page_level = 0_u8;
     for i in 6..12 {
-        if n < (1_usize << (i + 2)) {
+        if n < (1_usize << (i + 4)) {
             page_level = i;
             if page_level < (8 - 8/way) {
                 page_level += 1;
