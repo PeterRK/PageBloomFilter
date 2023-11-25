@@ -149,7 +149,7 @@ static constexpr unsigned BestWay(float fpr) noexcept {
 }
 
 template <unsigned N>
-static PageBloomFilter<N> New(size_t item, float fpr) {
+static PageBloomFilter<N> Create(size_t item, float fpr) {
 	assert(N == BestWay(fpr));
 	item = std::max(item, 1UL);
 	fpr = std::min(std::max(fpr, 0.0005f), 0.1f);
@@ -182,7 +182,21 @@ static PageBloomFilter<N> New(size_t item, float fpr) {
 	return PageBloomFilter<N>(page_level, page_num);
 }
 
-#define NEW_BLOOM_FILTER(item, fpr) pbf::New<pbf::BestWay(fpr)>(item, fpr)
+struct BloomFilter : public _PageBloomFilter {
+	virtual ~BloomFilter() = default;
+	virtual size_t capacity() const noexcept = 0;
+	virtual size_t virual_capacity(float fpr) const noexcept = 0;
+	virtual unsigned way() const noexcept = 0;
+	virtual bool test(const uint8_t* data, unsigned len) const noexcept = 0;
+	virtual bool set(const uint8_t* data, unsigned len) noexcept = 0;
+};
+
+extern std::unique_ptr<BloomFilter> New(size_t item, float fpr);
+extern std::unique_ptr<BloomFilter> New(unsigned way, unsigned page_level, unsigned page_num,
+										size_t unique_cnt=0, const uint8_t* data=nullptr);
 
 } //pbf
+
+#define NEW_BLOOM_FILTER(item, fpr) pbf::Create<pbf::BestWay(fpr)>(item, fpr)
+
 #endif //PAGE_BLOOM_FILTER_H

@@ -16,6 +16,12 @@ TEST(PBF, New) {
 	ASSERT_EQ(bf.way(), 7);
 	ASSERT_EQ(bf.page_level(), 7);
 	ASSERT_EQ(bf.data_size(), 640);
+	auto p = pbf::New(500, 0.01);
+	ASSERT_NE(p, nullptr);
+	ASSERT_FALSE(!*p);
+	ASSERT_EQ(p->way(), 7);
+	ASSERT_EQ(p->page_level(), 7);
+	ASSERT_EQ(p->data_size(), 640);
 }
 
 template <unsigned N>

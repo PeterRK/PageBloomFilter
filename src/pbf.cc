@@ -45,10 +45,10 @@ bool PageBloomFilter<N>::set(const uint8_t* data, unsigned len) noexcept {
 	size_t idx = PageHash(t) % m_page_num;
 	uint8_t* page = m_space.get() + (idx << m_page_level);
 	if (Set<N>(page, m_page_level, t)) {
-    m_unique_cnt++;
-    return true;
+		m_unique_cnt++;
+		return true;
 	}
-  return false;
+	return false;
 }
 
 template class PageBloomFilter<4>;
@@ -56,6 +56,77 @@ template class PageBloomFilter<5>;
 template class PageBloomFilter<6>;
 template class PageBloomFilter<7>;
 template class PageBloomFilter<8>;
+
+template <unsigned N>
+class BloomFilterImp : public BloomFilter {
+public:
+	size_t capacity() const noexcept { return self()->capacity(); }
+	size_t virual_capacity(float fpr) const noexcept { return self()->virual_capacity(fpr); }
+	unsigned way() const noexcept { return self()->way(); }
+	bool test(const uint8_t* data, unsigned len) const noexcept { return self()->test(data, len); }
+	bool set(const uint8_t* data, unsigned len) noexcept { return self()->set(data, len); }
+
+	explicit BloomFilterImp(PageBloomFilter<N>&& bf) {
+		*self() = std::move(bf);
+	}
+
+private:
+	const PageBloomFilter<N>* self() const noexcept {
+		return reinterpret_cast<const PageBloomFilter<N>*>(static_cast<const _PageBloomFilter*>(this));
+	}
+	PageBloomFilter<N>* self() noexcept {
+		return reinterpret_cast<PageBloomFilter<N>*>(static_cast<_PageBloomFilter*>(this));
+	}
+};
+
+template class BloomFilterImp<4>;
+template class BloomFilterImp<5>;
+template class BloomFilterImp<6>;
+template class BloomFilterImp<7>;
+template class BloomFilterImp<8>;
+
+std::unique_ptr<BloomFilter> New(size_t item, float fpr) {
+#define PBF_NEW_CASE(w) \
+	case w:                												\
+	{                   												\
+		auto tmp = Create< w >(item, fpr);								\
+		if (!tmp) {														\
+			return nullptr;												\
+		}																\
+		return std::make_unique<BloomFilterImp< w >>(std::move(tmp));	\
+	}
+	switch (BestWay(fpr)) {
+		PBF_NEW_CASE(4)
+		PBF_NEW_CASE(5)
+		PBF_NEW_CASE(6)
+		PBF_NEW_CASE(7)
+		PBF_NEW_CASE(8)
+	}
+#undef PBF_NEW_CASE
+	return nullptr;
+}
+
+std::unique_ptr<BloomFilter> New(unsigned way, unsigned page_level, unsigned page_num,
+								 size_t unique_cnt, const uint8_t* data) {
+#define PBF_NEW_CASE(w) \
+	case w:                													\
+	{                   													\
+		PageBloomFilter< w > tmp(page_level, page_num, unique_cnt, data);	\
+		if (!tmp) {															\
+			return nullptr;													\
+		}																	\
+		return std::make_unique<BloomFilterImp< w >>(std::move(tmp));		\
+	}
+	switch (way) {
+		PBF_NEW_CASE(4)
+		PBF_NEW_CASE(5)
+		PBF_NEW_CASE(6)
+		PBF_NEW_CASE(7)
+		PBF_NEW_CASE(8)
+	}
+#undef PBF_NEW_CASE
+	return nullptr;
+}
 
 } //pbf
 
