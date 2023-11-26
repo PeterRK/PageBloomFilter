@@ -36,7 +36,7 @@ func NewBloomFilter(item int, fpr float64) PageBloomFilter {
 	}
 	w := -math.Log2(fpr)
 	bpi := w / (math.Ln2 * 8)
-	if w > 8.5 {
+	if w > 9 {
 		x := w - 7
 		bpi *= 1 + 0.0025*x*x
 	} else if w > 3 {

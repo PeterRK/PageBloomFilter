@@ -39,7 +39,7 @@ namespace PageBloomFilter {
             }
             double w = -Math.Log2(falsePositiveRate);
             double bytesPerItem = w / (Math.Log(2) * 8);
-            if (w > 8.5) {
+            if (w > 9) {
                 double x = w - 7;
                 bytesPerItem *= 1 + 0.0025*x*x;
             } else if (w > 3) {

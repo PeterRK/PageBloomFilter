@@ -74,7 +74,7 @@ def create(item, fpr):
 
     w = -math.log2(fpr)
     bpi = w / (_LN2 * 8)
-    if w > 8.5:
+    if w > 9:
         x = w - 7
         bpi *= 1 + 0.0025*x*x
     elif w > 3:

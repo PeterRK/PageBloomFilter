@@ -30,7 +30,7 @@ pub fn new_bloom_filter(item: usize, fpr: f32) -> Box<dyn BloomFilter> {
     let w = -f32::log2(rate);
     let ln2 = f32::ln(2.0 as f32);
     let mut bpi = (w / (ln2 * 8.0)) as f64;
-    if w > 8.5 {
+    if w > 9.0 {
         let x = (w - 7.0) as f64;
         bpi *= 1.0 + 0.0025*x*x;
     } else if w > 3.0 {
