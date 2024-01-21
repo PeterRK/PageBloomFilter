@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package rk.pbf;
+package com.github.peterrk.pbf;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class Hash {
     public static final class V128 {
-        public long low = 0;
-        public long high = 0;
+        public long low;
+        public long high;
 
         V128(long low, long high) {
             this.low = low;
@@ -35,10 +35,10 @@ public class Hash {
         return (x << k) | (x >>> (64 - k));
     }
     private static final class State {
-        long a = 0;
-        long b = 0;
-        long c = 0;
-        long d = 0;
+        long a;
+        long b;
+        long c;
+        long d;
 
         State(long a, long b, long c, long d) {
             this.a = a;

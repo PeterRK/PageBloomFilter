@@ -2,9 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package rk.pbf;
+package com.github.peterrk.pbf;
 
-import rk.pbf.PageBloomFilter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import com.google.common.hash.BloomFilter;
@@ -18,8 +17,8 @@ public class Benchmark {
     }
 
     private static final class DeltaTime {
-        public long set = 0;
-        public long test = 0;
+        public long set;
+        public long test;
         DeltaTime(long set, long test) {
             this.set = set;
             this.test = test;

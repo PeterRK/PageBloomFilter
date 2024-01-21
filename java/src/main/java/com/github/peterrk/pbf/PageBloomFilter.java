@@ -2,16 +2,16 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package rk.pbf;
+package com.github.peterrk.pbf;
 
 import java.lang.Math;
 import java.util.Arrays;
 
 public abstract class PageBloomFilter {
-    private int pageLevel = 0;
-    private int pageNum = 0;
-    private long uniqueCnt = 0;
-    private byte[] data = null;
+    private final int pageLevel;
+    private final int pageNum;
+    private long uniqueCnt;
+    private final byte[] data;
 
     public abstract int getWay();
     public int getPageLevel() { return pageLevel; }
@@ -121,7 +121,7 @@ public abstract class PageBloomFilter {
         this.pageLevel = pageLevel;
         this.pageNum = data.length / pageSize;
         this.uniqueCnt = uniqueCnt;
-        this.data = (byte[])data.clone();
+        this.data = data.clone();
     }
 
     public void clear() {
@@ -164,7 +164,7 @@ public abstract class PageBloomFilter {
         for (int i = 0; i < way; i++) {
             int idx = h.codes[i] & mask;
             byte bit = (byte)(1 << (idx & 7));
-            hit &= data[h.offset+(idx>>>3)] >>> (idx & 7);
+            hit &= (byte)(data[h.offset+(idx>>>3)] >>> (idx & 7));
             data[h.offset+(idx>>>3)] |= bit;
         }
         if (hit != 0) {

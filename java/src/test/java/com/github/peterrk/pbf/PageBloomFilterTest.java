@@ -2,9 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package rk.pbf;
+package com.github.peterrk.pbf;
 
-import rk.pbf.PageBloomFilter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import java.nio.ByteBuffer;

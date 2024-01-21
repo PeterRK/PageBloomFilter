@@ -2,10 +2,9 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package rk.pbf;
+package com.github.peterrk.pbf;
 
-import rk.pbf.Hash;
-import rk.pbf.Hash.V128;
+import com.github.peterrk.pbf.Hash.V128;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import java.nio.charset.StandardCharsets;
