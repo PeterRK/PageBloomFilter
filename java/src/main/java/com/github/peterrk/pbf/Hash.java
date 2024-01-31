@@ -81,8 +81,7 @@ public class Hash {
         long magic = 0xdeadbeefdeadbeefL;
         State s = new State(0, 0, magic, magic);
 
-        ByteBuffer buf = ByteBuffer.wrap(key);
-        buf.order(ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer buf = ByteBuffer.wrap(key).order(ByteOrder.LITTLE_ENDIAN);
         while (buf.remaining() >= 32) {
             s.c += buf.getLong();
             s.d += buf.getLong();
@@ -97,42 +96,41 @@ public class Hash {
         }
 
         s.d += ((long)key.length) << 56;
-        int off = key.length & ~0xf;
         switch (key.length & 0xf) {
             case 15:
-                s.d += ((long)key[off+14]) << 48;
+                s.d += ((long)buf.get(buf.position()+14) & 0xff) << 48;
             case 14:
-                s.d += ((long)key[off+13]) << 40;
+                s.d += ((long)buf.get(buf.position()+13) & 0xff) << 40;
             case 13:
-                s.d += ((long)key[off+12]) << 32;
+                s.d += ((long)buf.get(buf.position()+12) & 0xff) << 32;
             case 12:
                 s.c += buf.getLong();
-                s.d += buf.getInt();
+                s.d += buf.getInt() & 0xffffffffL;
                 break;
             case 11:
-                s.d += ((long)key[off+10]) << 16;
+                s.d += ((long)buf.get(buf.position()+10) & 0xff) << 16;
             case 10:
-                s.d += ((long)key[off+9]) << 8;
+                s.d += ((long)buf.get(buf.position()+9) & 0xff) << 8;
             case 9:
-                s.d += key[off+8];
+                s.d += (long)buf.get(buf.position()+8) & 0xff;
             case 8:
                 s.c += buf.getLong();
                 break;
             case 7:
-                s.c += ((long)key[off+6]) << 48;
+                s.c += ((long)buf.get(buf.position()+6) & 0xff) << 48;
             case 6:
-                s.c += ((long)key[off+5]) << 40;
+                s.c += ((long)buf.get(buf.position()+5) & 0xff) << 40;
             case 5:
-                s.c += ((long)key[off+4]) << 32;
+                s.c += ((long)buf.get(buf.position()+4) & 0xff) << 32;
             case 4:
-                s.c += buf.getInt();
+                s.c += (long)buf.getInt() & 0xffffffffL;
                 break;
             case 3:
-                s.c += ((long)key[off+2]) << 16;
+                s.c += ((long)buf.get(buf.position()+2) & 0xff) << 16;
             case 2:
-                s.c += ((long)key[off+1]) << 8;
+                s.c += ((long)buf.get(buf.position()+1) & 0xff) << 8;
             case 1:
-                s.c += key[off];
+                s.c += (long)buf.get() & 0xff;
                 break;
             case 0:
                 s.c += magic;
