@@ -101,6 +101,16 @@ namespace PageBloomFilter {
             this.data = new byte[pageNum << pageLevel];
         }
 
+        public static PageBloomFilter New(int way, int pageLevel, byte[] data, long uniqueCnt) =>
+            way switch {
+                4 => new PageBloomFilter.Way4(pageLevel, data, uniqueCnt),
+                5 => new PageBloomFilter.Way5(pageLevel, data, uniqueCnt),
+                6 => new PageBloomFilter.Way6(pageLevel, data, uniqueCnt),
+                7 => new PageBloomFilter.Way7(pageLevel, data, uniqueCnt),
+                8 => new PageBloomFilter.Way8(pageLevel, data, uniqueCnt),
+                _ => throw new ArgumentException("illegal way"),
+            };
+
         protected PageBloomFilter(int way, int pageLevel, byte[] data, long uniqueCnt) {
             if (way < 4 || way > 8) {
                 throw new ArgumentException("way should be 4-8");
@@ -115,7 +125,7 @@ namespace PageBloomFilter {
             this.pageLevel = pageLevel;
             this.pageNum = (uint)(data.Length / pageSize);
             this.uniqueCnt = uniqueCnt;
-            this.data = (byte[])data.Clone();
+            this.data = data;
         }
 
         public void Clear() {
@@ -186,7 +196,7 @@ namespace PageBloomFilter {
         }
 
 
-        public class Way4 : PageBloomFilter {
+        private class Way4 : PageBloomFilter {
             private const int WAY = 4;
             public Way4(int pageLevel, uint pageNum)
                 : base(WAY, pageLevel, pageNum) {}
@@ -197,7 +207,7 @@ namespace PageBloomFilter {
             public override bool Test(byte[] key) { return Test(WAY, key); }
         }
 
-        public class Way5 : PageBloomFilter {
+        private class Way5 : PageBloomFilter {
             private const int WAY = 5;
             public Way5(int pageLevel, uint pageNum)
                 : base(WAY, pageLevel, pageNum) {}
@@ -208,7 +218,7 @@ namespace PageBloomFilter {
             public override bool Test(byte[] key) { return Test(WAY, key); }
         }
 
-        public class Way6 : PageBloomFilter {
+        private class Way6 : PageBloomFilter {
             private const int WAY = 6;
             public Way6(int pageLevel, uint pageNum)
                 : base(WAY, pageLevel, pageNum) {}
@@ -219,7 +229,7 @@ namespace PageBloomFilter {
             public override bool Test(byte[] key) { return Test(WAY, key); }
         }
 
-        public class Way7 : PageBloomFilter {
+        private class Way7 : PageBloomFilter {
             private const int WAY = 7;
             public Way7(int pageLevel, uint pageNum)
                 : base(WAY, pageLevel, pageNum) {}
@@ -230,7 +240,7 @@ namespace PageBloomFilter {
             public override bool Test(byte[] key) { return Test(WAY, key); }
         }
 
-        public class Way8 : PageBloomFilter {
+        private class Way8 : PageBloomFilter {
             private const int WAY = 8;
             public Way8(int pageLevel, uint pageNum)
                 : base(WAY, pageLevel, pageNum) {}

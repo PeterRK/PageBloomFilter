@@ -107,6 +107,17 @@ public abstract class PageBloomFilter {
         this.data = new byte[pageNum<<pageLevel];
     }
 
+    public static PageBloomFilter New(int way, int pageLevel, byte[] data, long uniqueCnt) {
+        switch (way) {
+            case 4: return new PageBloomFilter.Way4(pageLevel, data, uniqueCnt);
+            case 5: return new PageBloomFilter.Way5(pageLevel, data, uniqueCnt);
+            case 6: return new PageBloomFilter.Way6(pageLevel, data, uniqueCnt);
+            case 7: return new PageBloomFilter.Way7(pageLevel, data, uniqueCnt);
+            case 8: return new PageBloomFilter.Way8(pageLevel, data, uniqueCnt);
+            default: throw new RuntimeException("illegal way");
+        }
+    }
+
     protected PageBloomFilter(int way, int pageLevel, byte[] data, long uniqueCnt) {
         if (way < 4 || way > 8) {
             throw new IllegalArgumentException("way should be 4-8");
@@ -121,7 +132,7 @@ public abstract class PageBloomFilter {
         this.pageLevel = pageLevel;
         this.pageNum = data.length / pageSize;
         this.uniqueCnt = uniqueCnt;
-        this.data = data.clone();
+        this.data = data;
     }
 
     public void clear() {
@@ -188,7 +199,7 @@ public abstract class PageBloomFilter {
     }
 
 
-    public static class Way4 extends PageBloomFilter {
+    private static class Way4 extends PageBloomFilter {
         private static final int WAY = 4;
 
         public Way4(int pageLevel, int pageNum) {
@@ -213,7 +224,7 @@ public abstract class PageBloomFilter {
         }
     }
 
-    public static class Way5 extends PageBloomFilter {
+    private static class Way5 extends PageBloomFilter {
         private static final int WAY = 5;
 
         public Way5(int pageLevel, int pageNum) {
@@ -238,7 +249,7 @@ public abstract class PageBloomFilter {
         }
     }
 
-    public static class Way6 extends PageBloomFilter {
+    private static class Way6 extends PageBloomFilter {
         private static final int WAY = 6;
 
         public Way6(int pageLevel, int pageNum) {
@@ -263,7 +274,7 @@ public abstract class PageBloomFilter {
         }
     }
 
-    public static class Way7 extends PageBloomFilter {
+    private static class Way7 extends PageBloomFilter {
         private static final int WAY = 7;
 
         public Way7(int pageLevel, int pageNum) {
@@ -288,7 +299,7 @@ public abstract class PageBloomFilter {
         }
     }
 
-    public static class Way8 extends PageBloomFilter {
+    private static class Way8 extends PageBloomFilter {
         private static final int WAY = 8;
 
         public Way8(int pageLevel, int pageNum) {
