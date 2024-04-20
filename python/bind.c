@@ -10,11 +10,11 @@
 #define DEFINE_PY_FUNC(way) \
 static PyObject* set##way(PyObject *self, PyObject *args) { \
 	FETCH_ARGS \
-	return PyBool_FromLong(PBF8_Set(space.buf, page_level, page_num, key, key_len)); \
+	return PyBool_FromLong(PBF##way##_Set(space.buf, page_level, page_num, key, key_len)); \
 } \
 static PyObject* test##way(PyObject *self, PyObject *args) { \
 	FETCH_ARGS \
-	return PyBool_FromLong(PBF8_Test(space.buf, page_level, page_num, key, key_len)); \
+	return PyBool_FromLong(PBF##way##_Test(space.buf, page_level, page_num, key, key_len)); \
 }
 
 #define FETCH_ARGS \
