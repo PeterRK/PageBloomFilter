@@ -30,7 +30,7 @@ if (bf.test("Hello")) {
 
 ```go
 // 有效容量500，假阳率0.01
-bf := NewBloomFilter(500, 0.01)
+bf := pbf.NewBloomFilter(500, 0.01)
 if bf.Set("Hello") {
     fmt.Println("set new Hello")
 }
