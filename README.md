@@ -30,7 +30,7 @@ if (bf.test("Hello")) {
 
 ```go
 // BloomFilter with 0.01 false positive rate for 500 items
-bf := NewBloomFilter(500, 0.01)
+bf := pbf.NewBloomFilter(500, 0.01)
 if bf.Set("Hello") {
     fmt.Println("set new Hello")
 }
