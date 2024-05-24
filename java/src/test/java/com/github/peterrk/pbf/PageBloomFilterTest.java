@@ -15,9 +15,9 @@ public class PageBloomFilterTest {
     @Test
     public void createTest() {
         PageBloomFilter bf = PageBloomFilter.New(500, 0.01);
-        Assertions.assertEquals(bf.getWay(), 7);
-        Assertions.assertEquals(bf.getPageLevel(), 7);
-        Assertions.assertEquals(bf.getData().length, 640);
+        Assertions.assertEquals(7, bf.getWay());
+        Assertions.assertEquals(7, bf.getPageLevel());
+        Assertions.assertEquals(640, bf.getData().length);
     }
 
 

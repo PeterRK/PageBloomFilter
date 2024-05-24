@@ -57,7 +57,7 @@ public class HashTest {
         byte[] buf = "0123456789abcdefghijklmnopqrstuvwxyz".getBytes(StandardCharsets.UTF_8);
         for (int i = 0; i < expected.length; i++) {
             V128 code = Hash.hash128(Arrays.copyOfRange(buf, 0, i));
-            Assertions.assertEquals(code, expected[i]);
+            Assertions.assertEquals(expected[i], code);
         }
     }
 }

@@ -29,6 +29,11 @@ if (bf.test("Hello")) {
 ## Go Version
 
 ```go
+import (
+    "fmt"
+    "github.com/PeterRK/PageBloomFilter/go"
+)
+
 // BloomFilter with 0.01 false positive rate for 500 items
 bf := pbf.NewBloomFilter(500, 0.01)
 if bf.Set("Hello") {

@@ -50,7 +50,7 @@ fn test_hash() {
     let key = "0123456789abcdefghijklmnopqrstuvwxyz".as_bytes();
     for i in 0..expected.len() {
         let code = hash::hash128(&key[..i]);
-        assert_eq!(code, expected[i]);
+        assert_eq!(expected[i], code);
     }
 }
 
@@ -58,9 +58,9 @@ fn test_hash() {
 fn test_new() {
     let bf = pbf::new_bloom_filter(500, 0.01);
     assert!(bf.valid());
-    assert_eq!(bf.get_way(), 7);
-    assert_eq!(bf.get_page_level(), 7);
-    assert_eq!(bf.get_data().len(), 640);
+    assert_eq!(7, bf.get_way());
+    assert_eq!(7, bf.get_page_level());
+    assert_eq!(640, bf.get_data().len());
 }
 
 #[test]

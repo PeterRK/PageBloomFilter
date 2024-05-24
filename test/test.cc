@@ -13,15 +13,15 @@ int main(int argc,char **argv){
 TEST(PBF, New) {
 	auto bf = NEW_BLOOM_FILTER(500, 0.01);
 	ASSERT_FALSE(!bf);
-	ASSERT_EQ(bf.way(), 7);
-	ASSERT_EQ(bf.page_level(), 7);
-	ASSERT_EQ(bf.data_size(), 640);
+	ASSERT_EQ(7, bf.way());
+	ASSERT_EQ(7, bf.page_level());
+	ASSERT_EQ(640, bf.data_size());
 	auto p = pbf::New(500, 0.01);
-	ASSERT_NE(p, nullptr);
+	ASSERT_NE(nullptr, p);
 	ASSERT_FALSE(!*p);
-	ASSERT_EQ(p->way(), 7);
-	ASSERT_EQ(p->page_level(), 7);
-	ASSERT_EQ(p->data_size(), 640);
+	ASSERT_EQ(7, p->way());
+	ASSERT_EQ(7, p->page_level());
+	ASSERT_EQ(640, p->data_size());
 }
 
 template <unsigned N>

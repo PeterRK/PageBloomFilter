@@ -29,6 +29,11 @@ if (bf.test("Hello")) {
 ## Go版
 
 ```go
+import (
+    "fmt"
+    "github.com/PeterRK/PageBloomFilter/go"
+)
+
 // 有效容量500，假阳率0.01
 bf := pbf.NewBloomFilter(500, 0.01)
 if bf.Set("Hello") {

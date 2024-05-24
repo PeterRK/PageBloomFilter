@@ -55,7 +55,7 @@ namespace PageBloomFilter.Tests {
             byte[] buf = Encoding.ASCII.GetBytes("0123456789abcdefghijklmnopqrstuvwxyz");
             for (int i = 0; i < expected.Length; i++) {
                 V128 code = Hash128(buf[0..i]);
-                Assert.IsTrue(code.Equals(expected[i]));
+                Assert.AreEqual(expected[i]， code);
             }
         }
     }
