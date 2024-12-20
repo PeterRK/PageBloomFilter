@@ -153,7 +153,7 @@ With test data on i7-10710U machine, we got performance rank: C++, Go, Rust, Jav
 ### Bytes per element - False positive rate
 ![](images/byte.png)
 
-### Occupied ratio - False positive rate
+### Occupancy rate - False positive rate
 ![](images/ratio.png)
 
 ---
