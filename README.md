@@ -56,7 +56,7 @@ Set8   58.4ns ± 9%  32.4ns ± 5%  -44.53%  (p=0.000 n=20+19)
 Test8  44.8ns ± 2%  18.4ns ± 7%  -58.86%  (p=0.000 n=19+20)
 ```
 
-We suggest that user should execute [go-inject.sh](pbf/go-inject.sh) to gnerate new injecting code before build. Clang, binutils and python are needed.
+We suggest that user should execute [go-inject.sh](go/go-inject.sh) to gnerate new injecting code before build. Clang, binutils and python are needed.
 
 [Benchmark](https://gist.github.com/PeterRK/b0df9e80caaaee1e9349e295cb435a67) shows it runs 2x time faster than other famous bloom filter implements, [bits-and-blooms](https://github.com/bits-and-blooms/bloom) and [Tyler Treat's](https://github.com/tylertreat/BoomFilters):
 ```
@@ -80,7 +80,7 @@ if (bf.test(hello)) {
     System.out.println("find Hello");
 }
 ```
-[Benchmark](java/src/test/java/rk/pbf/Benchmark.java) shows it runs much faster than Google's Guava and Alexandr Nikitin's bloom-filter-scala. We see Java version without dedicated optimization is inferior to the Go version.
+[Benchmark](java/src/test/java/com/github/peterrk/pbf/BloomFilterBenchmark.java) shows it runs much faster than Google's Guava and Alexandr Nikitin's bloom-filter-scala. We see Java version without dedicated optimization is inferior to the Go version.
 ```
 // i7-10710U & OpenJDK-17
 pbf-set:      50.962245 ns/op
