@@ -93,7 +93,7 @@ nikitin-test: 62.133052 ns/op
 
 ## C#版
 ```csharp
-var bf = PageBloomFilter.New(N, 0.01);
+var bf = PageBloomFilter.New(500, 0.01);
 var hello = Encoding.ASCII.GetBytes("Hello")
 if (bf.Set(hello)) {
     Console.WriteLine("set new Hello");
@@ -143,6 +143,49 @@ Rust版也缺少针对性优化，照样快过Java。由于我是Rust新手，�
 pbf-set:  45.99ns/op
 pbf-test: 27.81ns/op
 ```
+
+## 序列化与反序列化
+不同语言实现的数据结构是一致，可以跨语言使用。虽然这里不提供专门的序列化和反序列化API，但也很容易实现：保存和加载`way`、`page_level`、`unique_cnt`三个参数，以及`data`的位图即可。其中`way`和`page_level`是个很小的整数， 可以分别用4bit表示。
+```cpp
+// C++
+auto bf = pbf::New(500, 0.01);
+auto bf2 = pbf::New(bf->way(), bf->page_level(), bf->data(), bf->data_size(), bf->unique_cnt());
+
+// 示例格式（并非标准）
+struct Pack {
+    uint32_t way : 4;
+    uint32_t page_level : 4;
+    uint32_t unique_cnt : 24;
+    uint32_t data_size;
+    uint8_t data[0];
+};
+```
+```go
+// GO
+bf := pbf.NewBloomFilter(500, 0.01)
+bf2 := pbf.CreatePageBloomFilter(bf.Way(), bf.PageLevel(), bf.Data(), bf.Unique())
+```
+```java
+// Java
+PageBloomFilter bf = PageBloomFilter.New(500, 0.01);
+PageBloomFilter bf2 = PageBloomFilter.New(bf.getWay(), bf.getPageLevel(), bf.getData(), bf.getUniqueCnt());
+```
+```csharp
+// C#
+var bf = PageBloomFilter.New(500, 0.01);
+var bf2 = PageBloomFilter.New(bf.Way, bf.PageLevel, bf.Data, bf.UniqueCnt);
+```
+```python
+# Python
+bf = pbf.create(500, 0.01)
+bf2 = pbf.restore(bf.way, bf.page_level, bf.data, bf.unique_cnt)
+```
+```rust
+// Rust
+let mut bf = pbf::new_bloom_filter(500, 0.01);
+let mut bf2 = pbf::restore_pbf(bf.get_way(), bf.get_page_level(), bf.get_data(), bf.get_unique_cnt());
+```
+
 
 ## 横向比较
 ![](images/i7-10710U.png)

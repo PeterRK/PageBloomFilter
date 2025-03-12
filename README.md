@@ -144,6 +144,49 @@ pbf-set:  45.99ns/op
 pbf-test: 27.81ns/op
 ```
 
+## Serialize & Deserialize
+Data structures of different implements are consistent, so you can do cross-language serializing and deserializing without dedicated serialize & deserialize APIs. Just save and restore 3 scalar parameters `way`, `page_level`, `unique_cnt`, and the `data` bitmap. Values of `way` and `page_level` are always tiny integers, which can be represented by 4 bit.
+```cpp
+// C++
+auto bf = pbf::New(500, 0.01);
+auto bf2 = pbf::New(bf->way(), bf->page_level(), bf->data(), bf->data_size(), bf->unique_cnt());
+
+// A example (not standard) format
+struct Pack {
+    uint32_t way : 4;
+    uint32_t page_level : 4;
+    uint32_t unique_cnt : 24;
+    uint32_t data_size;
+    uint8_t data[0];
+};
+```
+```go
+// GO
+bf := pbf.NewBloomFilter(500, 0.01)
+bf2 := pbf.CreatePageBloomFilter(bf.Way(), bf.PageLevel(), bf.Data(), bf.Unique())
+```
+```java
+// Java
+PageBloomFilter bf = PageBloomFilter.New(500, 0.01);
+PageBloomFilter bf2 = PageBloomFilter.New(bf.getWay(), bf.getPageLevel(), bf.getData(), bf.getUniqueCnt());
+```
+```csharp
+// C#
+var bf = PageBloomFilter.New(500, 0.01);
+var bf2 = PageBloomFilter.New(bf.Way, bf.PageLevel, bf.Data, bf.UniqueCnt);
+```
+```python
+# Python
+bf = pbf.create(500, 0.01)
+bf2 = pbf.restore(bf.way, bf.page_level, bf.data, bf.unique_cnt)
+```
+```rust
+// Rust
+let mut bf = pbf::new_bloom_filter(500, 0.01);
+let mut bf2 = pbf::restore_pbf(bf.get_way(), bf.get_page_level(), bf.get_data(), bf.get_unique_cnt());
+```
+
+
 # Ranking
 ![](images/i7-10710U.png)
 With test data on i7-10710U machine, we got performance rank: C++, Go, Rust, Java, C#, Python.

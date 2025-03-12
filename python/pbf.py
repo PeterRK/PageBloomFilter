@@ -102,6 +102,10 @@ def create(item, fpr):
     return PageBloomFilter(way, page_level, page_num)
 
 
+def restore(way, page_level, data, unique_cnt):
+    return PageBloomFilter(way, page_level, len(data)>>page_level, unique_cnt, data)
+
+
 def _test_create():
     bf = create(500, 0.01)
     assert bf.way == 7

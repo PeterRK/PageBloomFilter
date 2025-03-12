@@ -79,7 +79,7 @@ pub fn new_pbf(way: u8, page_level: u8, page_num: u32) -> Box<dyn BloomFilter> {
     }
 }
 
-pub fn recover_pbf(way: u8, page_level: u8, data: &Vec<u8>, unique_cnt: usize) -> Box<dyn BloomFilter> {
+pub fn restore_pbf(way: u8, page_level: u8, data: &Vec<u8>, unique_cnt: usize) -> Box<dyn BloomFilter> {
     match way {
         8 => Box::new(PageBloomFilter::<8>::recover(page_level, data, unique_cnt)),
         7 => Box::new(PageBloomFilter::<7>::recover(page_level, data, unique_cnt)),

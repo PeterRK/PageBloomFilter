@@ -195,6 +195,11 @@ extern std::unique_ptr<BloomFilter> New(size_t item, float fpr);
 extern std::unique_ptr<BloomFilter> New(unsigned way, unsigned page_level, unsigned page_num,
 										size_t unique_cnt=0, const uint8_t* data=nullptr);
 
+static inline std::unique_ptr<BloomFilter> New(unsigned way, unsigned page_level,
+											   const uint8_t* data, size_t data_size, size_t unique_cnt) {
+	return New(way, page_level, data_size>>page_level, unique_cnt, data);
+}
+
 } //pbf
 
 #define NEW_BLOOM_FILTER(item, fpr) pbf::Create<pbf::BestWay(fpr)>(item, fpr)
