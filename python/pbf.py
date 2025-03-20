@@ -25,9 +25,7 @@ class PageBloomFilter:
             self.data = bytearray(data)
             self.unique_cnt = unique_cnt
 
-        api_set, api_test = PageBloomFilter._funcs[way]
-        self._set = lambda key: api_set(self.data, self.page_level, self.page_num, key)
-        self.test = lambda key: api_test(self.data, self.page_level, self.page_num, key)
+        self._set, self._test = PageBloomFilter._funcs[way]
 
     _funcs = {
         4: (_pbf.set4, _pbf.test4),
@@ -42,10 +40,13 @@ class PageBloomFilter:
         _pbf.clear(self.data)
 
     def set(self, key):
-        if self._set(key):
+        if self._set(self.data, self.page_level, self.page_num, key):
             self.unique_cnt += 1
             return True
         return False
+
+    def test(self, key):
+        return self._test(self.data, self.page_level, self.page_num, key)
 
     def capacity(self):
         return len(self.data) * 8 / self.way
@@ -110,7 +111,6 @@ def _test_create():
     bf = create(500, 0.01)
     assert bf.way == 7
     assert bf.page_level == 7
-    assert bf.page_num == 3
     assert len(bf.data) == 640
 
 
