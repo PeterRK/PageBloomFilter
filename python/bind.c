@@ -10,20 +10,20 @@
 #define DEFINE_PY_FUNC(way) \
 static PyObject* set##way(PyObject *self, PyObject *args) { \
 	FETCH_ARGS \
-	return PyBool_FromLong(PBF##way##_Set(space.buf, page_level, page_num, key, key_len)); \
+	return PyBool_FromLong(PBF##way##_Set(space.buf, page_level, space.len>>page_level, key, key_len)); \
 } \
 static PyObject* test##way(PyObject *self, PyObject *args) { \
 	FETCH_ARGS \
-	return PyBool_FromLong(PBF##way##_Test(space.buf, page_level, page_num, key, key_len)); \
+	return PyBool_FromLong(PBF##way##_Test(space.buf, page_level, space.len>>page_level, key, key_len)); \
 }
 
 #define FETCH_ARGS \
 	Py_buffer space; \
-	unsigned page_level, page_num; \
+	unsigned page_level; \
 	const uint8_t* key; \
 	Py_ssize_t key_len; \
-	if (!PyArg_ParseTuple(args, "y*IIs#", \
-		&space, &page_level, &page_num, &key, &key_len)) return NULL;
+	if (!PyArg_ParseTuple(args, "y*Is#", \
+		&space, &page_level, &key, &key_len)) return NULL;
 
 DEFINE_PY_FUNC(4)
 DEFINE_PY_FUNC(5)

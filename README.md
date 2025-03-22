@@ -139,8 +139,8 @@ pybloom-set:  2770.372372 ns/op
 pybloom-test: 2417.377588 ns/op
 
 // U7-155H & Python-3.12
-pbf-set:  139.664316 ns/op
-pbf-test: 112.588314 ns/op
+pbf-set:  127.227066 ns/op
+pbf-test: 101.274176 ns/op
 ```
 
 ## Rust

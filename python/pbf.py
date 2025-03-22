@@ -40,13 +40,13 @@ class PageBloomFilter:
         _pbf.clear(self.data)
 
     def set(self, key):
-        if self._set(self.data, self.page_level, self.page_num, key):
+        if self._set(self.data, self.page_level, key):
             self.unique_cnt += 1
             return True
         return False
 
     def test(self, key):
-        return self._test(self.data, self.page_level, self.page_num, key)
+        return self._test(self.data, self.page_level, key)
 
     def capacity(self):
         return len(self.data) * 8 / self.way
