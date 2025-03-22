@@ -84,7 +84,7 @@ if (bf.test(hello)) {
 // i7-10710U & OpenJDK-17
 pbfSet       50.962 ns/op
 pbfTest      40.465 ns/op
-pbfTest     133.514 ns/op
+guavaSet    133.514 ns/op
 guavaTest   112.318 ns/op
 nikitinSet   86.931 ns/op
 nikitinTest  62.133 ns/op
