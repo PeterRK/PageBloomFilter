@@ -12,6 +12,18 @@ if (bf.test("Hello")) {
     std::cout << "find Hello" << std::endl;
 }
 ```
+C++ implement runs extremely fast with aesni instruction. The standard compatible version is also good enough.
+```
+// U7-155H & Clang-18
+pbf-set:        10.9247 ns/op
+pbf-test:        6.0765 ns/op
+pbf-aesni-set:   8.3275 ns/op
+pbf-aesni-test:  4.3405 ns/op
+libbf-set:      36.6518 ns/op
+libbf-test:     31.7608 ns/op
+libbloom-set:   33.0665 ns/op
+libbloom-test:  13.5359 ns/op
+```
 
 ## Go
 
@@ -174,7 +186,7 @@ rbf-test:       24.93ns/op
 With test data on U7-155H machine, we got performance rank: C++, Go, Rust, Java, C#, Python.
 
 ## Serialize & Deserialize
-Data structures of different implements are consistent, so you can do cross-language serializing and deserializing without dedicated serialize & deserialize APIs. Just save and restore 3 scalar parameters `way`, `page_level`, `unique_cnt`, and the `data` bitmap. Values of `way` and `page_level` are always tiny integers, which can be represented by 4 bit.
+Data structures of different implements, except C++ with aesni, are consistent, so you can do cross-language serializing and deserializing without dedicated serialize & deserialize APIs. Just save and restore 3 scalar parameters `way`, `page_level`, `unique_cnt`, and the `data` bitmap. Values of `way` and `page_level` are always tiny integers, which can be represented by 4 bit.
 ```cpp
 // C++
 auto bf = pbf::New(500, 0.01);

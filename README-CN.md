@@ -12,6 +12,18 @@ if (bf.test("Hello")) {
     std::cout << "find Hello" << std::endl;
 }
 ```
+在AESNI指令加持下，性能一骑绝尘，标准版也足够惊艳。
+```
+// U7-155H & Clang-18
+pbf-set:        10.9247 ns/op
+pbf-test:        6.0765 ns/op
+pbf-aesni-set:   8.3275 ns/op
+pbf-aesni-test:  4.3405 ns/op
+libbf-set:      36.6518 ns/op
+libbf-test:     31.7608 ns/op
+libbloom-set:   33.0665 ns/op
+libbloom-test:  13.5359 ns/op
+```
 
 ## Go
 
@@ -174,7 +186,7 @@ rbf-test:       24.93ns/op
 将在U7-155H上的测试数据放到一起看，可以得到性能排位：C++，Go，Rust，Java，C#，Python。
 
 ## 序列化与反序列化
-不同语言实现的数据结构是一致，可以跨语言使用。虽然这里不提供专门的序列化和反序列化API，但也很容易实现：保存和加载`way`、`page_level`、`unique_cnt`三个参数，以及`data`的位图即可。其中`way`和`page_level`是个很小的整数， 可以分别用4bit表示。
+不同语言实现的数据结构是一致（除了C++的aesni加强版），可以跨语言使用。虽然这里不提供专门的序列化和反序列化API，但也很容易实现：保存和加载`way`、`page_level`、`unique_cnt`三个参数，以及`data`的位图即可。其中`way`和`page_level`是个很小的整数， 可以分别用4bit表示。
 ```cpp
 // C++
 auto bf = pbf::New(500, 0.01);
