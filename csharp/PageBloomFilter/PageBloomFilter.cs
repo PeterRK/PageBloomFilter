@@ -4,10 +4,10 @@
 
 namespace PageBloomFilter {
     public abstract class PageBloomFilter {
-        private int pageLevel = 0;
-        private uint pageNum = 0;
+        private readonly int pageLevel = 0;
+        private readonly uint pageNum = 0;
         private long uniqueCnt = 0;
-        private byte[] data;
+        private readonly byte[] data;
 
         public abstract int Way { get; }
         public int PageLevel { get => pageLevel; }
@@ -25,8 +25,8 @@ namespace PageBloomFilter {
             return (long)t / Way;
         }
 
-        public abstract bool Set(byte[] key);
-        public abstract bool Test(byte[] key);
+        public abstract bool Set(ReadOnlySpan<byte> key);
+        public abstract bool Test(ReadOnlySpan<byte> key);
 
         public static PageBloomFilter New(long item, double falsePositiveRate) {
             if (item < 1) {
@@ -37,22 +37,22 @@ namespace PageBloomFilter {
             } else if (falsePositiveRate < 0.0005) {
                 falsePositiveRate = 0.0005;
             }
-            double w = -Math.Log2(falsePositiveRate);
-            double bytesPerItem = w / (Math.Log(2) * 8);
+            var w = -Math.Log2(falsePositiveRate);
+            var bytesPerItem = w / (Math.Log(2) * 8);
             if (w > 9) {
-                double x = w - 7;
+                var x = w - 7;
                 bytesPerItem *= 1 + 0.0025*x*x;
             } else if (w > 3) {
                 bytesPerItem *= 1.01;
             }
-            int way = (int)Math.Round(w);
+            var way = (int)Math.Round(w);
             if (way < 4) {
                 way = 4;
             } else if (way > 8) {
                 way = 8;
             }
 
-            long n = (long)(bytesPerItem * item);
+            var n = (long)(bytesPerItem * item);
             int pageLevel = 0;
             for (int i = 6; i < 12; i++) {
                 if (n < (1U << (i + 4))) {
@@ -101,7 +101,7 @@ namespace PageBloomFilter {
             this.data = new byte[pageNum << pageLevel];
         }
 
-        public static PageBloomFilter New(int way, int pageLevel, byte[] data, long uniqueCnt) =>
+        public static PageBloomFilter New(int way, int pageLevel, ReadOnlySpan<byte> data, long uniqueCnt) =>
             way switch {
                 4 => new PageBloomFilter.Way4(pageLevel, data, uniqueCnt),
                 5 => new PageBloomFilter.Way5(pageLevel, data, uniqueCnt),
@@ -111,7 +111,7 @@ namespace PageBloomFilter {
                 _ => throw new ArgumentException("illegal way"),
             };
 
-        protected PageBloomFilter(int way, int pageLevel, byte[] data, long uniqueCnt) {
+        protected PageBloomFilter(int way, int pageLevel, ReadOnlySpan<byte> data, long uniqueCnt) {
             if (way < 4 || way > 8) {
                 throw new ArgumentException("way should be 4-8");
             }
@@ -119,13 +119,14 @@ namespace PageBloomFilter {
                 throw new ArgumentException("pageLevel should be 7-13");
             }
             int pageSize = 1 << pageLevel;
-            if (data == null || data.Length == 0 || data.Length % pageSize != 0) {
+            if (data.Length == 0 || data.Length % pageSize != 0) {
                 throw new ArgumentException("illegal data size");
             }
             this.pageLevel = pageLevel;
             this.pageNum = (uint)(data.Length / pageSize);
             this.uniqueCnt = uniqueCnt;
-            this.data = data;
+            this.data = new byte[data.Length];
+            data.CopyTo(this.data);
         }
 
         public void Clear() {
@@ -133,10 +134,10 @@ namespace PageBloomFilter {
         }
 
         private static uint Rot(uint x, int k) {
-            return (x << k) | (x >>> (32 - k));
+            return (x << k) | (x >> (32 - k));
         }
 
-        struct HashResult {
+        private struct HashResult {
             public uint offset;
             public uint[] codes;
             public HashResult() {
@@ -144,28 +145,28 @@ namespace PageBloomFilter {
                 codes = new uint[8];
             }
         }
-        private HashResult PageHash(byte[] key) {
+        private HashResult PageHash(ReadOnlySpan<byte> key) {
             var code = Hash.Hash128(key);
-            uint w0 = (uint)code.low;
-            uint w1 = (uint)(code.low >> 32);
-            uint w2 = (uint)code.high;
-            uint w3 = (uint)(code.high >>> 32);
+            var w0 = (uint)code.low;
+            var w1 = (uint)(code.low >> 32);
+            var w2 = (uint)code.high;
+            var w3 = (uint)(code.high >> 32);
             var ret = new HashResult();
-            long x = Rot(w0, 8) ^ Rot(w1, 6) ^ Rot(w2, 4) ^ Rot(w3, 2);
-            ret.offset = (uint)((x & 0xffffffff) % pageNum);
+            var x = Rot(w0, 8) ^ Rot(w1, 6) ^ Rot(w2, 4) ^ Rot(w3, 2);
+            ret.offset = x % pageNum;
             ret.offset <<= pageLevel;
             ret.codes[0] = w0 & 0xffff;
-            ret.codes[1] = w0 >>> 16;
+            ret.codes[1] = w0 >> 16;
             ret.codes[2] = w1 & 0xffff;
-            ret.codes[3] = w1 >>> 16;
+            ret.codes[3] = w1 >> 16;
             ret.codes[4] = w2 & 0xffff;
-            ret.codes[5] = w2 >>> 16;
+            ret.codes[5] = w2 >> 16;
             ret.codes[6] = w3 & 0xffff;
-            ret.codes[7] = w3 >>> 16;
+            ret.codes[7] = w3 >> 16;
             return ret;
         }
 
-        protected bool Set(int way, byte[] key) {
+        protected bool Set(int way, ReadOnlySpan<byte> key) {
             var h = PageHash(key);
             uint mask = (1U << (pageLevel + 3)) - 1U;
             int hit = 1;
@@ -173,7 +174,7 @@ namespace PageBloomFilter {
                 uint idx = h.codes[i] & mask;
                 byte bit = (byte)(1u << (int)(idx & 7));
                 hit &= data[h.offset + (idx >> 3)] >> (int)(idx & 7);
-                data[h.offset + (idx >>> 3)] |= bit;
+                data[h.offset + (idx >> 3)] |= bit;
             }
             if (hit != 0) {
                 return false;
@@ -182,7 +183,7 @@ namespace PageBloomFilter {
             return true;
         }
 
-        protected bool Test(int way, byte[] key) {
+        protected bool Test(int way, ReadOnlySpan<byte> key) {
             var h = PageHash(key);
             uint mask = (1U << (pageLevel + 3)) - 1U;
             for (int i = 0; i < way; i++) {
@@ -196,59 +197,59 @@ namespace PageBloomFilter {
         }
 
 
-        private class Way4 : PageBloomFilter {
+        private sealed class Way4 : PageBloomFilter {
             private const int WAY = 4;
             public Way4(int pageLevel, uint pageNum)
                 : base(WAY, pageLevel, pageNum) {}
-            public Way4(int pageLevel, byte[] data, long uniqueCnt)
+            public Way4(int pageLevel, ReadOnlySpan<byte> data, long uniqueCnt)
                 : base(WAY, pageLevel, data, uniqueCnt) {}
             public override int Way { get => WAY; }
-            public override bool Set(byte[] key) { return Set(WAY, key); }
-            public override bool Test(byte[] key) { return Test(WAY, key); }
+            public override bool Set(ReadOnlySpan<byte> key) { return Set(WAY, key); }
+            public override bool Test(ReadOnlySpan<byte> key) { return Test(WAY, key); }
         }
 
-        private class Way5 : PageBloomFilter {
+        private sealed class Way5 : PageBloomFilter {
             private const int WAY = 5;
             public Way5(int pageLevel, uint pageNum)
                 : base(WAY, pageLevel, pageNum) {}
-            public Way5(int pageLevel, byte[] data, long uniqueCnt)
+            public Way5(int pageLevel, ReadOnlySpan<byte> data, long uniqueCnt)
                 : base(WAY, pageLevel, data, uniqueCnt) {}
             public override int Way { get => WAY; }
-            public override bool Set(byte[] key) { return Set(WAY, key); }
-            public override bool Test(byte[] key) { return Test(WAY, key); }
+            public override bool Set(ReadOnlySpan<byte> key) { return Set(WAY, key); }
+            public override bool Test(ReadOnlySpan<byte> key) { return Test(WAY, key); }
         }
 
-        private class Way6 : PageBloomFilter {
+        private sealed class Way6 : PageBloomFilter {
             private const int WAY = 6;
             public Way6(int pageLevel, uint pageNum)
                 : base(WAY, pageLevel, pageNum) {}
-            public Way6(int pageLevel, byte[] data, long uniqueCnt)
+            public Way6(int pageLevel, ReadOnlySpan<byte> data, long uniqueCnt)
                 : base(WAY, pageLevel, data, uniqueCnt) {}
             public override int Way { get => WAY; }
-            public override bool Set(byte[] key) { return Set(WAY, key); }
-            public override bool Test(byte[] key) { return Test(WAY, key); }
+            public override bool Set(ReadOnlySpan<byte> key) { return Set(WAY, key); }
+            public override bool Test(ReadOnlySpan<byte> key) { return Test(WAY, key); }
         }
 
-        private class Way7 : PageBloomFilter {
+        private sealed class Way7 : PageBloomFilter {
             private const int WAY = 7;
             public Way7(int pageLevel, uint pageNum)
                 : base(WAY, pageLevel, pageNum) {}
-            public Way7(int pageLevel, byte[] data, long uniqueCnt)
+            public Way7(int pageLevel, ReadOnlySpan<byte> data, long uniqueCnt)
                 : base(WAY, pageLevel, data, uniqueCnt) {}
             public override int Way { get => WAY; }
-            public override bool Set(byte[] key) { return Set(WAY, key); }
-            public override bool Test(byte[] key) { return Test(WAY, key); }
+            public override bool Set(ReadOnlySpan<byte> key) { return Set(WAY, key); }
+            public override bool Test(ReadOnlySpan<byte> key) { return Test(WAY, key); }
         }
 
-        private class Way8 : PageBloomFilter {
+        private sealed class Way8 : PageBloomFilter {
             private const int WAY = 8;
             public Way8(int pageLevel, uint pageNum)
                 : base(WAY, pageLevel, pageNum) {}
-            public Way8(int pageLevel, byte[] data, long uniqueCnt)
+            public Way8(int pageLevel, ReadOnlySpan<byte> data, long uniqueCnt)
                 : base(WAY, pageLevel, data, uniqueCnt) {}
             public override int Way { get => WAY; }
-            public override bool Set(byte[] key) { return Set(WAY, key); }
-            public override bool Test(byte[] key) { return Test(WAY, key); }
+            public override bool Set(ReadOnlySpan<byte> key) { return Set(WAY, key); }
+            public override bool Test(ReadOnlySpan<byte> key) { return Test(WAY, key); }
         }
     }
 }

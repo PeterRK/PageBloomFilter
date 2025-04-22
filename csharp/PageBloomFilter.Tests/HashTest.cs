@@ -12,8 +12,7 @@ namespace PageBloomFilter.Tests {
         [Test]
         public void StableTest() {
 
-            V128[] expected = 
-            {
+            V128[] expected = {
                 new V128(0x232706fc6bf50919UL,0x8b72ee65b4e851c7UL),
                 new V128(0x50209687d54ec67eUL,0x62fe85108df1cf6dUL),
                 new V128(0xfbe67d8368f3fb4fUL,0xb54a5a89706d5a5aUL),
@@ -52,10 +51,10 @@ namespace PageBloomFilter.Tests {
                 new V128(0xb55cd8bdcac2a118UL,0x4e93b65164705d2aUL),
                 new V128(0xb7c97db807c32f38UL,0x510723230adef63dUL),
             };
-            byte[] buf = Encoding.ASCII.GetBytes("0123456789abcdefghijklmnopqrstuvwxyz");
+            var view = Encoding.ASCII.GetBytes("0123456789abcdefghijklmnopqrstuvwxyz").AsSpan();
             for (int i = 0; i < expected.Length; i++) {
-                V128 code = Hash128(buf[0..i]);
-                Assert.AreEqual(expected[i]， code);
+                V128 code = Hash128(view[..i]);
+                Assert.That(code, Is.EqualTo(expected[i]));
             }
         }
     }

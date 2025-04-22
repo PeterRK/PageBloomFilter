@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 namespace PageBloomFilter {
-    public class Hash {
+    public sealed class Hash {
         public struct V128 {
             public ulong low;
             public ulong high;
@@ -60,21 +60,21 @@ namespace PageBloomFilter {
             }
         }
 
-        public static V128 Hash128(byte[] key) {
+        public static V128 Hash128(ReadOnlySpan<byte> key) {
             ulong magic = 0xdeadbeefdeadbeefUL;
             var s = new State(0, 0, magic, magic);
 
             int off = 0;
             for (int end = key.Length & ~0x1f; off < end; off += 32) {
-                s.c += BitConverter.ToUInt64(key, off);
-                s.d += BitConverter.ToUInt64(key, off + 8);
+                s.c += BitConverter.ToUInt64(key[off..]);
+                s.d += BitConverter.ToUInt64(key[(off + 8)..]);
                 s.Mix();
-                s.a += BitConverter.ToUInt64(key, off + 16);
-                s.b += BitConverter.ToUInt64(key, off + 24);
+                s.a += BitConverter.ToUInt64(key[(off + 16)..]);
+                s.b += BitConverter.ToUInt64(key[(off + 24)..]);
             }
             if (key.Length - off >= 16) {
-                s.c += BitConverter.ToUInt64(key, off);
-                s.d += BitConverter.ToUInt64(key, off + 8);
+                s.c += BitConverter.ToUInt64(key[off..]);
+                s.d += BitConverter.ToUInt64(key[(off + 8)..]);
                 s.Mix();
                 off += 16;
             }
@@ -91,8 +91,8 @@ namespace PageBloomFilter {
                     s.d += ((ulong)key[off + 12]) << 32;
                     goto case 12;
                 case 12:
-                    s.d += BitConverter.ToUInt32(key, off + 8);
-                    s.c += BitConverter.ToUInt64(key, off);
+                    s.d += BitConverter.ToUInt32(key[(off + 8)..]);
+                    s.c += BitConverter.ToUInt64(key[off..]);
                     break;
                 case 11:
                     s.d += ((ulong)key[off + 10]) << 16;
@@ -104,7 +104,7 @@ namespace PageBloomFilter {
                     s.d += key[off + 8];
                     goto case 8;
                 case 8:
-                    s.c += BitConverter.ToUInt64(key, off);
+                    s.c += BitConverter.ToUInt64(key[off..]);
                     break;
                 case 7:
                     s.c += ((ulong)key[off + 6]) << 48;
@@ -116,7 +116,7 @@ namespace PageBloomFilter {
                     s.c += ((ulong)key[off + 4]) << 32;
                     goto case 4;
                 case 4:
-                    s.c += BitConverter.ToUInt32(key, off);
+                    s.c += BitConverter.ToUInt32(key[off..]);
                     break;
                 case 3:
                     s.c += ((ulong)key[off + 2]) << 16;
@@ -136,11 +136,11 @@ namespace PageBloomFilter {
             return new V128(s.a, s.b);
         }
 
-        public static ulong Hash64(byte[] key) {
+        public static ulong Hash64(ReadOnlySpan<byte> key) {
             return Hash128(key).low;
         }
 
-        public static uint Hash32(byte[] key) {
+        public static uint Hash32(ReadOnlySpan<byte> key) {
             return (uint)Hash64(key);
         }
     }

@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 
 using NUnit.Framework;
-using PageBloomFilter;
 
 namespace PageBloomFilter.Tests {
     public class PageBloomFilterTest {
@@ -11,32 +10,32 @@ namespace PageBloomFilter.Tests {
         [Test]
         public void CreateTest() {
             var bf = PageBloomFilter.New(500, 0.01);
-            Assert.AreEqual(7, bf.Way);
-            Assert.AreEqual(7, bf.PageLevel);
-            Assert.AreEqual(640, bf.Data.Length);
+            Assert.That(bf.Way, Is.EqualTo(7));
+            Assert.That(bf.PageLevel, Is.EqualTo(7));
+            Assert.That(bf.Data.Length, Is.EqualTo(640));
         }
 
-        private void doTest(int way) {
+        private static void DoTest(int way) {
             PageBloomFilter bf = PageBloomFilter.New(way, 7, 3);
-            var key = new byte[8];
+            var key = new Span<byte>(new byte[8]);
             for (long i = 0; i < 200; i++) {
                 BitConverter.TryWriteBytes(key, i);
-                Assert.IsTrue(bf.Set(key));
+                Assert.That(bf.Set(key), Is.True);
             }
             for (long i = 0; i < 200; i++) {
                 BitConverter.TryWriteBytes(key, i);
-                Assert.IsTrue(bf.Test(key));
+                Assert.That(bf.Test(key), Is.True);
             }
             for (long i = 200; i < 400; i++) {
                 BitConverter.TryWriteBytes(key, i);
-                Assert.IsFalse(bf.Test(key));
+                Assert.That(bf.Test(key), Is.False);
             }
         }
 
         [Test]
         public void OperateTest() {
             for (int i = 4; i <= 8; i++) {
-                doTest(i);
+                DoTest(i);
             }
         }
     }
