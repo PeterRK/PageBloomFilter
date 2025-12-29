@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-#ifndef DISABLE_SIMD_OPTIMIZE
+#if defined(__x86_64__) && !defined(DISABLE_SIMD_OPTIMIZE)
 #include <immintrin.h>
 #endif
 #include "hash.h"
@@ -13,7 +13,7 @@ union V128X {
 	V128 v;
 	uint32_t w[4];
 	uint16_t s[8];
-#ifndef DISABLE_SIMD_OPTIMIZE
+#if defined(__x86_64__) && !defined(DISABLE_SIMD_OPTIMIZE)
 	__m128i m;
 #endif
 };
