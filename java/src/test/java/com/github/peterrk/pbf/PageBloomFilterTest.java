@@ -28,6 +28,22 @@ public class PageBloomFilterTest {
         }
     }
 
+    @Test
+    public void clearResetsUniqueCountTest() {
+        PageBloomFilter bf = PageBloomFilter.New(4, 7, 3);
+        byte[] key = new byte[8];
+        intToKey(123, key);
+
+        Assertions.assertTrue(bf.set(key));
+        Assertions.assertEquals(1, bf.getUniqueCnt());
+        Assertions.assertTrue(bf.test(key));
+
+        bf.clear();
+
+        Assertions.assertEquals(0, bf.getUniqueCnt());
+        Assertions.assertFalse(bf.test(key));
+    }
+
     private static void intToKey(long num, byte[] buf) {
         ByteBuffer bb = ByteBuffer.wrap(buf);
         bb.order(ByteOrder.LITTLE_ENDIAN);

@@ -38,5 +38,21 @@ namespace PageBloomFilter.Tests {
                 DoTest(i);
             }
         }
+
+        [Test]
+        public void ClearResetsUniqueCountTest() {
+            PageBloomFilter bf = PageBloomFilter.New(4, 7, 3);
+            var key = new Span<byte>(new byte[8]);
+            BitConverter.TryWriteBytes(key, 123L);
+
+            Assert.That(bf.Set(key), Is.True);
+            Assert.That(bf.UniqueCnt, Is.EqualTo(1));
+            Assert.That(bf.Test(key), Is.True);
+
+            bf.Clear();
+
+            Assert.That(bf.UniqueCnt, Is.EqualTo(0));
+            Assert.That(bf.Test(key), Is.False);
+        }
     }
 }

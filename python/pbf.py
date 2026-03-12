@@ -52,7 +52,7 @@ class PageBloomFilter:
         return len(self.data) * 8 / self.way
 
     def virual_capacity(self, fpr):
-        t = math.lop1p(-math.pow(fpr, 1.0/self.way)) / math.log1p(-1.0/(len(self.data) * 8))
+        t = math.log1p(-math.pow(fpr, 1.0/self.way)) / math.log1p(-1.0/(len(self.data) * 8))
         return int(t) / self.way
 
 

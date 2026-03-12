@@ -83,6 +83,20 @@ fn test_operate() {
 }
 
 #[test]
+fn test_clear_resets_unique_cnt() {
+    let mut bf = pbf::new_pbf(4, 7, 3);
+    let key = (123_u64).to_le_bytes();
+    assert!(bf.set(&key));
+    assert_eq!(1, bf.get_unique_cnt());
+    assert!(bf.test(&key));
+
+    bf.clear();
+
+    assert_eq!(0, bf.get_unique_cnt());
+    assert!(!bf.test(&key));
+}
+
+#[test]
 fn benchmark() {
     let n = 1000000_usize;
     let mut bf = pbf::new_bloom_filter(n, 0.01);

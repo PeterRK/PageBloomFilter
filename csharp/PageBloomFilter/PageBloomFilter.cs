@@ -130,6 +130,7 @@ namespace PageBloomFilter {
         }
 
         public void Clear() {
+            uniqueCnt = 0;
             Array.Clear(data, 0, data.Length);
         }
 

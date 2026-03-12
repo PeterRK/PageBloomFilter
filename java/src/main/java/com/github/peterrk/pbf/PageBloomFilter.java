@@ -136,6 +136,7 @@ public abstract class PageBloomFilter {
     }
 
     public void clear() {
+        uniqueCnt = 0;
         Arrays.fill(data, (byte)0);
     }
 

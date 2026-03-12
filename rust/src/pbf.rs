@@ -124,6 +124,7 @@ impl<const W : u8> BloomFilter for PageBloomFilter<W> {
     }
 
     fn clear(&mut self) {
+        self.unique_cnt = 0;
         self.data.fill(0_u8);
     }
     fn valid(&self) -> bool {
