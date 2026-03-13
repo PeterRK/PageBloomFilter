@@ -6,11 +6,11 @@ import struct
 import binascii
 
 
-_PTN_DATA_LINE = re.compile('^\s*[0-9a-z]+\s(.+)')
-_PTN_FUNC = re.compile('^([0-9a-z]+)\s<(\w+)>')
-_PTN_CODE = re.compile('^\s*([0-9a-z]+):\t([0-9a-z ]+)\t(.+)')
-_PTN_CODE_EXT = re.compile('^\s*([0-9a-z]+):\t([0-9a-z ]+)$')
-_PTN_CALL = re.compile('^call\s+([0-9a-z]+)\s<([^\s<>]+)>')
+_PTN_DATA_LINE = re.compile(r'^\s*[0-9a-z]+\s(.+)')
+_PTN_FUNC = re.compile(r'^([0-9a-z]+)\s<(\w+)>')
+_PTN_CODE = re.compile(r'^\s*([0-9a-z]+):\t([0-9a-z ]+)\t(.+)')
+_PTN_CODE_EXT = re.compile(r'^\s*([0-9a-z]+):\t([0-9a-z ]+)$')
+_PTN_CALL = re.compile(r'^call\s+([0-9a-z]+)\s<([^\s<>]+)>')
 
 
 def load_data(filename):

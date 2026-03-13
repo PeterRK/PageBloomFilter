@@ -6,10 +6,10 @@ import sys
 
 _PTN_FUNC_BEGIN = re.compile('.*# -- Begin function')
 _PTN_FUNC_END = re.compile('.*# -- End function')
-_PTN_TEXT = re.compile('\s*\.text')
-_PTN_SECTION = re.compile('\s*\.section\s+')
-_PTN_GLOBAL_SYMBOL = re.compile('\s*\.globl\s+(\w+)')
-_PTN_FUNC_SIZE = re.compile('\s*\.size\s+(\w+),\s*([\w\.]+-\w+)')
+_PTN_TEXT = re.compile(r'\s*\.text')
+_PTN_SECTION = re.compile(r'\s*\.section\s+')
+_PTN_GLOBAL_SYMBOL = re.compile(r'\s*\.globl\s+(\w+)')
+_PTN_FUNC_SIZE = re.compile(r'\s*\.size\s+(\w+),\s*([\w\.]+-\w+)')
 
 
 def main(src, dest):
