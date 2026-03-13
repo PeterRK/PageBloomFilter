@@ -1,1984 +1,2090 @@
 #include "textflag.h"
 
+DATA hash_dispatch_table<>+0(SB)/8, $hash_tail_0<>(SB)
+DATA hash_dispatch_table<>+8(SB)/8, $hash_tail_1<>(SB)
+DATA hash_dispatch_table<>+16(SB)/8, $hash_tail_2<>(SB)
+DATA hash_dispatch_table<>+24(SB)/8, $hash_tail_3<>(SB)
+DATA hash_dispatch_table<>+32(SB)/8, $hash_tail_4<>(SB)
+DATA hash_dispatch_table<>+40(SB)/8, $hash_tail_5<>(SB)
+DATA hash_dispatch_table<>+48(SB)/8, $hash_tail_6<>(SB)
+DATA hash_dispatch_table<>+56(SB)/8, $hash_tail_7<>(SB)
+DATA hash_dispatch_table<>+64(SB)/8, $hash_tail_8<>(SB)
+DATA hash_dispatch_table<>+72(SB)/8, $hash_tail_9<>(SB)
+DATA hash_dispatch_table<>+80(SB)/8, $hash_tail_10<>(SB)
+DATA hash_dispatch_table<>+88(SB)/8, $hash_tail_11<>(SB)
+DATA hash_dispatch_table<>+96(SB)/8, $hash_tail_12<>(SB)
+DATA hash_dispatch_table<>+104(SB)/8, $hash_tail_13<>(SB)
+DATA hash_dispatch_table<>+112(SB)/8, $hash_tail_14<>(SB)
+DATA hash_dispatch_table<>+120(SB)/8, $hash_tail_15<>(SB)
+GLOBL hash_dispatch_table<>(SB), RODATA|NOPTR, $128
+
+DATA pbf5_test_vec<>+0(SB)/8, $0xffffffffffffffff
+DATA pbf5_test_vec<>+8(SB)/8, $0x00000000ffffffff
+DATA pbf5_test_vec<>+16(SB)/8, $0xffffffffffffffff
+DATA pbf5_test_vec<>+24(SB)/8, $0x0000000000000000
+GLOBL pbf5_test_vec<>(SB), RODATA|NOPTR, $32
+DATA pbf5_test_mask31<>+0(SB)/4, $0x0000001f
+GLOBL pbf5_test_mask31<>(SB), RODATA|NOPTR, $4
+DATA pbf5_test_one<>+0(SB)/4, $0x00000001
+GLOBL pbf5_test_one<>(SB), RODATA|NOPTR, $4
+
+DATA pbf6_test_vec<>+0(SB)/8, $0xffffffffffffffff
+DATA pbf6_test_vec<>+8(SB)/8, $0x00000000ffffffff
+DATA pbf6_test_vec<>+16(SB)/8, $0xffffffffffffffff
+DATA pbf6_test_vec<>+24(SB)/8, $0x00000000ffffffff
+GLOBL pbf6_test_vec<>(SB), RODATA|NOPTR, $32
+DATA pbf6_test_mask31<>+0(SB)/4, $0x0000001f
+GLOBL pbf6_test_mask31<>(SB), RODATA|NOPTR, $4
+DATA pbf6_test_one<>+0(SB)/4, $0x00000001
+GLOBL pbf6_test_one<>(SB), RODATA|NOPTR, $4
+
+DATA pbf7_test_vec<>+0(SB)/8, $0xffffffffffffffff
+DATA pbf7_test_vec<>+8(SB)/8, $0xffffffffffffffff
+DATA pbf7_test_vec<>+16(SB)/8, $0xffffffffffffffff
+DATA pbf7_test_vec<>+24(SB)/8, $0x00000000ffffffff
+GLOBL pbf7_test_vec<>(SB), RODATA|NOPTR, $32
+DATA pbf7_test_mask31<>+0(SB)/4, $0x0000001f
+GLOBL pbf7_test_mask31<>(SB), RODATA|NOPTR, $4
+DATA pbf7_test_one<>+0(SB)/4, $0x00000001
+GLOBL pbf7_test_one<>(SB), RODATA|NOPTR, $4
+
+DATA pbf8_test_mask31<>+0(SB)/4, $0x0000001f
+GLOBL pbf8_test_mask31<>(SB), RODATA|NOPTR, $4
+DATA pbf8_test_one<>+0(SB)/4, $0x00000001
+GLOBL pbf8_test_one<>(SB), RODATA|NOPTR, $4
+
 TEXT _ZN3pbf4HashEPKhj(SB), NOSPLIT, $0
 	// movabs $0xdeadbeefdeadbeef,%r8
-	QUAD $0xbeefdeadbeefb849; WORD $0xdead
+	MOVQ $0xdeadbeefdeadbeef, R8
 	// mov    %esi,%r9d
-	WORD $0x8941; BYTE $0xf1
+	MOVL SI, R9
 	// and    $0xffffffe0,%r9d
-	LONG $0xe0e18341
+	ANDL $0xffffffe0, R9
 	// je     1a9 <_ZN3pbf4HashEPKhj+0x1a9>
-	LONG $0x0192840f; WORD $0x0000
+	JEQ L_zn3pbf4hashepkhj_01a9
 	// add    %rdi,%r9
-	WORD $0x0149; BYTE $0xf9
+	ADDQ DI, R9
 	// xor    %r10d,%r10d
-	WORD $0x3145; BYTE $0xd2
+	XORL R10, R10
 	// mov    %r8,%rax
-	WORD $0x894c; BYTE $0xc0
+	MOVQ R8, AX
 	// mov    %r8,%rdx
-	WORD $0x894c; BYTE $0xc2
+	MOVQ R8, DX
 	// xor    %ecx,%ecx
-	WORD $0xc931
+	XORL CX, CX
 	// data16 cs nopw 0x0(%rax,%rax,1)
-	QUAD $0x0000841f0f2e6666; WORD $0x0000; BYTE $0x00
+	NOP
+L_zn3pbf4hashepkhj_0030:
 	// add    (%rdi),%rdx
-	WORD $0x0348; BYTE $0x17
+	ADDQ (DI), DX
 	// add    0x8(%rdi),%rax
-	LONG $0x08470348
+	ADDQ 0x8(DI), AX
 	// rorx   $0xe,%rdx,%rdx
-	LONG $0xf0fbe3c4; WORD $0x0ed2
+	RORXQ $0xe, DX, DX
 	// add    %rax,%rdx
-	WORD $0x0148; BYTE $0xc2
+	ADDQ AX, DX
 	// xor    %rdx,%rcx
-	WORD $0x3148; BYTE $0xd1
+	XORQ DX, CX
 	// rorx   $0xc,%rax,%rax
-	LONG $0xf0fbe3c4; WORD $0x0cc0
+	RORXQ $0xc, AX, AX
 	// add    %rcx,%rax
-	WORD $0x0148; BYTE $0xc8
+	ADDQ CX, AX
 	// xor    %rax,%r10
-	WORD $0x3149; BYTE $0xc2
+	XORQ AX, R10
 	// rorx   $0x22,%rcx,%rcx
-	LONG $0xf0fbe3c4; WORD $0x22c9
+	RORXQ $0x22, CX, CX
 	// add    %r10,%rcx
-	WORD $0x014c; BYTE $0xd1
+	ADDQ R10, CX
 	// xor    %rcx,%rdx
-	WORD $0x3148; BYTE $0xca
+	XORQ CX, DX
 	// rorx   $0x17,%r10,%r10
-	LONG $0xf0fb43c4; WORD $0x17d2
+	RORXQ $0x17, R10, R10
 	// add    %rdx,%r10
-	WORD $0x0149; BYTE $0xd2
+	ADDQ DX, R10
 	// xor    %r10,%rax
-	WORD $0x314c; BYTE $0xd0
+	XORQ R10, AX
 	// rorx   $0xa,%rdx,%rdx
-	LONG $0xf0fbe3c4; WORD $0x0ad2
+	RORXQ $0xa, DX, DX
 	// add    %rax,%rdx
-	WORD $0x0148; BYTE $0xc2
+	ADDQ AX, DX
 	// xor    %rdx,%rcx
-	WORD $0x3148; BYTE $0xd1
+	XORQ DX, CX
 	// rorx   $0x10,%rax,%rax
-	LONG $0xf0fbe3c4; WORD $0x10c0
+	RORXQ $0x10, AX, AX
 	// add    %rcx,%rax
-	WORD $0x0148; BYTE $0xc8
+	ADDQ CX, AX
 	// xor    %rax,%r10
-	WORD $0x3149; BYTE $0xc2
+	XORQ AX, R10
 	// rorx   $0x1a,%rcx,%rcx
-	LONG $0xf0fbe3c4; WORD $0x1ac9
+	RORXQ $0x1a, CX, CX
 	// add    %r10,%rcx
-	WORD $0x014c; BYTE $0xd1
+	ADDQ R10, CX
 	// xor    %rcx,%rdx
-	WORD $0x3148; BYTE $0xca
+	XORQ CX, DX
 	// rorx   $0x1b,%r10,%r10
-	LONG $0xf0fb43c4; WORD $0x1bd2
+	RORXQ $0x1b, R10, R10
 	// add    %rdx,%r10
-	WORD $0x0149; BYTE $0xd2
+	ADDQ DX, R10
 	// xor    %r10,%rax
-	WORD $0x314c; BYTE $0xd0
+	XORQ R10, AX
 	// rorx   $0x2,%rdx,%rdx
-	LONG $0xf0fbe3c4; WORD $0x02d2
+	RORXQ $0x2, DX, DX
 	// add    %rax,%rdx
-	WORD $0x0148; BYTE $0xc2
+	ADDQ AX, DX
 	// xor    %rdx,%rcx
-	WORD $0x3148; BYTE $0xd1
+	XORQ DX, CX
 	// rorx   $0x1e,%rax,%rax
-	LONG $0xf0fbe3c4; WORD $0x1ec0
+	RORXQ $0x1e, AX, AX
 	// add    %rcx,%rax
-	WORD $0x0148; BYTE $0xc8
+	ADDQ CX, AX
 	// xor    %rax,%r10
-	WORD $0x3149; BYTE $0xc2
+	XORQ AX, R10
 	// rorx   $0x3b,%rcx,%rcx
-	LONG $0xf0fbe3c4; WORD $0x3bc9
+	RORXQ $0x3b, CX, CX
 	// add    %r10,%rcx
-	WORD $0x014c; BYTE $0xd1
+	ADDQ R10, CX
 	// xor    %rcx,%rdx
-	WORD $0x3148; BYTE $0xca
+	XORQ CX, DX
 	// rorx   $0x1c,%r10,%r10
-	LONG $0xf0fb43c4; WORD $0x1cd2
+	RORXQ $0x1c, R10, R10
 	// add    %rdx,%r10
-	WORD $0x0149; BYTE $0xd2
+	ADDQ DX, R10
 	// xor    %r10,%rax
-	WORD $0x314c; BYTE $0xd0
+	XORQ R10, AX
 	// add    0x10(%rdi),%rcx
-	LONG $0x104f0348
+	ADDQ 0x10(DI), CX
 	// add    0x18(%rdi),%r10
-	LONG $0x1857034c
+	ADDQ 0x18(DI), R10
 	// add    $0x20,%rdi
-	LONG $0x20c78348
+	ADDQ $0x20, DI
 	// cmp    %r9,%rdi
-	WORD $0x394c; BYTE $0xcf
+	CMPQ R9, DI
 	// jb     30 <_ZN3pbf4HashEPKhj+0x30>
-	LONG $0xff54820f; WORD $0xffff
+	JB L_zn3pbf4hashepkhj_0030
 	// test   $0x10,%sil
-	LONG $0x10c6f640
+	TESTB $0x10, SIB
 	// je     181 <_ZN3pbf4HashEPKhj+0x181>
-	LONG $0x009b840f; WORD $0x0000
+	JEQ L_zn3pbf4hashepkhj_0181
+L_zn3pbf4hashepkhj_00e6:
 	// add    (%rdi),%rdx
-	WORD $0x0348; BYTE $0x17
+	ADDQ (DI), DX
 	// add    0x8(%rdi),%rax
-	LONG $0x08470348
+	ADDQ 0x8(DI), AX
 	// rorx   $0xe,%rdx,%rdx
-	LONG $0xf0fbe3c4; WORD $0x0ed2
+	RORXQ $0xe, DX, DX
 	// add    %rax,%rdx
-	WORD $0x0148; BYTE $0xc2
+	ADDQ AX, DX
 	// xor    %rdx,%rcx
-	WORD $0x3148; BYTE $0xd1
+	XORQ DX, CX
 	// rorx   $0xc,%rax,%rax
-	LONG $0xf0fbe3c4; WORD $0x0cc0
+	RORXQ $0xc, AX, AX
 	// add    %rcx,%rax
-	WORD $0x0148; BYTE $0xc8
+	ADDQ CX, AX
 	// xor    %rax,%r10
-	WORD $0x3149; BYTE $0xc2
+	XORQ AX, R10
 	// rorx   $0x22,%rcx,%rcx
-	LONG $0xf0fbe3c4; WORD $0x22c9
+	RORXQ $0x22, CX, CX
 	// add    %r10,%rcx
-	WORD $0x014c; BYTE $0xd1
+	ADDQ R10, CX
 	// xor    %rcx,%rdx
-	WORD $0x3148; BYTE $0xca
+	XORQ CX, DX
 	// rorx   $0x17,%r10,%r9
-	LONG $0xf0fb43c4; WORD $0x17ca
+	RORXQ $0x17, R10, R9
 	// add    %rdx,%r9
-	WORD $0x0149; BYTE $0xd1
+	ADDQ DX, R9
 	// xor    %r9,%rax
-	WORD $0x314c; BYTE $0xc8
+	XORQ R9, AX
 	// rorx   $0xa,%rdx,%rdx
-	LONG $0xf0fbe3c4; WORD $0x0ad2
+	RORXQ $0xa, DX, DX
 	// add    %rax,%rdx
-	WORD $0x0148; BYTE $0xc2
+	ADDQ AX, DX
 	// xor    %rdx,%rcx
-	WORD $0x3148; BYTE $0xd1
+	XORQ DX, CX
 	// rorx   $0x10,%rax,%rax
-	LONG $0xf0fbe3c4; WORD $0x10c0
+	RORXQ $0x10, AX, AX
 	// add    %rcx,%rax
-	WORD $0x0148; BYTE $0xc8
+	ADDQ CX, AX
 	// xor    %rax,%r9
-	WORD $0x3149; BYTE $0xc1
+	XORQ AX, R9
 	// rorx   $0x1a,%rcx,%rcx
-	LONG $0xf0fbe3c4; WORD $0x1ac9
+	RORXQ $0x1a, CX, CX
 	// add    %r9,%rcx
-	WORD $0x014c; BYTE $0xc9
+	ADDQ R9, CX
 	// xor    %rcx,%rdx
-	WORD $0x3148; BYTE $0xca
+	XORQ CX, DX
 	// rorx   $0x1b,%r9,%r9
-	LONG $0xf0fb43c4; WORD $0x1bc9
+	RORXQ $0x1b, R9, R9
 	// add    %rdx,%r9
-	WORD $0x0149; BYTE $0xd1
+	ADDQ DX, R9
 	// xor    %r9,%rax
-	WORD $0x314c; BYTE $0xc8
+	XORQ R9, AX
 	// rorx   $0x2,%rdx,%rdx
-	LONG $0xf0fbe3c4; WORD $0x02d2
+	RORXQ $0x2, DX, DX
 	// add    %rax,%rdx
-	WORD $0x0148; BYTE $0xc2
+	ADDQ AX, DX
 	// xor    %rdx,%rcx
-	WORD $0x3148; BYTE $0xd1
+	XORQ DX, CX
 	// rorx   $0x1e,%rax,%rax
-	LONG $0xf0fbe3c4; WORD $0x1ec0
+	RORXQ $0x1e, AX, AX
 	// add    %rcx,%rax
-	WORD $0x0148; BYTE $0xc8
+	ADDQ CX, AX
 	// xor    %rax,%r9
-	WORD $0x3149; BYTE $0xc1
+	XORQ AX, R9
 	// rorx   $0x3b,%rcx,%rcx
-	LONG $0xf0fbe3c4; WORD $0x3bc9
+	RORXQ $0x3b, CX, CX
 	// add    %r9,%rcx
-	WORD $0x014c; BYTE $0xc9
+	ADDQ R9, CX
 	// xor    %rcx,%rdx
-	WORD $0x3148; BYTE $0xca
+	XORQ CX, DX
 	// rorx   $0x1c,%r9,%r10
-	LONG $0xf0fb43c4; WORD $0x1cd1
+	RORXQ $0x1c, R9, R10
 	// add    %rdx,%r10
-	WORD $0x0149; BYTE $0xd2
+	ADDQ DX, R10
 	// xor    %r10,%rax
-	WORD $0x314c; BYTE $0xd0
+	XORQ R10, AX
 	// add    $0x10,%rdi
-	LONG $0x10c78348
+	ADDQ $0x10, DI
+L_zn3pbf4hashepkhj_0181:
 	// mov    %rsi,%r9
-	WORD $0x8949; BYTE $0xf1
+	MOVQ SI, R9
 	// shl    $0x38,%r9
-	LONG $0x38e1c149
+	SHLQ $0x38, R9
 	// add    %rax,%r9
-	WORD $0x0149; BYTE $0xc1
+	ADDQ AX, R9
 	// and    $0xf,%esi
-	WORD $0xe683; BYTE $0x0f
+	ANDL $0xf, SI
 	// lea    0x13f(%rip),%rax        # 2d4 <_ZN3pbf4HashEPKhj+0x2d4>
-	LONG $0x3f058d48; WORD $0x0001; BYTE $0x00
+	LEAQ hash_dispatch_table<>(SB), AX
 	// movslq (%rax,%rsi,4),%rsi
-	LONG $0xb0346348
+	MOVQ (AX)(SI*8), SI
 	// add    %rax,%rsi
-	WORD $0x0148; BYTE $0xc6
 	// jmp    *%rsi
-	WORD $0xe6ff
-	// add    %r8,%rdx
-	WORD $0x014c; BYTE $0xc2
-	// add    %r8,%r9
-	WORD $0x014d; BYTE $0xc1
-	// jmp    24c <_ZN3pbf4HashEPKhj+0x24c>
-	LONG $0x0000a3e9; BYTE $0x00
+	JMP SI
+L_zn3pbf4hashepkhj_01a9:
 	// xor    %ecx,%ecx
-	WORD $0xc931
+	XORL CX, CX
 	// xor    %r10d,%r10d
-	WORD $0x3145; BYTE $0xd2
+	XORL R10, R10
 	// mov    %r8,%rdx
-	WORD $0x894c; BYTE $0xc2
+	MOVQ R8, DX
 	// mov    %r8,%rax
-	WORD $0x894c; BYTE $0xc0
+	MOVQ R8, AX
 	// test   $0x10,%sil
-	LONG $0x10c6f640
+	TESTB $0x10, SIB
 	// jne    e6 <_ZN3pbf4HashEPKhj+0xe6>
-	LONG $0xff28850f; WORD $0xffff
+	JNE L_zn3pbf4hashepkhj_00e6
 	// jmp    181 <_ZN3pbf4HashEPKhj+0x181>
-	WORD $0xc1eb
-	// movzbl 0x2(%rdi),%eax
-	LONG $0x0247b60f
-	// shl    $0x10,%rax
-	LONG $0x10e0c148
-	// add    %rax,%rdx
-	WORD $0x0148; BYTE $0xc2
-	// movzbl 0x1(%rdi),%eax
-	LONG $0x0147b60f
-	// shl    $0x8,%rax
-	LONG $0x08e0c148
-	// add    %rax,%rdx
-	WORD $0x0148; BYTE $0xc2
+	JMP L_zn3pbf4hashepkhj_0181
+
+// jump table target for _ZN3pbf4HashEPKhj+0x19e (len % 16 == 0)
+TEXT hash_tail_0<>(SB), NOSPLIT, $0
+	// add    %r8,%rdx
+	ADDQ R8, DX
+	// add    %r8,%r9
+	ADDQ R8, R9
+	// jmp    24c <_ZN3pbf4HashEPKhj+0x24c>
+	JMP hash_mix<>(SB)
+
+// jump table target for _ZN3pbf4HashEPKhj+0x1d6 (len % 16 == 1)
+TEXT hash_tail_1<>(SB), NOSPLIT, $0
 	// movzbl (%rdi),%eax
-	WORD $0xb60f; BYTE $0x07
+	MOVBLZX (DI), AX
 	// add    %rax,%rdx
-	WORD $0x0148; BYTE $0xc2
+	ADDQ AX, DX
 	// jmp    24c <_ZN3pbf4HashEPKhj+0x24c>
-	WORD $0x6eeb
-	// movzbl 0x6(%rdi),%eax
-	LONG $0x0647b60f
-	// shl    $0x30,%rax
-	LONG $0x30e0c148
-	// add    %rax,%rdx
-	WORD $0x0148; BYTE $0xc2
-	// movzbl 0x5(%rdi),%eax
-	LONG $0x0547b60f
-	// shl    $0x28,%rax
-	LONG $0x28e0c148
-	// add    %rax,%rdx
-	WORD $0x0148; BYTE $0xc2
-	// movzbl 0x4(%rdi),%eax
-	LONG $0x0447b60f
-	// shl    $0x20,%rax
-	LONG $0x20e0c148
-	// add    %rax,%rdx
-	WORD $0x0148; BYTE $0xc2
-	// mov    (%rdi),%eax
-	WORD $0x078b
-	// add    %rax,%rdx
-	WORD $0x0148; BYTE $0xc2
-	// jmp    24c <_ZN3pbf4HashEPKhj+0x24c>
-	WORD $0x46eb
-	// movzbl 0xa(%rdi),%eax
-	LONG $0x0a47b60f
-	// shl    $0x10,%rax
-	LONG $0x10e0c148
-	// add    %rax,%r9
-	WORD $0x0149; BYTE $0xc1
-	// movzbl 0x9(%rdi),%eax
-	LONG $0x0947b60f
+	JMP hash_mix<>(SB)
+
+// jump table target for _ZN3pbf4HashEPKhj+0x1cb (len % 16 == 2)
+TEXT hash_tail_2<>(SB), NOSPLIT, $0
+	// movzbl 0x1(%rdi),%eax
+	MOVBLZX 0x1(DI), AX
 	// shl    $0x8,%rax
-	LONG $0x08e0c148
-	// add    %rax,%r9
-	WORD $0x0149; BYTE $0xc1
-	// movzbl 0x8(%rdi),%eax
-	LONG $0x0847b60f
-	// jmp    246 <_ZN3pbf4HashEPKhj+0x246>
-	WORD $0x24eb
-	// movzbl 0xe(%rdi),%eax
-	LONG $0x0e47b60f
-	// shl    $0x30,%rax
-	LONG $0x30e0c148
-	// add    %rax,%r9
-	WORD $0x0149; BYTE $0xc1
-	// movzbl 0xd(%rdi),%eax
-	LONG $0x0d47b60f
-	// shl    $0x28,%rax
-	LONG $0x28e0c148
-	// add    %rax,%r9
-	WORD $0x0149; BYTE $0xc1
-	// movzbl 0xc(%rdi),%eax
-	LONG $0x0c47b60f
+	SHLQ $0x8, AX
+	// add    %rax,%rdx
+	ADDQ AX, DX
+	JMP hash_tail_1<>(SB)
+
+// jump table target for _ZN3pbf4HashEPKhj+0x1c0 (len % 16 == 3)
+TEXT hash_tail_3<>(SB), NOSPLIT, $0
+	// movzbl 0x2(%rdi),%eax
+	MOVBLZX 0x2(DI), AX
+	// shl    $0x10,%rax
+	SHLQ $0x10, AX
+	// add    %rax,%rdx
+	ADDQ AX, DX
+	JMP hash_tail_2<>(SB)
+
+// jump table target for _ZN3pbf4HashEPKhj+0x1ff (len % 16 == 4)
+TEXT hash_tail_4<>(SB), NOSPLIT, $0
+	// mov    (%rdi),%eax
+	MOVL (DI), AX
+	// add    %rax,%rdx
+	ADDQ AX, DX
+	// jmp    24c <_ZN3pbf4HashEPKhj+0x24c>
+	JMP hash_mix<>(SB)
+
+// jump table target for _ZN3pbf4HashEPKhj+0x1f4 (len % 16 == 5)
+TEXT hash_tail_5<>(SB), NOSPLIT, $0
+	// movzbl 0x4(%rdi),%eax
+	MOVBLZX 0x4(DI), AX
 	// shl    $0x20,%rax
-	LONG $0x20e0c148
-	// add    %rax,%r9
-	WORD $0x0149; BYTE $0xc1
-	// mov    0x8(%rdi),%eax
-	WORD $0x478b; BYTE $0x08
-	// add    %rax,%r9
-	WORD $0x0149; BYTE $0xc1
+	SHLQ $0x20, AX
+	// add    %rax,%rdx
+	ADDQ AX, DX
+	JMP hash_tail_4<>(SB)
+
+// jump table target for _ZN3pbf4HashEPKhj+0x1e9 (len % 16 == 6)
+TEXT hash_tail_6<>(SB), NOSPLIT, $0
+	// movzbl 0x5(%rdi),%eax
+	MOVBLZX 0x5(DI), AX
+	// shl    $0x28,%rax
+	SHLQ $0x28, AX
+	// add    %rax,%rdx
+	ADDQ AX, DX
+	JMP hash_tail_5<>(SB)
+
+// jump table target for _ZN3pbf4HashEPKhj+0x1de (len % 16 == 7)
+TEXT hash_tail_7<>(SB), NOSPLIT, $0
+	// movzbl 0x6(%rdi),%eax
+	MOVBLZX 0x6(DI), AX
+	// shl    $0x30,%rax
+	SHLQ $0x30, AX
+	// add    %rax,%rdx
+	ADDQ AX, DX
+	JMP hash_tail_6<>(SB)
+
+// jump table target for _ZN3pbf4HashEPKhj+0x249 (len % 16 == 8)
+TEXT hash_tail_8<>(SB), NOSPLIT, $0
 	// add    (%rdi),%rdx
-	WORD $0x0348; BYTE $0x17
-	// xor    %rdx,%r9
-	WORD $0x3149; BYTE $0xd1
-	// rorx   $0x31,%rdx,%rax
-	LONG $0xf0fbe3c4; WORD $0x31c2
+	ADDQ (DI), DX
+	JMP hash_mix<>(SB)
+
+// jump table target for _ZN3pbf4HashEPKhj+0x21c (len % 16 == 9)
+TEXT hash_tail_9<>(SB), NOSPLIT, $0
+	// movzbl 0x8(%rdi),%eax
+	MOVBLZX 0x8(DI), AX
+	// jmp    246 <_ZN3pbf4HashEPKhj+0x246>
+	JMP hash_tail_10<>(SB)
+
+// jump table target for _ZN3pbf4HashEPKhj+0x211 (len % 16 == 10)
+TEXT hash_tail_10<>(SB), NOSPLIT, $0
 	// add    %rax,%r9
-	WORD $0x0149; BYTE $0xc1
+	ADDQ AX, R9
+	// add    (%rdi),%rdx
+	ADDQ (DI), DX
+	JMP hash_mix<>(SB)
+
+// jump table target for _ZN3pbf4HashEPKhj+0x206 (len % 16 == 11)
+TEXT hash_tail_11<>(SB), NOSPLIT, $0
+	// movzbl 0xa(%rdi),%eax
+	MOVBLZX 0xa(DI), AX
+	// shl    $0x10,%rax
+	SHLQ $0x10, AX
+	// add    %rax,%r9
+	ADDQ AX, R9
+	JMP hash_tail_10<>(SB)
+
+// jump table target for _ZN3pbf4HashEPKhj+0x243 (len % 16 == 12)
+TEXT hash_tail_12<>(SB), NOSPLIT, $0
+	// mov    0x8(%rdi),%eax
+	MOVL 0x8(DI), AX
+	JMP hash_tail_10<>(SB)
+
+// jump table target for _ZN3pbf4HashEPKhj+0x238 (len % 16 == 13)
+TEXT hash_tail_13<>(SB), NOSPLIT, $0
+	// movzbl 0xc(%rdi),%eax
+	MOVBLZX 0xc(DI), AX
+	// shl    $0x20,%rax
+	SHLQ $0x20, AX
+	// add    %rax,%r9
+	ADDQ AX, R9
+	JMP hash_tail_12<>(SB)
+
+// jump table target for _ZN3pbf4HashEPKhj+0x22d (len % 16 == 14)
+TEXT hash_tail_14<>(SB), NOSPLIT, $0
+	// movzbl 0xd(%rdi),%eax
+	MOVBLZX 0xd(DI), AX
+	// shl    $0x28,%rax
+	SHLQ $0x28, AX
+	// add    %rax,%r9
+	ADDQ AX, R9
+	JMP hash_tail_13<>(SB)
+
+// jump table target for _ZN3pbf4HashEPKhj+0x222 (len % 16 == 15)
+TEXT hash_tail_15<>(SB), NOSPLIT, $0
+	// movzbl 0xe(%rdi),%eax
+	MOVBLZX 0xe(DI), AX
+	// shl    $0x30,%rax
+	SHLQ $0x30, AX
+	// add    %rax,%r9
+	ADDQ AX, R9
+	JMP hash_tail_14<>(SB)
+
+// shared tail mixer for _ZN3pbf4HashEPKhj+0x24c
+TEXT hash_mix<>(SB), NOSPLIT, $0
+	// xor    %rdx,%r9
+	XORQ DX, R9
+	// rorx   $0x31,%rdx,%rax
+	RORXQ $0x31, DX, AX
+	// add    %rax,%r9
+	ADDQ AX, R9
 	// xor    %r9,%rcx
-	WORD $0x314c; BYTE $0xc9
+	XORQ R9, CX
 	// rorx   $0xc,%r9,%rdx
-	LONG $0xf0fbc3c4; WORD $0x0cd1
+	RORXQ $0xc, R9, DX
 	// add    %rdx,%rcx
-	WORD $0x0148; BYTE $0xd1
+	ADDQ DX, CX
 	// xor    %rcx,%r10
-	WORD $0x3149; BYTE $0xca
+	XORQ CX, R10
 	// rorx   $0x26,%rcx,%rcx
-	LONG $0xf0fbe3c4; WORD $0x26c9
+	RORXQ $0x26, CX, CX
 	// add    %rcx,%r10
-	WORD $0x0149; BYTE $0xca
+	ADDQ CX, R10
 	// xor    %r10,%rax
-	WORD $0x314c; BYTE $0xd0
+	XORQ R10, AX
 	// rorx   $0xd,%r10,%rsi
-	LONG $0xf0fbc3c4; WORD $0x0df2
+	RORXQ $0xd, R10, SI
 	// add    %rsi,%rax
-	WORD $0x0148; BYTE $0xf0
+	ADDQ SI, AX
 	// xor    %rax,%rdx
-	WORD $0x3148; BYTE $0xc2
+	XORQ AX, DX
 	// rorx   $0x24,%rax,%rax
-	LONG $0xf0fbe3c4; WORD $0x24c0
+	RORXQ $0x24, AX, AX
 	// add    %rax,%rdx
-	WORD $0x0148; BYTE $0xc2
+	ADDQ AX, DX
 	// xor    %rdx,%rcx
-	WORD $0x3148; BYTE $0xd1
+	XORQ DX, CX
 	// rorx   $0x37,%rdx,%rdi
-	LONG $0xf0fbe3c4; WORD $0x37fa
+	RORXQ $0x37, DX, DI
 	// add    %rdi,%rcx
-	WORD $0x0148; BYTE $0xf9
+	ADDQ DI, CX
 	// xor    %rcx,%rsi
-	WORD $0x3148; BYTE $0xce
+	XORQ CX, SI
 	// rorx   $0x11,%rcx,%rcx
-	LONG $0xf0fbe3c4; WORD $0x11c9
+	RORXQ $0x11, CX, CX
 	// add    %rcx,%rsi
-	WORD $0x0148; BYTE $0xce
+	ADDQ CX, SI
 	// xor    %rsi,%rax
-	WORD $0x3148; BYTE $0xf0
+	XORQ SI, AX
 	// rorx   $0xa,%rsi,%rdx
-	LONG $0xf0fbe3c4; WORD $0x0ad6
+	RORXQ $0xa, SI, DX
 	// add    %rdx,%rax
-	WORD $0x0148; BYTE $0xd0
+	ADDQ DX, AX
 	// xor    %rax,%rdi
-	WORD $0x3148; BYTE $0xc7
+	XORQ AX, DI
 	// rorx   $0x20,%rax,%rax
-	LONG $0xf0fbe3c4; WORD $0x20c0
+	RORXQ $0x20, AX, AX
 	// add    %rdi,%rax
-	WORD $0x0148; BYTE $0xf8
+	ADDQ DI, AX
 	// xor    %rax,%rcx
-	WORD $0x3148; BYTE $0xc1
+	XORQ AX, CX
 	// rorx   $0x27,%rax,%rax
-	LONG $0xf0fbe3c4; WORD $0x27c0
+	RORXQ $0x27, AX, AX
 	// add    %rcx,%rax
-	WORD $0x0148; BYTE $0xc8
+	ADDQ CX, AX
 	// xor    %rax,%rdx
-	WORD $0x3148; BYTE $0xc2
+	XORQ AX, DX
 	// rorx   $0x1,%rax,%rax
-	LONG $0xf0fbe3c4; WORD $0x01c0
+	RORXQ $0x1, AX, AX
 	// add    %rax,%rdx
-	WORD $0x0148; BYTE $0xc2
+	ADDQ AX, DX
 	// ret    
-	BYTE $0xc3
-	// data 67
-	QUAD $0x02fffffeca001f0f; QUAD $0xecfffffef7ffffff; QUAD $0x20ffffff2bfffffe; QUAD $0x0affffff15ffffff; QUAD $0x48ffffff75ffffff; QUAD $0x32ffffff3dffffff; QUAD $0x64ffffff6fffffff; QUAD $0x4effffff59ffffff; WORD $0xffff; BYTE $0xff
+	RET
 
 TEXT PBF4_Set(SB), NOSPLIT, $0
 	// push   %rbp
-	BYTE $0x55
+	PUSHQ BP
 	// push   %r15
-	WORD $0x5741
+	PUSHQ R15
 	// push   %r14
-	WORD $0x5641
+	PUSHQ R14
 	// push   %rbx
-	BYTE $0x53
+	PUSHQ BX
 	// push   %rax
-	BYTE $0x50
+	SUBQ $8, SP
 	// mov    %edx,%r15d
-	WORD $0x8941; BYTE $0xd7
+	MOVL DX, R15
 	// mov    %esi,%ebx
-	WORD $0xf389
+	MOVL SI, BX
 	// mov    %rdi,%r14
-	WORD $0x8949; BYTE $0xfe
+	MOVQ DI, R14
 	// mov    %rcx,%rdi
-	WORD $0x8948; BYTE $0xcf
+	MOVQ CX, DI
 	// mov    %r8d,%esi
-	WORD $0x8944; BYTE $0xc6
+	MOVL R8, SI
 	// call   0 <_ZN3pbf4HashEPKhj>
 	CALL _ZN3pbf4HashEPKhj(SB)
 	// mov    %rax,%rcx
-	WORD $0x8948; BYTE $0xc1
+	MOVQ AX, CX
 	// mov    %rax,%rsi
-	WORD $0x8948; BYTE $0xc6
+	MOVQ AX, SI
 	// shr    $0x20,%rsi
-	LONG $0x20eec148
+	SHRQ $0x20, SI
 	// rorx   $0x1c,%edx,%edi
-	LONG $0xf07be3c4; WORD $0x1cfa
+	RORXL $0x1c, DX, DI
 	// shr    $0x20,%rdx
-	LONG $0x20eac148
+	SHRQ $0x20, DX
 	// rorx   $0x18,%ecx,%eax
-	LONG $0xf07be3c4; WORD $0x18c1
+	RORXL $0x18, CX, AX
 	// rorx   $0x1a,%esi,%ebp
-	LONG $0xf07be3c4; WORD $0x1aee
+	RORXL $0x1a, SI, BP
 	// xor    %eax,%edi
-	WORD $0xc731
+	XORL AX, DI
 	// xor    %ebp,%edi
-	WORD $0xef31
+	XORL BP, DI
 	// rorx   $0x1e,%edx,%eax
-	LONG $0xf07be3c4; WORD $0x1ec2
+	RORXL $0x1e, DX, AX
 	// xor    %edi,%eax
-	WORD $0xf831
+	XORL DI, AX
 	// xor    %edx,%edx
-	WORD $0xd231
+	XORL DX, DX
 	// div    %r15d
-	WORD $0xf741; BYTE $0xf7
+	DIVL R15
 	// shlx   %rbx,%rdx,%rax
-	LONG $0xf7e1e2c4; BYTE $0xc2
+	SHLXQ BX, DX, AX
 	// add    %r14,%rax
-	WORD $0x014c; BYTE $0xf0
+	ADDQ R14, AX
 	// mov    %rcx,%r8
-	WORD $0x8949; BYTE $0xc8
+	MOVQ CX, R8
 	// add    $0x3,%bl
-	WORD $0xc380; BYTE $0x03
+	ADDB $0x3, BL
 	// bzhi   %ebx,%ecx,%edi
-	LONG $0xf560e2c4; BYTE $0xf9
+	BZHIL BX, CX, DI
 	// shr    $0x10,%rcx
-	LONG $0x10e9c148
+	SHRQ $0x10, CX
 	// shr    $0x30,%r8
-	LONG $0x30e8c149
+	SHRQ $0x30, R8
 	// movzwl %di,%ebp
-	WORD $0xb70f; BYTE $0xef
+	MOVWLZX DI, BP
 	// and    $0x7,%dil
-	LONG $0x07e78040
+	ANDB $0x7, DIB
 	// shr    $0x3,%rbp
-	LONG $0x03edc148
+	SHRQ $0x3, BP
 	// movzbl 0x0(%rbp,%rax,1),%edx
-	LONG $0x0554b60f; BYTE $0x00
+	MOVBLZX (BP)(AX*1), DX
 	// shrx   %edi,%edx,%r9d
-	LONG $0xf74362c4; BYTE $0xca
+	SHRXL DI, DX, R9
 	// bts    %edi,%edx
-	WORD $0xab0f; BYTE $0xfa
+	BTSL DI, DX
 	// mov    %dl,0x0(%rbp,%rax,1)
-	LONG $0x00055488
+	MOVB DL, (BP)(AX*1)
 	// bzhi   %ebx,%ecx,%ecx
-	LONG $0xf560e2c4; BYTE $0xc9
+	BZHIL BX, CX, CX
 	// movzwl %cx,%edx
-	WORD $0xb70f; BYTE $0xd1
+	MOVWLZX CX, DX
 	// mov    %ecx,%edi
-	WORD $0xcf89
+	MOVL CX, DI
 	// and    $0x7,%dil
-	LONG $0x07e78040
+	ANDB $0x7, DIB
 	// shr    $0x3,%rdx
-	LONG $0x03eac148
+	SHRQ $0x3, DX
 	// movzbl (%rdx,%rax,1),%ebp
-	LONG $0x022cb60f
+	MOVBLZX (DX)(AX*1), BP
 	// shrx   %edi,%ebp,%ecx
-	LONG $0xf743e2c4; BYTE $0xcd
+	SHRXL DI, BP, CX
 	// and    %r9d,%ecx
-	WORD $0x2144; BYTE $0xc9
+	ANDL R9, CX
 	// bts    %edi,%ebp
-	WORD $0xab0f; BYTE $0xfd
+	BTSL DI, BP
 	// mov    %bpl,(%rdx,%rax,1)
-	LONG $0x022c8840
+	MOVB BPB, (DX)(AX*1)
 	// bzhi   %ebx,%esi,%edx
-	LONG $0xf560e2c4; BYTE $0xd6
+	BZHIL BX, SI, DX
 	// movzwl %dx,%esi
-	WORD $0xb70f; BYTE $0xf2
+	MOVWLZX DX, SI
 	// and    $0x7,%dl
-	WORD $0xe280; BYTE $0x07
+	ANDB $0x7, DL
 	// shr    $0x3,%rsi
-	LONG $0x03eec148
+	SHRQ $0x3, SI
 	// movzbl (%rsi,%rax,1),%edi
-	LONG $0x063cb60f
+	MOVBLZX (SI)(AX*1), DI
 	// shrx   %edx,%edi,%ebp
-	LONG $0xf76be2c4; BYTE $0xef
+	SHRXL DX, DI, BP
 	// bts    %edx,%edi
-	WORD $0xab0f; BYTE $0xd7
+	BTSL DX, DI
 	// mov    %dil,(%rsi,%rax,1)
-	LONG $0x063c8840
+	MOVB DIB, (SI)(AX*1)
 	// bzhi   %ebx,%r8d,%edx
-	LONG $0xf560c2c4; BYTE $0xd0
+	BZHIL BX, R8, DX
 	// mov    %edx,%esi
-	WORD $0xd689
+	MOVL DX, SI
 	// and    $0x7,%sil
-	LONG $0x07e68040
+	ANDB $0x7, SIB
 	// shr    $0x3,%rdx
-	LONG $0x03eac148
+	SHRQ $0x3, DX
 	// movzbl (%rdx,%rax,1),%edi
-	LONG $0x023cb60f
+	MOVBLZX (DX)(AX*1), DI
 	// shrx   %esi,%edi,%ebx
-	LONG $0xf74be2c4; BYTE $0xdf
+	SHRXL SI, DI, BX
 	// and    %ebp,%ebx
-	WORD $0xeb21
+	ANDL BP, BX
 	// and    %ecx,%ebx
-	WORD $0xcb21
+	ANDL CX, BX
 	// bts    %esi,%edi
-	WORD $0xab0f; BYTE $0xf7
+	BTSL SI, DI
 	// mov    %dil,(%rdx,%rax,1)
-	LONG $0x023c8840
+	MOVB DIB, (DX)(AX*1)
 	// test   $0x1,%bl
-	WORD $0xc3f6; BYTE $0x01
+	TESTB $0x1, BL
 	// sete   %al
-	WORD $0x940f; BYTE $0xc0
+	SETEQ AL
 	// add    $0x8,%rsp
-	LONG $0x08c48348
+	ADDQ $0x8, SP
 	// pop    %rbx
-	BYTE $0x5b
+	POPQ BX
 	// pop    %r14
-	WORD $0x5e41
+	POPQ R14
 	// pop    %r15
-	WORD $0x5f41
+	POPQ R15
 	// pop    %rbp
-	BYTE $0x5d
-	// ret    
-	BYTE $0xc3
+	POPQ BP
+	// ret
+	RET
 
 TEXT PBF4_Test(SB), NOSPLIT, $0
 	// push   %rbp
-	BYTE $0x55
+	PUSHQ BP
 	// push   %r15
-	WORD $0x5741
+	PUSHQ R15
 	// push   %r14
-	WORD $0x5641
+	PUSHQ R14
 	// push   %rbx
-	BYTE $0x53
+	PUSHQ BX
 	// push   %rax
-	BYTE $0x50
+	SUBQ $8, SP
 	// mov    %edx,%r15d
-	WORD $0x8941; BYTE $0xd7
+	MOVL DX, R15
 	// mov    %esi,%ebx
-	WORD $0xf389
+	MOVL SI, BX
 	// mov    %rdi,%r14
-	WORD $0x8949; BYTE $0xfe
+	MOVQ DI, R14
 	// mov    %rcx,%rdi
-	WORD $0x8948; BYTE $0xcf
+	MOVQ CX, DI
 	// mov    %r8d,%esi
-	WORD $0x8944; BYTE $0xc6
+	MOVL R8, SI
 	// call   0 <_ZN3pbf4HashEPKhj>
 	CALL _ZN3pbf4HashEPKhj(SB)
 	// mov    %rax,%rcx
-	WORD $0x8948; BYTE $0xc1
+	MOVQ AX, CX
 	// mov    %rax,%rsi
-	WORD $0x8948; BYTE $0xc6
+	MOVQ AX, SI
 	// shr    $0x20,%rsi
-	LONG $0x20eec148
+	SHRQ $0x20, SI
 	// rorx   $0x1c,%edx,%edi
-	LONG $0xf07be3c4; WORD $0x1cfa
+	RORXL $0x1c, DX, DI
 	// shr    $0x20,%rdx
-	LONG $0x20eac148
+	SHRQ $0x20, DX
 	// rorx   $0x18,%ecx,%eax
-	LONG $0xf07be3c4; WORD $0x18c1
+	RORXL $0x18, CX, AX
 	// rorx   $0x1a,%esi,%ebp
-	LONG $0xf07be3c4; WORD $0x1aee
+	RORXL $0x1a, SI, BP
 	// xor    %eax,%edi
-	WORD $0xc731
+	XORL AX, DI
 	// xor    %ebp,%edi
-	WORD $0xef31
+	XORL BP, DI
 	// rorx   $0x1e,%edx,%eax
-	LONG $0xf07be3c4; WORD $0x1ec2
+	RORXL $0x1e, DX, AX
 	// xor    %edi,%eax
-	WORD $0xf831
+	XORL DI, AX
 	// xor    %edx,%edx
-	WORD $0xd231
+	XORL DX, DX
 	// div    %r15d
-	WORD $0xf741; BYTE $0xf7
+	DIVL R15
 	// xor    %eax,%eax
-	WORD $0xc031
+	XORL AX, AX
 	// shlx   %rbx,%rdx,%rdx
-	LONG $0xf7e1e2c4; BYTE $0xd2
+	SHLXQ BX, DX, DX
 	// add    %r14,%rdx
-	WORD $0x014c; BYTE $0xf2
+	ADDQ R14, DX
 	// add    $0x3,%bl
-	WORD $0xc380; BYTE $0x03
+	ADDB $0x3, BL
 	// bzhi   %ebx,%ecx,%edi
-	LONG $0xf560e2c4; BYTE $0xf9
+	BZHIL BX, CX, DI
 	// movzwl %di,%ebp
-	WORD $0xb70f; BYTE $0xef
+	MOVWLZX DI, BP
 	// and    $0x7,%dil
-	LONG $0x07e78040
+	ANDB $0x7, DIB
 	// mov    $0x1,%r8d
-	LONG $0x0001b841; WORD $0x0000
+	MOVL $0x1, R8
 	// shlx   %edi,%r8d,%edi
-	LONG $0xf741c2c4; BYTE $0xf8
+	SHLXL DI, R8, DI
 	// shr    $0x3,%rbp
-	LONG $0x03edc148
+	SHRQ $0x3, BP
 	// movzbl 0x0(%rbp,%rdx,1),%ebp
-	LONG $0x156cb60f; BYTE $0x00
+	MOVBLZX (BP)(DX*1), BP
 	// test   %ebp,%edi
-	WORD $0xef85
+	TESTL BP, DI
 	// je     50f <PBF4_Test+0xef>
-	WORD $0x7374
+	JEQ L_pbf4_test_00ef
 	// mov    $0xffffffff,%eax
-	LONG $0xffffffb8; BYTE $0xff
+	MOVL $0xffffffff, AX
 	// shlx   %ebx,%eax,%eax
-	LONG $0xf761e2c4; BYTE $0xc0
+	SHLXL BX, AX, AX
 	// not    %eax
-	WORD $0xd0f7
+	NOTL AX
 	// mov    %rcx,%rdi
-	WORD $0x8948; BYTE $0xcf
+	MOVQ CX, DI
 	// shr    $0x10,%rdi
-	LONG $0x10efc148
+	SHRQ $0x10, DI
 	// mov    %eax,%ebp
-	WORD $0xc589
+	MOVL AX, BP
 	// and    %edi,%ebp
-	WORD $0xfd21
+	ANDL DI, BP
 	// movzwl %bp,%edi
-	WORD $0xb70f; BYTE $0xfd
+	MOVWLZX BP, DI
 	// and    $0x7,%bpl
-	LONG $0x07e58040
+	ANDB $0x7, BPB
 	// shlx   %ebp,%r8d,%ebp
-	LONG $0xf751c2c4; BYTE $0xe8
+	SHLXL BP, R8, BP
 	// shr    $0x3,%rdi
-	LONG $0x03efc148
+	SHRQ $0x3, DI
 	// movzbl (%rdx,%rdi,1),%edi
-	LONG $0x3a3cb60f
+	MOVBLZX (DX)(DI*1), DI
 	// test   %ebp,%edi
-	WORD $0xef85
+	TESTL BP, DI
 	// je     50d <PBF4_Test+0xed>
-	WORD $0x4274
+	JEQ L_pbf4_test_00ed
 	// and    %eax,%esi
-	WORD $0xc621
+	ANDL AX, SI
 	// mov    %esi,%ebp
-	WORD $0xf589
+	MOVL SI, BP
 	// and    $0x7,%bpl
-	LONG $0x07e58040
+	ANDB $0x7, BPB
 	// mov    $0x1,%edi
-	LONG $0x000001bf; BYTE $0x00
+	MOVL $0x1, DI
 	// shlx   %ebp,%edi,%ebp
-	LONG $0xf751e2c4; BYTE $0xef
+	SHLXL BP, DI, BP
 	// movzwl %si,%esi
-	WORD $0xb70f; BYTE $0xf6
+	MOVWLZX SI, SI
 	// shr    $0x3,%rsi
-	LONG $0x03eec148
+	SHRQ $0x3, SI
 	// movzbl (%rdx,%rsi,1),%esi
-	LONG $0x3234b60f
+	MOVBLZX (DX)(SI*1), SI
 	// test   %ebp,%esi
-	WORD $0xee85
+	TESTL BP, SI
 	// je     50d <PBF4_Test+0xed>
-	WORD $0x2174
+	JEQ L_pbf4_test_00ed
 	// shr    $0x30,%rcx
-	LONG $0x30e9c148
+	SHRQ $0x30, CX
 	// and    %eax,%ecx
-	WORD $0xc121
+	ANDL AX, CX
 	// mov    %ecx,%eax
-	WORD $0xc889
+	MOVL CX, AX
 	// and    $0x7,%al
-	WORD $0x0724
+	ANDB $0x7, AL
 	// shlx   %eax,%edi,%eax
-	LONG $0xf779e2c4; BYTE $0xc7
+	SHLXL AX, DI, AX
 	// movzwl %cx,%ecx
-	WORD $0xb70f; BYTE $0xc9
+	MOVWLZX CX, CX
 	// shr    $0x3,%rcx
-	LONG $0x03e9c148
+	SHRQ $0x3, CX
 	// movzbl (%rdx,%rcx,1),%ecx
-	LONG $0x0a0cb60f
+	MOVBLZX (DX)(CX*1), CX
 	// test   %eax,%ecx
-	WORD $0xc185
+	TESTL AX, CX
 	// setne  %al
-	WORD $0x950f; BYTE $0xc0
+	SETNE AL
 	// jmp    50f <PBF4_Test+0xef>
-	WORD $0x02eb
+	JMP L_pbf4_test_00ef
+L_pbf4_test_00ed:
 	// xor    %eax,%eax
-	WORD $0xc031
+	XORL AX, AX
+L_pbf4_test_00ef:
 	// add    $0x8,%rsp
-	LONG $0x08c48348
+	ADDQ $0x8, SP
 	// pop    %rbx
-	BYTE $0x5b
+	POPQ BX
 	// pop    %r14
-	WORD $0x5e41
+	POPQ R14
 	// pop    %r15
-	WORD $0x5f41
+	POPQ R15
 	// pop    %rbp
-	BYTE $0x5d
-	// ret    
-	BYTE $0xc3
+	POPQ BP
+	// ret
+	RET
 
 TEXT PBF5_Set(SB), NOSPLIT, $0
 	// push   %rbp
-	BYTE $0x55
+	PUSHQ BP
 	// push   %r15
-	WORD $0x5741
+	PUSHQ R15
 	// push   %r14
-	WORD $0x5641
+	PUSHQ R14
 	// push   %rbx
-	BYTE $0x53
+	PUSHQ BX
 	// push   %rax
-	BYTE $0x50
+	SUBQ $8, SP
 	// mov    %edx,%r15d
-	WORD $0x8941; BYTE $0xd7
+	MOVL DX, R15
 	// mov    %esi,%ebx
-	WORD $0xf389
+	MOVL SI, BX
 	// mov    %rdi,%r14
-	WORD $0x8949; BYTE $0xfe
+	MOVQ DI, R14
 	// mov    %rcx,%rdi
-	WORD $0x8948; BYTE $0xcf
+	MOVQ CX, DI
 	// mov    %r8d,%esi
-	WORD $0x8944; BYTE $0xc6
+	MOVL R8, SI
 	// call   0 <_ZN3pbf4HashEPKhj>
 	CALL _ZN3pbf4HashEPKhj(SB)
 	// mov    %rax,%rsi
-	WORD $0x8948; BYTE $0xc6
+	MOVQ AX, SI
 	// mov    %rdx,%r8
-	WORD $0x8949; BYTE $0xd0
+	MOVQ DX, R8
 	// mov    %rsi,%rdi
-	WORD $0x8948; BYTE $0xf7
+	MOVQ SI, DI
 	// shr    $0x20,%rdi
-	LONG $0x20efc148
+	SHRQ $0x20, DI
 	// mov    %rdx,%rax
-	WORD $0x8948; BYTE $0xd0
+	MOVQ DX, AX
 	// shr    $0x20,%rax
-	LONG $0x20e8c148
+	SHRQ $0x20, AX
 	// rorx   $0x18,%esi,%edx
-	LONG $0xf07be3c4; WORD $0x18d6
+	RORXL $0x18, SI, DX
 	// rorx   $0x1a,%edi,%ecx
-	LONG $0xf07be3c4; WORD $0x1acf
+	RORXL $0x1a, DI, CX
 	// rorx   $0x1c,%r8d,%ebp
-	LONG $0xf07bc3c4; WORD $0x1ce8
+	RORXL $0x1c, R8, BP
 	// xor    %edx,%ebp
-	WORD $0xd531
+	XORL DX, BP
 	// xor    %ecx,%ebp
-	WORD $0xcd31
+	XORL CX, BP
 	// rorx   $0x1e,%eax,%eax
-	LONG $0xf07be3c4; WORD $0x1ec0
+	RORXL $0x1e, AX, AX
 	// xor    %ebp,%eax
-	WORD $0xe831
+	XORL BP, AX
 	// xor    %edx,%edx
-	WORD $0xd231
+	XORL DX, DX
 	// div    %r15d
-	WORD $0xf741; BYTE $0xf7
+	DIVL R15
 	// shlx   %rbx,%rdx,%rax
-	LONG $0xf7e1e2c4; BYTE $0xc2
+	SHLXQ BX, DX, AX
 	// add    %r14,%rax
-	WORD $0x014c; BYTE $0xf0
+	ADDQ R14, AX
 	// mov    %rsi,%r9
-	WORD $0x8949; BYTE $0xf1
+	MOVQ SI, R9
 	// add    $0x3,%bl
-	WORD $0xc380; BYTE $0x03
+	ADDB $0x3, BL
 	// bzhi   %ebx,%esi,%ecx
-	LONG $0xf560e2c4; BYTE $0xce
+	BZHIL BX, SI, CX
 	// shr    $0x10,%rsi
-	LONG $0x10eec148
+	SHRQ $0x10, SI
 	// shr    $0x30,%r9
-	LONG $0x30e9c149
+	SHRQ $0x30, R9
 	// movzwl %cx,%ebp
-	WORD $0xb70f; BYTE $0xe9
+	MOVWLZX CX, BP
 	// and    $0x7,%cl
-	WORD $0xe180; BYTE $0x07
+	ANDB $0x7, CL
 	// shr    $0x3,%rbp
-	LONG $0x03edc148
+	SHRQ $0x3, BP
 	// movzbl 0x0(%rbp,%rax,1),%edx
-	LONG $0x0554b60f; BYTE $0x00
+	MOVBLZX (BP)(AX*1), DX
 	// shrx   %ecx,%edx,%r10d
-	LONG $0xf77362c4; BYTE $0xd2
+	SHRXL CX, DX, R10
 	// bts    %ecx,%edx
-	WORD $0xab0f; BYTE $0xca
+	BTSL CX, DX
 	// mov    %dl,0x0(%rbp,%rax,1)
-	LONG $0x00055488
+	MOVB DL, (BP)(AX*1)
 	// bzhi   %ebx,%esi,%ecx
-	LONG $0xf560e2c4; BYTE $0xce
+	BZHIL BX, SI, CX
 	// movzwl %cx,%edx
-	WORD $0xb70f; BYTE $0xd1
+	MOVWLZX CX, DX
 	// and    $0x7,%cl
-	WORD $0xe180; BYTE $0x07
+	ANDB $0x7, CL
 	// shr    $0x3,%rdx
-	LONG $0x03eac148
+	SHRQ $0x3, DX
 	// movzbl (%rdx,%rax,1),%ebp
-	LONG $0x022cb60f
+	MOVBLZX (DX)(AX*1), BP
 	// shrx   %ecx,%ebp,%esi
-	LONG $0xf773e2c4; BYTE $0xf5
+	SHRXL CX, BP, SI
 	// and    %r10d,%esi
-	WORD $0x2144; BYTE $0xd6
+	ANDL R10, SI
 	// bts    %ecx,%ebp
-	WORD $0xab0f; BYTE $0xcd
+	BTSL CX, BP
 	// mov    %bpl,(%rdx,%rax,1)
-	LONG $0x022c8840
+	MOVB BPB, (DX)(AX*1)
 	// bzhi   %ebx,%edi,%ecx
-	LONG $0xf560e2c4; BYTE $0xcf
+	BZHIL BX, DI, CX
 	// movzwl %cx,%edx
-	WORD $0xb70f; BYTE $0xd1
+	MOVWLZX CX, DX
 	// and    $0x7,%cl
-	WORD $0xe180; BYTE $0x07
+	ANDB $0x7, CL
 	// shr    $0x3,%rdx
-	LONG $0x03eac148
+	SHRQ $0x3, DX
 	// movzbl (%rdx,%rax,1),%edi
-	LONG $0x023cb60f
+	MOVBLZX (DX)(AX*1), DI
 	// shrx   %ecx,%edi,%r10d
-	LONG $0xf77362c4; BYTE $0xd7
+	SHRXL CX, DI, R10
 	// bts    %ecx,%edi
-	WORD $0xab0f; BYTE $0xcf
+	BTSL CX, DI
 	// mov    %dil,(%rdx,%rax,1)
-	LONG $0x023c8840
+	MOVB DIB, (DX)(AX*1)
 	// bzhi   %ebx,%r9d,%ecx
-	LONG $0xf560c2c4; BYTE $0xc9
+	BZHIL BX, R9, CX
 	// mov    %ecx,%edx
-	WORD $0xca89
+	MOVL CX, DX
 	// and    $0x7,%dl
-	WORD $0xe280; BYTE $0x07
+	ANDB $0x7, DL
 	// shr    $0x3,%rcx
-	LONG $0x03e9c148
+	SHRQ $0x3, CX
 	// movzbl (%rcx,%rax,1),%edi
-	LONG $0x013cb60f
+	MOVBLZX (CX)(AX*1), DI
 	// shrx   %edx,%edi,%ebp
-	LONG $0xf76be2c4; BYTE $0xef
+	SHRXL DX, DI, BP
 	// and    %r10d,%ebp
-	WORD $0x2144; BYTE $0xd5
+	ANDL R10, BP
 	// and    %esi,%ebp
-	WORD $0xf521
+	ANDL SI, BP
 	// bts    %edx,%edi
-	WORD $0xab0f; BYTE $0xd7
+	BTSL DX, DI
 	// mov    %dil,(%rcx,%rax,1)
-	LONG $0x013c8840
+	MOVB DIB, (CX)(AX*1)
 	// bzhi   %ebx,%r8d,%ecx
-	LONG $0xf560c2c4; BYTE $0xc8
+	BZHIL BX, R8, CX
 	// movzwl %cx,%edx
-	WORD $0xb70f; BYTE $0xd1
+	MOVWLZX CX, DX
 	// and    $0x7,%cl
-	WORD $0xe180; BYTE $0x07
+	ANDB $0x7, CL
 	// shr    $0x3,%rdx
-	LONG $0x03eac148
+	SHRQ $0x3, DX
 	// movzbl (%rdx,%rax,1),%esi
-	LONG $0x0234b60f
+	MOVBLZX (DX)(AX*1), SI
 	// shrx   %ecx,%esi,%edi
-	LONG $0xf773e2c4; BYTE $0xfe
+	SHRXL CX, SI, DI
 	// and    %ebp,%edi
-	WORD $0xef21
+	ANDL BP, DI
 	// bts    %ecx,%esi
-	WORD $0xab0f; BYTE $0xce
+	BTSL CX, SI
 	// mov    %sil,(%rdx,%rax,1)
-	LONG $0x02348840
+	MOVB SIB, (DX)(AX*1)
 	// test   $0x1,%dil
-	LONG $0x01c7f640
+	TESTB $0x1, DIB
 	// sete   %al
-	WORD $0x940f; BYTE $0xc0
+	SETEQ AL
 	// add    $0x8,%rsp
-	LONG $0x08c48348
+	ADDQ $0x8, SP
 	// pop    %rbx
-	BYTE $0x5b
+	POPQ BX
 	// pop    %r14
-	WORD $0x5e41
+	POPQ R14
 	// pop    %r15
-	WORD $0x5f41
+	POPQ R15
 	// pop    %rbp
-	BYTE $0x5d
-	// ret    
-	BYTE $0xc3
+	POPQ BP
+	// ret
+	RET
 
 TEXT PBF5_Test(SB), NOSPLIT, $0
 	// push   %rbp
-	BYTE $0x55
+	PUSHQ BP
 	// push   %r15
-	WORD $0x5741
+	PUSHQ R15
 	// push   %r14
-	WORD $0x5641
+	PUSHQ R14
 	// push   %rbx
-	BYTE $0x53
+	PUSHQ BX
 	// push   %rax
-	BYTE $0x50
+	SUBQ $8, SP
 	// mov    %edx,%r15d
-	WORD $0x8941; BYTE $0xd7
+	MOVL DX, R15
 	// mov    %esi,%ebx
-	WORD $0xf389
+	MOVL SI, BX
 	// mov    %rdi,%r14
-	WORD $0x8949; BYTE $0xfe
+	MOVQ DI, R14
 	// mov    %rcx,%rdi
-	WORD $0x8948; BYTE $0xcf
+	MOVQ CX, DI
 	// mov    %r8d,%esi
-	WORD $0x8944; BYTE $0xc6
+	MOVL R8, SI
 	// call   0 <_ZN3pbf4HashEPKhj>
 	CALL _ZN3pbf4HashEPKhj(SB)
 	// mov    %rax,%rcx
-	WORD $0x8948; BYTE $0xc1
+	MOVQ AX, CX
 	// mov    %rdx,%rbp
-	WORD $0x8948; BYTE $0xd5
+	MOVQ DX, BP
 	// rorx   $0x18,%ecx,%eax
-	LONG $0xf07be3c4; WORD $0x18c1
+	RORXL $0x18, CX, AX
 	// mov    %rcx,%rdx
-	WORD $0x8948; BYTE $0xca
+	MOVQ CX, DX
 	// shr    $0x20,%rdx
-	LONG $0x20eac148
+	SHRQ $0x20, DX
 	// rorx   $0x1c,%ebp,%edi
-	LONG $0xf07be3c4; WORD $0x1cfd
+	RORXL $0x1c, BP, DI
 	// mov    %rbp,%rsi
-	WORD $0x8948; BYTE $0xee
+	MOVQ BP, SI
 	// shr    $0x20,%rsi
-	LONG $0x20eec148
+	SHRQ $0x20, SI
 	// rorx   $0x1a,%edx,%edx
-	LONG $0xf07be3c4; WORD $0x1ad2
+	RORXL $0x1a, DX, DX
 	// xor    %eax,%edi
-	WORD $0xc731
+	XORL AX, DI
 	// xor    %edx,%edi
-	WORD $0xd731
+	XORL DX, DI
 	// rorx   $0x1e,%esi,%eax
-	LONG $0xf07be3c4; WORD $0x1ec6
+	RORXL $0x1e, SI, AX
 	// xor    %edi,%eax
-	WORD $0xf831
+	XORL DI, AX
 	// xor    %edx,%edx
-	WORD $0xd231
+	XORL DX, DX
 	// div    %r15d
-	WORD $0xf741; BYTE $0xf7
+	DIVL R15
 	// vmovq  %rbp,%xmm0
-	LONG $0x6ef9e1c4; BYTE $0xc5
+	VMOVQ BP, X0
 	// vmovq  %rcx,%xmm1
-	LONG $0x6ef9e1c4; BYTE $0xc9
+	VMOVQ CX, X1
 	// shlx   %rbx,%rdx,%rax
-	LONG $0xf7e1e2c4; BYTE $0xc2
+	SHLXQ BX, DX, AX
 	// add    %r14,%rax
-	WORD $0x014c; BYTE $0xf0
+	ADDQ R14, AX
 	// vpunpcklqdq %xmm0,%xmm1,%xmm0
-	LONG $0xc06cf1c5
+	VPUNPCKLQDQ X0, X1, X0
 	// add    $0x3,%bl
-	WORD $0xc380; BYTE $0x03
+	ADDB $0x3, BL
 	// mov    $0xffffffff,%ecx
-	LONG $0xffffffb9; BYTE $0xff
+	MOVL $0xffffffff, CX
 	// shlx   %ebx,%ecx,%ecx
-	LONG $0xf761e2c4; BYTE $0xc9
+	SHLXL BX, CX, CX
 	// not    %ecx
-	WORD $0xd1f7
+	NOTL CX
 	// vmovd  %ecx,%xmm1
-	LONG $0xc96ef9c5
+	VMOVD CX, X1
 	// vpbroadcastd %xmm1,%ymm1
-	LONG $0x587de2c4; BYTE $0xc9
+	VPBROADCASTD X1, Y1
 	// vpsrld $0x10,%xmm0,%xmm2
-	LONG $0xd072e9c5; BYTE $0x10
+	VPSRLD $0x10, X0, X2
 	// vinserti128 $0x1,%xmm2,%ymm0,%ymm0
-	LONG $0x387de3c4; WORD $0x01c2
+	VINSERTI128 $0x1, X2, Y0, Y0
 	// vpand  %ymm0,%ymm1,%ymm0
-	LONG $0xc0dbf5c5
+	VPAND Y0, Y1, Y0
 	// vpsrld $0x5,%ymm0,%ymm1
-	LONG $0xd072f5c5; BYTE $0x05
+	VPSRLD $0x5, Y0, Y1
 	// vmovdqa 0x45(%rip),%ymm2        # 720 <PBF5_Test+0xe0>
-	QUAD $0x00000045156ffdc5
+	VMOVDQA pbf5_test_vec<>(SB), Y2
 	// vpcmpeqd %ymm3,%ymm3,%ymm3
-	LONG $0xdb76e5c5
+	VPCMPEQD Y3, Y3, Y3
 	// vpgatherdd %ymm2,(%rax,%ymm1,4),%ymm3
-	LONG $0x906de2c4; WORD $0x881c
+	VPGATHERDD Y2, (AX)(Y1*4), Y3
 	// vpbroadcastd 0x52(%rip),%ymm1        # 740 <PBF5_Test+0x100>
-	QUAD $0x0000520d587de2c4; BYTE $0x00
+	VPBROADCASTD pbf5_test_mask31<>(SB), Y1
 	// vpand  %ymm1,%ymm0,%ymm0
-	LONG $0xc1dbfdc5
+	VPAND Y1, Y0, Y0
 	// vpbroadcastd 0x49(%rip),%ymm1        # 744 <PBF5_Test+0x104>
-	QUAD $0x0000490d587de2c4; BYTE $0x00
+	VPBROADCASTD pbf5_test_one<>(SB), Y1
 	// vpsllvd %ymm0,%ymm1,%ymm0
-	LONG $0x4775e2c4; BYTE $0xc0
+	VPSLLVD Y0, Y1, Y0
 	// vpandn %ymm0,%ymm3,%ymm1
-	LONG $0xc8dfe5c5
+	VPANDN Y0, Y3, Y1
 	// vptest %ymm0,%ymm1
-	LONG $0x177de2c4; BYTE $0xc8
+	VPTEST Y0, Y1
 	// sete   %al
-	WORD $0x940f; BYTE $0xc0
+	SETEQ AL
 	// add    $0x8,%rsp
-	LONG $0x08c48348
+	ADDQ $0x8, SP
 	// pop    %rbx
-	BYTE $0x5b
+	POPQ BX
 	// pop    %r14
-	WORD $0x5e41
+	POPQ R14
 	// pop    %r15
-	WORD $0x5f41
+	POPQ R15
 	// pop    %rbp
-	BYTE $0x5d
-	// vzeroupper 
-	WORD $0xf8c5; BYTE $0x77
-	// ret    
-	BYTE $0xc3
-	// data 46
-	QUAD $0xffff0000441f0f66; QUAD $0xffffffffffffffff; QUAD $0xffff00000000ffff; QUAD $0x0000ffffffffffff; QUAD $0x001f000000000000; LONG $0x00010000; WORD $0x0000
+	POPQ BP
+	// vzeroupper
+	VZEROUPPER
+	// ret
+	RET
 
 TEXT PBF6_Set(SB), NOSPLIT, $0
 	// push   %rbp
-	BYTE $0x55
+	PUSHQ BP
 	// push   %r15
-	WORD $0x5741
+	PUSHQ R15
 	// push   %r14
-	WORD $0x5641
+	PUSHQ R14
 	// push   %r12
-	WORD $0x5441
+	PUSHQ R12
 	// push   %rbx
-	BYTE $0x53
+	PUSHQ BX
 	// mov    %edx,%r15d
-	WORD $0x8941; BYTE $0xd7
+	MOVL DX, R15
 	// mov    %esi,%r12d
-	WORD $0x8941; BYTE $0xf4
+	MOVL SI, R12
 	// mov    %rdi,%r14
-	WORD $0x8949; BYTE $0xfe
+	MOVQ DI, R14
 	// mov    %rcx,%rdi
-	WORD $0x8948; BYTE $0xcf
+	MOVQ CX, DI
 	// mov    %r8d,%esi
-	WORD $0x8944; BYTE $0xc6
+	MOVL R8, SI
 	// call   0 <_ZN3pbf4HashEPKhj>
 	CALL _ZN3pbf4HashEPKhj(SB)
 	// mov    %rax,%rsi
-	WORD $0x8948; BYTE $0xc6
+	MOVQ AX, SI
 	// mov    %rdx,%rcx
-	WORD $0x8948; BYTE $0xd1
+	MOVQ DX, CX
 	// mov    %rax,%r8
-	WORD $0x8949; BYTE $0xc0
+	MOVQ AX, R8
 	// shr    $0x20,%r8
-	LONG $0x20e8c149
+	SHRQ $0x20, R8
 	// mov    %rdx,%rax
-	WORD $0x8948; BYTE $0xd0
+	MOVQ DX, AX
 	// shr    $0x20,%rax
-	LONG $0x20e8c148
+	SHRQ $0x20, AX
 	// rorx   $0x18,%esi,%edx
-	LONG $0xf07be3c4; WORD $0x18d6
+	RORXL $0x18, SI, DX
 	// rorx   $0x1a,%r8d,%edi
-	LONG $0xf07bc3c4; WORD $0x1af8
+	RORXL $0x1a, R8, DI
 	// rorx   $0x1c,%ecx,%ebp
-	LONG $0xf07be3c4; WORD $0x1ce9
+	RORXL $0x1c, CX, BP
 	// xor    %edx,%ebp
-	WORD $0xd531
+	XORL DX, BP
 	// xor    %edi,%ebp
-	WORD $0xfd31
+	XORL DI, BP
 	// rorx   $0x1e,%eax,%eax
-	LONG $0xf07be3c4; WORD $0x1ec0
+	RORXL $0x1e, AX, AX
 	// xor    %ebp,%eax
-	WORD $0xe831
+	XORL BP, AX
 	// xor    %edx,%edx
-	WORD $0xd231
+	XORL DX, DX
 	// div    %r15d
-	WORD $0xf741; BYTE $0xf7
+	DIVL R15
 	// shlx   %r12,%rdx,%rax
-	LONG $0xf799e2c4; BYTE $0xc2
+	SHLXQ R12, DX, AX
 	// add    %r14,%rax
-	WORD $0x014c; BYTE $0xf0
+	ADDQ R14, AX
 	// mov    %rsi,%r10
-	WORD $0x8949; BYTE $0xf2
+	MOVQ SI, R10
 	// add    $0x3,%r12b
-	LONG $0x03c48041
+	ADDB $0x3, R12B
 	// bzhi   %r12d,%esi,%r9d
-	LONG $0xf51862c4; BYTE $0xce
+	BZHIL R12, SI, R9
 	// shr    $0x10,%rsi
-	LONG $0x10eec148
+	SHRQ $0x10, SI
 	// shr    $0x30,%r10
-	LONG $0x30eac149
+	SHRQ $0x30, R10
 	// bzhi   %r12d,%ecx,%r11d
-	LONG $0xf51862c4; BYTE $0xd9
+	BZHIL R12, CX, R11
 	// shr    $0x10,%rcx
-	LONG $0x10e9c148
+	SHRQ $0x10, CX
 	// movzwl %r9w,%ebp
-	LONG $0xe9b70f41
+	MOVWLZX R9, BP
 	// mov    %r9d,%edx
-	WORD $0x8944; BYTE $0xca
+	MOVL R9, DX
 	// and    $0x7,%dl
-	WORD $0xe280; BYTE $0x07
+	ANDB $0x7, DL
 	// shr    $0x3,%rbp
-	LONG $0x03edc148
+	SHRQ $0x3, BP
 	// movzbl 0x0(%rbp,%rax,1),%ebx
-	LONG $0x055cb60f; BYTE $0x00
+	MOVBLZX (BP)(AX*1), BX
 	// shrx   %edx,%ebx,%edi
-	LONG $0xf76be2c4; BYTE $0xfb
+	SHRXL DX, BX, DI
 	// bts    %edx,%ebx
-	WORD $0xab0f; BYTE $0xd3
+	BTSL DX, BX
 	// mov    %bl,0x0(%rbp,%rax,1)
-	LONG $0x00055c88
+	MOVB BL, (BP)(AX*1)
 	// bzhi   %r12d,%esi,%edx
-	LONG $0xf518e2c4; BYTE $0xd6
+	BZHIL R12, SI, DX
 	// movzwl %dx,%esi
-	WORD $0xb70f; BYTE $0xf2
+	MOVWLZX DX, SI
 	// and    $0x7,%dl
-	WORD $0xe280; BYTE $0x07
+	ANDB $0x7, DL
 	// shr    $0x3,%rsi
-	LONG $0x03eec148
+	SHRQ $0x3, SI
 	// movzbl (%rsi,%rax,1),%ebp
-	LONG $0x062cb60f
+	MOVBLZX (SI)(AX*1), BP
 	// shrx   %edx,%ebp,%ebx
-	LONG $0xf76be2c4; BYTE $0xdd
+	SHRXL DX, BP, BX
 	// and    %edi,%ebx
-	WORD $0xfb21
+	ANDL DI, BX
 	// bts    %edx,%ebp
-	WORD $0xab0f; BYTE $0xd5
+	BTSL DX, BP
 	// mov    %bpl,(%rsi,%rax,1)
-	LONG $0x062c8840
+	MOVB BPB, (SI)(AX*1)
 	// bzhi   %r12d,%r8d,%edx
-	LONG $0xf518c2c4; BYTE $0xd0
+	BZHIL R12, R8, DX
 	// movzwl %dx,%esi
-	WORD $0xb70f; BYTE $0xf2
+	MOVWLZX DX, SI
 	// and    $0x7,%dl
-	WORD $0xe280; BYTE $0x07
+	ANDB $0x7, DL
 	// shr    $0x3,%rsi
-	LONG $0x03eec148
+	SHRQ $0x3, SI
 	// movzbl (%rsi,%rax,1),%edi
-	LONG $0x063cb60f
+	MOVBLZX (SI)(AX*1), DI
 	// shrx   %edx,%edi,%r8d
-	LONG $0xf76b62c4; BYTE $0xc7
+	SHRXL DX, DI, R8
 	// bts    %edx,%edi
-	WORD $0xab0f; BYTE $0xd7
+	BTSL DX, DI
 	// mov    %dil,(%rsi,%rax,1)
-	LONG $0x063c8840
+	MOVB DIB, (SI)(AX*1)
 	// bzhi   %r12d,%r10d,%edx
-	LONG $0xf518c2c4; BYTE $0xd2
+	BZHIL R12, R10, DX
 	// mov    %edx,%esi
-	WORD $0xd689
+	MOVL DX, SI
 	// and    $0x7,%sil
-	LONG $0x07e68040
+	ANDB $0x7, SIB
 	// shr    $0x3,%rdx
-	LONG $0x03eac148
+	SHRQ $0x3, DX
 	// movzbl (%rdx,%rax,1),%edi
-	LONG $0x023cb60f
+	MOVBLZX (DX)(AX*1), DI
 	// shrx   %esi,%edi,%ebp
-	LONG $0xf74be2c4; BYTE $0xef
+	SHRXL SI, DI, BP
 	// and    %r8d,%ebp
-	WORD $0x2144; BYTE $0xc5
+	ANDL R8, BP
 	// and    %ebx,%ebp
-	WORD $0xdd21
+	ANDL BX, BP
 	// bts    %esi,%edi
-	WORD $0xab0f; BYTE $0xf7
+	BTSL SI, DI
 	// mov    %dil,(%rdx,%rax,1)
-	LONG $0x023c8840
+	MOVB DIB, (DX)(AX*1)
 	// movzwl %r11w,%edx
-	LONG $0xd3b70f41
+	MOVWLZX R11, DX
 	// mov    %r11d,%esi
-	WORD $0x8944; BYTE $0xde
+	MOVL R11, SI
 	// and    $0x7,%sil
-	LONG $0x07e68040
+	ANDB $0x7, SIB
 	// shr    $0x3,%rdx
-	LONG $0x03eac148
+	SHRQ $0x3, DX
 	// movzbl (%rdx,%rax,1),%edi
-	LONG $0x023cb60f
+	MOVBLZX (DX)(AX*1), DI
 	// shrx   %esi,%edi,%ebx
-	LONG $0xf74be2c4; BYTE $0xdf
+	SHRXL SI, DI, BX
 	// bts    %esi,%edi
-	WORD $0xab0f; BYTE $0xf7
+	BTSL SI, DI
 	// mov    %dil,(%rdx,%rax,1)
-	LONG $0x023c8840
+	MOVB DIB, (DX)(AX*1)
 	// bzhi   %r12d,%ecx,%ecx
-	LONG $0xf518e2c4; BYTE $0xc9
+	BZHIL R12, CX, CX
 	// movzwl %cx,%edx
-	WORD $0xb70f; BYTE $0xd1
+	MOVWLZX CX, DX
 	// and    $0x7,%cl
-	WORD $0xe180; BYTE $0x07
+	ANDB $0x7, CL
 	// shr    $0x3,%rdx
-	LONG $0x03eac148
+	SHRQ $0x3, DX
 	// movzbl (%rdx,%rax,1),%esi
-	LONG $0x0234b60f
+	MOVBLZX (DX)(AX*1), SI
 	// shrx   %ecx,%esi,%edi
-	LONG $0xf773e2c4; BYTE $0xfe
+	SHRXL CX, SI, DI
 	// and    %ebx,%edi
-	WORD $0xdf21
+	ANDL BX, DI
 	// and    %ebp,%edi
-	WORD $0xef21
+	ANDL BP, DI
 	// bts    %ecx,%esi
-	WORD $0xab0f; BYTE $0xce
+	BTSL CX, SI
 	// mov    %sil,(%rdx,%rax,1)
-	LONG $0x02348840
+	MOVB SIB, (DX)(AX*1)
 	// test   $0x1,%dil
-	LONG $0x01c7f640
+	TESTB $0x1, DIB
 	// sete   %al
-	WORD $0x940f; BYTE $0xc0
+	SETEQ AL
 	// pop    %rbx
-	BYTE $0x5b
+	POPQ BX
 	// pop    %r12
-	WORD $0x5c41
+	POPQ R12
 	// pop    %r14
-	WORD $0x5e41
+	POPQ R14
 	// pop    %r15
-	WORD $0x5f41
+	POPQ R15
 	// pop    %rbp
-	BYTE $0x5d
-	// ret    
-	BYTE $0xc3
+	POPQ BP
+	// ret
+	RET
 
 TEXT PBF6_Test(SB), NOSPLIT, $0
 	// push   %rbp
-	BYTE $0x55
+	PUSHQ BP
 	// push   %r15
-	WORD $0x5741
+	PUSHQ R15
 	// push   %r14
-	WORD $0x5641
+	PUSHQ R14
 	// push   %rbx
-	BYTE $0x53
+	PUSHQ BX
 	// push   %rax
-	BYTE $0x50
+	SUBQ $8, SP
 	// mov    %edx,%r15d
-	WORD $0x8941; BYTE $0xd7
+	MOVL DX, R15
 	// mov    %esi,%ebx
-	WORD $0xf389
+	MOVL SI, BX
 	// mov    %rdi,%r14
-	WORD $0x8949; BYTE $0xfe
+	MOVQ DI, R14
 	// mov    %rcx,%rdi
-	WORD $0x8948; BYTE $0xcf
+	MOVQ CX, DI
 	// mov    %r8d,%esi
-	WORD $0x8944; BYTE $0xc6
+	MOVL R8, SI
 	// call   0 <_ZN3pbf4HashEPKhj>
 	CALL _ZN3pbf4HashEPKhj(SB)
 	// mov    %rax,%rcx
-	WORD $0x8948; BYTE $0xc1
+	MOVQ AX, CX
 	// mov    %rdx,%rbp
-	WORD $0x8948; BYTE $0xd5
+	MOVQ DX, BP
 	// rorx   $0x18,%ecx,%eax
-	LONG $0xf07be3c4; WORD $0x18c1
+	RORXL $0x18, CX, AX
 	// mov    %rcx,%rdx
-	WORD $0x8948; BYTE $0xca
+	MOVQ CX, DX
 	// shr    $0x20,%rdx
-	LONG $0x20eac148
+	SHRQ $0x20, DX
 	// rorx   $0x1c,%ebp,%edi
-	LONG $0xf07be3c4; WORD $0x1cfd
+	RORXL $0x1c, BP, DI
 	// mov    %rbp,%rsi
-	WORD $0x8948; BYTE $0xee
+	MOVQ BP, SI
 	// shr    $0x20,%rsi
-	LONG $0x20eec148
+	SHRQ $0x20, SI
 	// rorx   $0x1a,%edx,%edx
-	LONG $0xf07be3c4; WORD $0x1ad2
+	RORXL $0x1a, DX, DX
 	// xor    %eax,%edi
-	WORD $0xc731
+	XORL AX, DI
 	// xor    %edx,%edi
-	WORD $0xd731
+	XORL DX, DI
 	// rorx   $0x1e,%esi,%eax
-	LONG $0xf07be3c4; WORD $0x1ec6
+	RORXL $0x1e, SI, AX
 	// xor    %edi,%eax
-	WORD $0xf831
+	XORL DI, AX
 	// xor    %edx,%edx
-	WORD $0xd231
+	XORL DX, DX
 	// div    %r15d
-	WORD $0xf741; BYTE $0xf7
+	DIVL R15
 	// vmovq  %rbp,%xmm0
-	LONG $0x6ef9e1c4; BYTE $0xc5
+	VMOVQ BP, X0
 	// vmovq  %rcx,%xmm1
-	LONG $0x6ef9e1c4; BYTE $0xc9
+	VMOVQ CX, X1
 	// shlx   %rbx,%rdx,%rax
-	LONG $0xf7e1e2c4; BYTE $0xc2
+	SHLXQ BX, DX, AX
 	// add    %r14,%rax
-	WORD $0x014c; BYTE $0xf0
+	ADDQ R14, AX
 	// vpunpcklqdq %xmm0,%xmm1,%xmm0
-	LONG $0xc06cf1c5
+	VPUNPCKLQDQ X0, X1, X0
 	// add    $0x3,%bl
-	WORD $0xc380; BYTE $0x03
+	ADDB $0x3, BL
 	// mov    $0xffffffff,%ecx
-	LONG $0xffffffb9; BYTE $0xff
+	MOVL $0xffffffff, CX
 	// shlx   %ebx,%ecx,%ecx
-	LONG $0xf761e2c4; BYTE $0xc9
+	SHLXL BX, CX, CX
 	// not    %ecx
-	WORD $0xd1f7
+	NOTL CX
 	// vmovd  %ecx,%xmm1
-	LONG $0xc96ef9c5
+	VMOVD CX, X1
 	// vpbroadcastd %xmm1,%ymm1
-	LONG $0x587de2c4; BYTE $0xc9
+	VPBROADCASTD X1, Y1
 	// vpsrld $0x10,%xmm0,%xmm2
-	LONG $0xd072e9c5; BYTE $0x10
+	VPSRLD $0x10, X0, X2
 	// vinserti128 $0x1,%xmm2,%ymm0,%ymm0
-	LONG $0x387de3c4; WORD $0x01c2
+	VINSERTI128 $0x1, X2, Y0, Y0
 	// vpand  %ymm0,%ymm1,%ymm0
-	LONG $0xc0dbf5c5
+	VPAND Y0, Y1, Y0
 	// vpsrld $0x5,%ymm0,%ymm1
-	LONG $0xd072f5c5; BYTE $0x05
+	VPSRLD $0x5, Y0, Y1
 	// vmovdqa 0x45(%rip),%ymm2        # 9a0 <PBF6_Test+0xe0>
-	QUAD $0x00000045156ffdc5
+	VMOVDQA pbf6_test_vec<>(SB), Y2
 	// vpcmpeqd %ymm3,%ymm3,%ymm3
-	LONG $0xdb76e5c5
+	VPCMPEQD Y3, Y3, Y3
 	// vpgatherdd %ymm2,(%rax,%ymm1,4),%ymm3
-	LONG $0x906de2c4; WORD $0x881c
+	VPGATHERDD Y2, (AX)(Y1*4), Y3
 	// vpbroadcastd 0x52(%rip),%ymm1        # 9c0 <PBF6_Test+0x100>
-	QUAD $0x0000520d587de2c4; BYTE $0x00
+	VPBROADCASTD pbf6_test_mask31<>(SB), Y1
 	// vpand  %ymm1,%ymm0,%ymm0
-	LONG $0xc1dbfdc5
+	VPAND Y1, Y0, Y0
 	// vpbroadcastd 0x49(%rip),%ymm1        # 9c4 <PBF6_Test+0x104>
-	QUAD $0x0000490d587de2c4; BYTE $0x00
+	VPBROADCASTD pbf6_test_one<>(SB), Y1
 	// vpsllvd %ymm0,%ymm1,%ymm0
-	LONG $0x4775e2c4; BYTE $0xc0
+	VPSLLVD Y0, Y1, Y0
 	// vpandn %ymm0,%ymm3,%ymm1
-	LONG $0xc8dfe5c5
+	VPANDN Y0, Y3, Y1
 	// vptest %ymm0,%ymm1
-	LONG $0x177de2c4; BYTE $0xc8
+	VPTEST Y0, Y1
 	// sete   %al
-	WORD $0x940f; BYTE $0xc0
+	SETEQ AL
 	// add    $0x8,%rsp
-	LONG $0x08c48348
+	ADDQ $0x8, SP
 	// pop    %rbx
-	BYTE $0x5b
+	POPQ BX
 	// pop    %r14
-	WORD $0x5e41
+	POPQ R14
 	// pop    %r15
-	WORD $0x5f41
+	POPQ R15
 	// pop    %rbp
-	BYTE $0x5d
-	// vzeroupper 
-	WORD $0xf8c5; BYTE $0x77
-	// ret    
-	BYTE $0xc3
-	// data 46
-	QUAD $0xffff0000441f0f66; QUAD $0xffffffffffffffff; QUAD $0xffff00000000ffff; QUAD $0xffffffffffffffff; QUAD $0x001f00000000ffff; LONG $0x00010000; WORD $0x0000
+	POPQ BP
+	// vzeroupper
+	VZEROUPPER
+	// ret
+	RET
 
 TEXT PBF7_Set(SB), NOSPLIT, $0
 	// push   %rbp
-	BYTE $0x55
+	PUSHQ BP
 	// push   %r15
-	WORD $0x5741
+	PUSHQ R15
 	// push   %r14
-	WORD $0x5641
+	PUSHQ R14
 	// push   %rbx
-	BYTE $0x53
+	PUSHQ BX
 	// push   %rax
-	BYTE $0x50
+	SUBQ $8, SP
 	// mov    %edx,%ebp
-	WORD $0xd589
+	MOVL DX, BP
 	// mov    %esi,%r15d
-	WORD $0x8941; BYTE $0xf7
+	MOVL SI, R15
 	// mov    %rdi,%r14
-	WORD $0x8949; BYTE $0xfe
+	MOVQ DI, R14
 	// mov    %rcx,%rdi
-	WORD $0x8948; BYTE $0xcf
+	MOVQ CX, DI
 	// mov    %r8d,%esi
-	WORD $0x8944; BYTE $0xc6
+	MOVL R8, SI
 	// call   0 <_ZN3pbf4HashEPKhj>
 	CALL _ZN3pbf4HashEPKhj(SB)
 	// mov    %rax,%rsi
-	WORD $0x8948; BYTE $0xc6
+	MOVQ AX, SI
 	// mov    %rdx,%rcx
-	WORD $0x8948; BYTE $0xd1
+	MOVQ DX, CX
 	// mov    %rax,%r9
-	WORD $0x8949; BYTE $0xc1
+	MOVQ AX, R9
 	// shr    $0x20,%r9
-	LONG $0x20e9c149
+	SHRQ $0x20, R9
 	// mov    %rdx,%r8
-	WORD $0x8949; BYTE $0xd0
+	MOVQ DX, R8
 	// shr    $0x20,%r8
-	LONG $0x20e8c149
+	SHRQ $0x20, R8
 	// rorx   $0x18,%esi,%eax
-	LONG $0xf07be3c4; WORD $0x18c6
+	RORXL $0x18, SI, AX
 	// rorx   $0x1a,%r9d,%edx
-	LONG $0xf07bc3c4; WORD $0x1ad1
+	RORXL $0x1a, R9, DX
 	// rorx   $0x1c,%ecx,%edi
-	LONG $0xf07be3c4; WORD $0x1cf9
+	RORXL $0x1c, CX, DI
 	// xor    %eax,%edi
-	WORD $0xc731
+	XORL AX, DI
 	// xor    %edx,%edi
-	WORD $0xd731
+	XORL DX, DI
 	// rorx   $0x1e,%r8d,%eax
-	LONG $0xf07bc3c4; WORD $0x1ec0
+	RORXL $0x1e, R8, AX
 	// xor    %edi,%eax
-	WORD $0xf831
+	XORL DI, AX
 	// xor    %edx,%edx
-	WORD $0xd231
+	XORL DX, DX
 	// div    %ebp
-	WORD $0xf5f7
+	DIVL BP
 	// shlx   %r15,%rdx,%rax
-	LONG $0xf781e2c4; BYTE $0xc2
+	SHLXQ R15, DX, AX
 	// add    %r14,%rax
-	WORD $0x014c; BYTE $0xf0
+	ADDQ R14, AX
 	// mov    %rsi,%r11
-	WORD $0x8949; BYTE $0xf3
+	MOVQ SI, R11
 	// add    $0x3,%r15b
-	LONG $0x03c78041
+	ADDB $0x3, R15B
 	// bzhi   %r15d,%esi,%r10d
-	LONG $0xf50062c4; BYTE $0xd6
+	BZHIL R15, SI, R10
 	// shr    $0x10,%rsi
-	LONG $0x10eec148
+	SHRQ $0x10, SI
 	// shr    $0x30,%r11
-	LONG $0x30ebc149
+	SHRQ $0x30, R11
 	// bzhi   %r15d,%ecx,%r14d
-	LONG $0xf50062c4; BYTE $0xf1
+	BZHIL R15, CX, R14
 	// mov    %rcx,%rbp
-	WORD $0x8948; BYTE $0xcd
+	MOVQ CX, BP
 	// shr    $0x10,%rbp
-	LONG $0x10edc148
+	SHRQ $0x10, BP
 	// movzwl %r10w,%ecx
-	LONG $0xcab70f41
+	MOVWLZX R10, CX
 	// mov    %r10d,%edx
-	WORD $0x8944; BYTE $0xd2
+	MOVL R10, DX
 	// and    $0x7,%dl
-	WORD $0xe280; BYTE $0x07
+	ANDB $0x7, DL
 	// shr    $0x3,%rcx
-	LONG $0x03e9c148
+	SHRQ $0x3, CX
 	// movzbl (%rcx,%rax,1),%ebx
-	LONG $0x011cb60f
+	MOVBLZX (CX)(AX*1), BX
 	// shrx   %edx,%ebx,%edi
-	LONG $0xf76be2c4; BYTE $0xfb
+	SHRXL DX, BX, DI
 	// bts    %edx,%ebx
-	WORD $0xab0f; BYTE $0xd3
+	BTSL DX, BX
 	// mov    %bl,(%rcx,%rax,1)
-	WORD $0x1c88; BYTE $0x01
+	MOVB BL, (CX)(AX*1)
 	// bzhi   %r15d,%esi,%ecx
-	LONG $0xf500e2c4; BYTE $0xce
+	BZHIL R15, SI, CX
 	// movzwl %cx,%edx
-	WORD $0xb70f; BYTE $0xd1
+	MOVWLZX CX, DX
 	// and    $0x7,%cl
-	WORD $0xe180; BYTE $0x07
+	ANDB $0x7, CL
 	// shr    $0x3,%rdx
-	LONG $0x03eac148
+	SHRQ $0x3, DX
 	// movzbl (%rdx,%rax,1),%esi
-	LONG $0x0234b60f
+	MOVBLZX (DX)(AX*1), SI
 	// shrx   %ecx,%esi,%ebx
-	LONG $0xf773e2c4; BYTE $0xde
+	SHRXL CX, SI, BX
 	// and    %edi,%ebx
-	WORD $0xfb21
+	ANDL DI, BX
 	// bts    %ecx,%esi
-	WORD $0xab0f; BYTE $0xce
+	BTSL CX, SI
 	// mov    %sil,(%rdx,%rax,1)
-	LONG $0x02348840
+	MOVB SIB, (DX)(AX*1)
 	// bzhi   %r15d,%r9d,%ecx
-	LONG $0xf500c2c4; BYTE $0xc9
+	BZHIL R15, R9, CX
 	// movzwl %cx,%edx
-	WORD $0xb70f; BYTE $0xd1
+	MOVWLZX CX, DX
 	// and    $0x7,%cl
-	WORD $0xe180; BYTE $0x07
+	ANDB $0x7, CL
 	// shr    $0x3,%rdx
-	LONG $0x03eac148
+	SHRQ $0x3, DX
 	// movzbl (%rdx,%rax,1),%esi
-	LONG $0x0234b60f
+	MOVBLZX (DX)(AX*1), SI
 	// shrx   %ecx,%esi,%r9d
-	LONG $0xf77362c4; BYTE $0xce
+	SHRXL CX, SI, R9
 	// bts    %ecx,%esi
-	WORD $0xab0f; BYTE $0xce
+	BTSL CX, SI
 	// mov    %sil,(%rdx,%rax,1)
-	LONG $0x02348840
+	MOVB SIB, (DX)(AX*1)
 	// bzhi   %r15d,%r11d,%edx
-	LONG $0xf500c2c4; BYTE $0xd3
+	BZHIL R15, R11, DX
 	// mov    %edx,%esi
-	WORD $0xd689
+	MOVL DX, SI
 	// and    $0x7,%sil
-	LONG $0x07e68040
+	ANDB $0x7, SIB
 	// shr    $0x3,%rdx
-	LONG $0x03eac148
+	SHRQ $0x3, DX
 	// movzbl (%rdx,%rax,1),%edi
-	LONG $0x023cb60f
+	MOVBLZX (DX)(AX*1), DI
 	// shrx   %esi,%edi,%ecx
-	LONG $0xf74be2c4; BYTE $0xcf
+	SHRXL SI, DI, CX
 	// and    %r9d,%ecx
-	WORD $0x2144; BYTE $0xc9
+	ANDL R9, CX
 	// and    %ebx,%ecx
-	WORD $0xd921
+	ANDL BX, CX
 	// bts    %esi,%edi
-	WORD $0xab0f; BYTE $0xf7
+	BTSL SI, DI
 	// mov    %dil,(%rdx,%rax,1)
-	LONG $0x023c8840
+	MOVB DIB, (DX)(AX*1)
 	// movzwl %r14w,%edx
-	LONG $0xd6b70f41
+	MOVWLZX R14, DX
 	// mov    %r14d,%esi
-	WORD $0x8944; BYTE $0xf6
+	MOVL R14, SI
 	// and    $0x7,%sil
-	LONG $0x07e68040
+	ANDB $0x7, SIB
 	// shr    $0x3,%rdx
-	LONG $0x03eac148
+	SHRQ $0x3, DX
 	// movzbl (%rdx,%rax,1),%edi
-	LONG $0x023cb60f
+	MOVBLZX (DX)(AX*1), DI
 	// shrx   %esi,%edi,%ebx
-	LONG $0xf74be2c4; BYTE $0xdf
+	SHRXL SI, DI, BX
 	// bts    %esi,%edi
-	WORD $0xab0f; BYTE $0xf7
+	BTSL SI, DI
 	// mov    %dil,(%rdx,%rax,1)
-	LONG $0x023c8840
+	MOVB DIB, (DX)(AX*1)
 	// bzhi   %r15d,%ebp,%edx
-	LONG $0xf500e2c4; BYTE $0xd5
+	BZHIL R15, BP, DX
 	// movzwl %dx,%esi
-	WORD $0xb70f; BYTE $0xf2
+	MOVWLZX DX, SI
 	// and    $0x7,%dl
-	WORD $0xe280; BYTE $0x07
+	ANDB $0x7, DL
 	// shr    $0x3,%rsi
-	LONG $0x03eec148
+	SHRQ $0x3, SI
 	// movzbl (%rsi,%rax,1),%edi
-	LONG $0x063cb60f
+	MOVBLZX (SI)(AX*1), DI
 	// shrx   %edx,%edi,%ebp
-	LONG $0xf76be2c4; BYTE $0xef
+	SHRXL DX, DI, BP
 	// and    %ebx,%ebp
-	WORD $0xdd21
+	ANDL BX, BP
 	// bts    %edx,%edi
-	WORD $0xab0f; BYTE $0xd7
+	BTSL DX, DI
 	// mov    %dil,(%rsi,%rax,1)
-	LONG $0x063c8840
+	MOVB DIB, (SI)(AX*1)
 	// bzhi   %r15d,%r8d,%edx
-	LONG $0xf500c2c4; BYTE $0xd0
+	BZHIL R15, R8, DX
 	// movzwl %dx,%esi
-	WORD $0xb70f; BYTE $0xf2
+	MOVWLZX DX, SI
 	// and    $0x7,%dl
-	WORD $0xe280; BYTE $0x07
+	ANDB $0x7, DL
 	// shr    $0x3,%rsi
-	LONG $0x03eec148
+	SHRQ $0x3, SI
 	// movzbl (%rsi,%rax,1),%edi
-	LONG $0x063cb60f
+	MOVBLZX (SI)(AX*1), DI
 	// shrx   %edx,%edi,%ebx
-	LONG $0xf76be2c4; BYTE $0xdf
+	SHRXL DX, DI, BX
 	// and    %ebp,%ebx
-	WORD $0xeb21
+	ANDL BP, BX
 	// and    %ecx,%ebx
-	WORD $0xcb21
+	ANDL CX, BX
 	// bts    %edx,%edi
-	WORD $0xab0f; BYTE $0xd7
+	BTSL DX, DI
 	// mov    %dil,(%rsi,%rax,1)
-	LONG $0x063c8840
+	MOVB DIB, (SI)(AX*1)
 	// test   $0x1,%bl
-	WORD $0xc3f6; BYTE $0x01
+	TESTB $0x1, BL
 	// sete   %al
-	WORD $0x940f; BYTE $0xc0
+	SETEQ AL
 	// add    $0x8,%rsp
-	LONG $0x08c48348
+	ADDQ $0x8, SP
 	// pop    %rbx
-	BYTE $0x5b
+	POPQ BX
 	// pop    %r14
-	WORD $0x5e41
+	POPQ R14
 	// pop    %r15
-	WORD $0x5f41
+	POPQ R15
 	// pop    %rbp
-	BYTE $0x5d
-	// ret    
-	BYTE $0xc3
+	POPQ BP
+	// ret
+	RET
 
 TEXT PBF7_Test(SB), NOSPLIT, $0
 	// push   %rbp
-	BYTE $0x55
+	PUSHQ BP
 	// push   %r15
-	WORD $0x5741
+	PUSHQ R15
 	// push   %r14
-	WORD $0x5641
+	PUSHQ R14
 	// push   %rbx
-	BYTE $0x53
+	PUSHQ BX
 	// push   %rax
-	BYTE $0x50
+	SUBQ $8, SP
 	// mov    %edx,%r15d
-	WORD $0x8941; BYTE $0xd7
+	MOVL DX, R15
 	// mov    %esi,%ebx
-	WORD $0xf389
+	MOVL SI, BX
 	// mov    %rdi,%r14
-	WORD $0x8949; BYTE $0xfe
+	MOVQ DI, R14
 	// mov    %rcx,%rdi
-	WORD $0x8948; BYTE $0xcf
+	MOVQ CX, DI
 	// mov    %r8d,%esi
-	WORD $0x8944; BYTE $0xc6
+	MOVL R8, SI
 	// call   0 <_ZN3pbf4HashEPKhj>
 	CALL _ZN3pbf4HashEPKhj(SB)
 	// mov    %rax,%rcx
-	WORD $0x8948; BYTE $0xc1
+	MOVQ AX, CX
 	// mov    %rdx,%rbp
-	WORD $0x8948; BYTE $0xd5
+	MOVQ DX, BP
 	// rorx   $0x18,%ecx,%eax
-	LONG $0xf07be3c4; WORD $0x18c1
+	RORXL $0x18, CX, AX
 	// mov    %rcx,%rdx
-	WORD $0x8948; BYTE $0xca
+	MOVQ CX, DX
 	// shr    $0x20,%rdx
-	LONG $0x20eac148
+	SHRQ $0x20, DX
 	// rorx   $0x1c,%ebp,%edi
-	LONG $0xf07be3c4; WORD $0x1cfd
+	RORXL $0x1c, BP, DI
 	// mov    %rbp,%rsi
-	WORD $0x8948; BYTE $0xee
+	MOVQ BP, SI
 	// shr    $0x20,%rsi
-	LONG $0x20eec148
+	SHRQ $0x20, SI
 	// rorx   $0x1a,%edx,%edx
-	LONG $0xf07be3c4; WORD $0x1ad2
+	RORXL $0x1a, DX, DX
 	// xor    %eax,%edi
-	WORD $0xc731
+	XORL AX, DI
 	// xor    %edx,%edi
-	WORD $0xd731
+	XORL DX, DI
 	// rorx   $0x1e,%esi,%eax
-	LONG $0xf07be3c4; WORD $0x1ec6
+	RORXL $0x1e, SI, AX
 	// xor    %edi,%eax
-	WORD $0xf831
+	XORL DI, AX
 	// xor    %edx,%edx
-	WORD $0xd231
+	XORL DX, DX
 	// div    %r15d
-	WORD $0xf741; BYTE $0xf7
+	DIVL R15
 	// vmovq  %rbp,%xmm0
-	LONG $0x6ef9e1c4; BYTE $0xc5
+	VMOVQ BP, X0
 	// vmovq  %rcx,%xmm1
-	LONG $0x6ef9e1c4; BYTE $0xc9
+	VMOVQ CX, X1
 	// shlx   %rbx,%rdx,%rax
-	LONG $0xf7e1e2c4; BYTE $0xc2
+	SHLXQ BX, DX, AX
 	// add    %r14,%rax
-	WORD $0x014c; BYTE $0xf0
+	ADDQ R14, AX
 	// vpunpcklqdq %xmm0,%xmm1,%xmm0
-	LONG $0xc06cf1c5
+	VPUNPCKLQDQ X0, X1, X0
 	// add    $0x3,%bl
-	WORD $0xc380; BYTE $0x03
+	ADDB $0x3, BL
 	// mov    $0xffffffff,%ecx
-	LONG $0xffffffb9; BYTE $0xff
+	MOVL $0xffffffff, CX
 	// shlx   %ebx,%ecx,%ecx
-	LONG $0xf761e2c4; BYTE $0xc9
+	SHLXL BX, CX, CX
 	// not    %ecx
-	WORD $0xd1f7
+	NOTL CX
 	// vmovd  %ecx,%xmm1
-	LONG $0xc96ef9c5
+	VMOVD CX, X1
 	// vpbroadcastd %xmm1,%ymm1
-	LONG $0x587de2c4; BYTE $0xc9
+	VPBROADCASTD X1, Y1
 	// vpsrld $0x10,%xmm0,%xmm2
-	LONG $0xd072e9c5; BYTE $0x10
+	VPSRLD $0x10, X0, X2
 	// vinserti128 $0x1,%xmm2,%ymm0,%ymm0
-	LONG $0x387de3c4; WORD $0x01c2
+	VINSERTI128 $0x1, X2, Y0, Y0
 	// vpand  %ymm0,%ymm1,%ymm0
-	LONG $0xc0dbf5c5
+	VPAND Y0, Y1, Y0
 	// vpsrld $0x5,%ymm0,%ymm1
-	LONG $0xd072f5c5; BYTE $0x05
+	VPSRLD $0x5, Y0, Y1
 	// vmovdqa 0x45(%rip),%ymm2        # c40 <PBF7_Test+0xe0>
-	QUAD $0x00000045156ffdc5
+	VMOVDQA pbf7_test_vec<>(SB), Y2
 	// vpcmpeqd %ymm3,%ymm3,%ymm3
-	LONG $0xdb76e5c5
+	VPCMPEQD Y3, Y3, Y3
 	// vpgatherdd %ymm2,(%rax,%ymm1,4),%ymm3
-	LONG $0x906de2c4; WORD $0x881c
+	VPGATHERDD Y2, (AX)(Y1*4), Y3
 	// vpbroadcastd 0x52(%rip),%ymm1        # c60 <PBF7_Test+0x100>
-	QUAD $0x0000520d587de2c4; BYTE $0x00
+	VPBROADCASTD pbf7_test_mask31<>(SB), Y1
 	// vpand  %ymm1,%ymm0,%ymm0
-	LONG $0xc1dbfdc5
+	VPAND Y1, Y0, Y0
 	// vpbroadcastd 0x49(%rip),%ymm1        # c64 <PBF7_Test+0x104>
-	QUAD $0x0000490d587de2c4; BYTE $0x00
+	VPBROADCASTD pbf7_test_one<>(SB), Y1
 	// vpsllvd %ymm0,%ymm1,%ymm0
-	LONG $0x4775e2c4; BYTE $0xc0
+	VPSLLVD Y0, Y1, Y0
 	// vpandn %ymm0,%ymm3,%ymm1
-	LONG $0xc8dfe5c5
+	VPANDN Y0, Y3, Y1
 	// vptest %ymm0,%ymm1
-	LONG $0x177de2c4; BYTE $0xc8
+	VPTEST Y0, Y1
 	// sete   %al
-	WORD $0x940f; BYTE $0xc0
+	SETEQ AL
 	// add    $0x8,%rsp
-	LONG $0x08c48348
+	ADDQ $0x8, SP
 	// pop    %rbx
-	BYTE $0x5b
+	POPQ BX
 	// pop    %r14
-	WORD $0x5e41
+	POPQ R14
 	// pop    %r15
-	WORD $0x5f41
+	POPQ R15
 	// pop    %rbp
-	BYTE $0x5d
-	// vzeroupper 
-	WORD $0xf8c5; BYTE $0x77
-	// ret    
-	BYTE $0xc3
-	// data 46
-	QUAD $0xffff0000441f0f66; QUAD $0xffffffffffffffff; QUAD $0xffffffffffffffff; QUAD $0xffffffffffffffff; QUAD $0x001f00000000ffff; LONG $0x00010000; WORD $0x0000
+	POPQ BP
+	// vzeroupper
+	VZEROUPPER
+	// ret
+	RET
 
 TEXT PBF8_Set(SB), NOSPLIT, $0
 	// push   %rbp
-	BYTE $0x55
+	PUSHQ BP
 	// push   %r15
-	WORD $0x5741
+	PUSHQ R15
 	// push   %r14
-	WORD $0x5641
+	PUSHQ R14
 	// push   %r12
-	WORD $0x5441
+	PUSHQ R12
 	// push   %rbx
-	BYTE $0x53
+	PUSHQ BX
 	// mov    %edx,%ebp
-	WORD $0xd589
+	MOVL DX, BP
 	// mov    %esi,%r15d
-	WORD $0x8941; BYTE $0xf7
+	MOVL SI, R15
 	// mov    %rdi,%r14
-	WORD $0x8949; BYTE $0xfe
+	MOVQ DI, R14
 	// mov    %rcx,%rdi
-	WORD $0x8948; BYTE $0xcf
+	MOVQ CX, DI
 	// mov    %r8d,%esi
-	WORD $0x8944; BYTE $0xc6
+	MOVL R8, SI
 	// call   0 <_ZN3pbf4HashEPKhj>
 	CALL _ZN3pbf4HashEPKhj(SB)
 	// mov    %rax,%rsi
-	WORD $0x8948; BYTE $0xc6
+	MOVQ AX, SI
 	// mov    %rdx,%rcx
-	WORD $0x8948; BYTE $0xd1
+	MOVQ DX, CX
 	// mov    %rax,%r10
-	WORD $0x8949; BYTE $0xc2
+	MOVQ AX, R10
 	// shr    $0x20,%r10
-	LONG $0x20eac149
+	SHRQ $0x20, R10
 	// mov    %rdx,%r8
-	WORD $0x8949; BYTE $0xd0
+	MOVQ DX, R8
 	// shr    $0x20,%r8
-	LONG $0x20e8c149
+	SHRQ $0x20, R8
 	// rorx   $0x18,%esi,%eax
-	LONG $0xf07be3c4; WORD $0x18c6
+	RORXL $0x18, SI, AX
 	// rorx   $0x1a,%r10d,%edx
-	LONG $0xf07bc3c4; WORD $0x1ad2
+	RORXL $0x1a, R10, DX
 	// rorx   $0x1c,%ecx,%edi
-	LONG $0xf07be3c4; WORD $0x1cf9
+	RORXL $0x1c, CX, DI
 	// xor    %eax,%edi
-	WORD $0xc731
+	XORL AX, DI
 	// xor    %edx,%edi
-	WORD $0xd731
+	XORL DX, DI
 	// rorx   $0x1e,%r8d,%eax
-	LONG $0xf07bc3c4; WORD $0x1ec0
+	RORXL $0x1e, R8, AX
 	// xor    %edi,%eax
-	WORD $0xf831
+	XORL DI, AX
 	// xor    %edx,%edx
-	WORD $0xd231
+	XORL DX, DX
 	// div    %ebp
-	WORD $0xf5f7
+	DIVL BP
 	// shlx   %r15,%rdx,%rax
-	LONG $0xf781e2c4; BYTE $0xc2
+	SHLXQ R15, DX, AX
 	// add    %r14,%rax
-	WORD $0x014c; BYTE $0xf0
+	ADDQ R14, AX
 	// mov    %rsi,%r14
-	WORD $0x8949; BYTE $0xf6
+	MOVQ SI, R14
 	// add    $0x3,%r15b
-	LONG $0x03c78041
+	ADDB $0x3, R15B
 	// bzhi   %r15d,%esi,%r11d
-	LONG $0xf50062c4; BYTE $0xde
+	BZHIL R15, SI, R11
 	// shr    $0x10,%rsi
-	LONG $0x10eec148
+	SHRQ $0x10, SI
 	// shr    $0x30,%r14
-	LONG $0x30eec149
+	SHRQ $0x30, R14
 	// mov    %rcx,%r9
-	WORD $0x8949; BYTE $0xc9
+	MOVQ CX, R9
 	// bzhi   %r15d,%ecx,%r12d
-	LONG $0xf50062c4; BYTE $0xe1
+	BZHIL R15, CX, R12
 	// mov    %rcx,%rdx
-	WORD $0x8948; BYTE $0xca
+	MOVQ CX, DX
 	// shr    $0x10,%rdx
-	LONG $0x10eac148
+	SHRQ $0x10, DX
 	// shr    $0x30,%r9
-	LONG $0x30e9c149
+	SHRQ $0x30, R9
 	// movzwl %r11w,%ecx
-	LONG $0xcbb70f41
+	MOVWLZX R11, CX
 	// mov    %r11d,%ebp
-	WORD $0x8944; BYTE $0xdd
+	MOVL R11, BP
 	// and    $0x7,%bpl
-	LONG $0x07e58040
+	ANDB $0x7, BPB
 	// shr    $0x3,%rcx
-	LONG $0x03e9c148
+	SHRQ $0x3, CX
 	// movzbl (%rcx,%rax,1),%ebx
-	LONG $0x011cb60f
+	MOVBLZX (CX)(AX*1), BX
 	// shrx   %ebp,%ebx,%edi
-	LONG $0xf753e2c4; BYTE $0xfb
+	SHRXL BP, BX, DI
 	// bts    %ebp,%ebx
-	WORD $0xab0f; BYTE $0xeb
+	BTSL BP, BX
 	// mov    %bl,(%rcx,%rax,1)
-	WORD $0x1c88; BYTE $0x01
+	MOVB BL, (CX)(AX*1)
 	// bzhi   %r15d,%esi,%ecx
-	LONG $0xf500e2c4; BYTE $0xce
+	BZHIL R15, SI, CX
 	// movzwl %cx,%esi
-	WORD $0xb70f; BYTE $0xf1
+	MOVWLZX CX, SI
 	// and    $0x7,%cl
-	WORD $0xe180; BYTE $0x07
+	ANDB $0x7, CL
 	// shr    $0x3,%rsi
-	LONG $0x03eec148
+	SHRQ $0x3, SI
 	// movzbl (%rsi,%rax,1),%ebp
-	LONG $0x062cb60f
+	MOVBLZX (SI)(AX*1), BP
 	// shrx   %ecx,%ebp,%ebx
-	LONG $0xf773e2c4; BYTE $0xdd
+	SHRXL CX, BP, BX
 	// and    %edi,%ebx
-	WORD $0xfb21
+	ANDL DI, BX
 	// bts    %ecx,%ebp
-	WORD $0xab0f; BYTE $0xcd
+	BTSL CX, BP
 	// mov    %bpl,(%rsi,%rax,1)
-	LONG $0x062c8840
+	MOVB BPB, (SI)(AX*1)
 	// bzhi   %r15d,%r10d,%ecx
-	LONG $0xf500c2c4; BYTE $0xca
+	BZHIL R15, R10, CX
 	// movzwl %cx,%esi
-	WORD $0xb70f; BYTE $0xf1
+	MOVWLZX CX, SI
 	// and    $0x7,%cl
-	WORD $0xe180; BYTE $0x07
+	ANDB $0x7, CL
 	// shr    $0x3,%rsi
-	LONG $0x03eec148
+	SHRQ $0x3, SI
 	// movzbl (%rsi,%rax,1),%edi
-	LONG $0x063cb60f
+	MOVBLZX (SI)(AX*1), DI
 	// shrx   %ecx,%edi,%r10d
-	LONG $0xf77362c4; BYTE $0xd7
+	SHRXL CX, DI, R10
 	// bts    %ecx,%edi
-	WORD $0xab0f; BYTE $0xcf
+	BTSL CX, DI
 	// mov    %dil,(%rsi,%rax,1)
-	LONG $0x063c8840
+	MOVB DIB, (SI)(AX*1)
 	// bzhi   %r15d,%r14d,%esi
-	LONG $0xf500c2c4; BYTE $0xf6
+	BZHIL R15, R14, SI
 	// mov    %esi,%edi
-	WORD $0xf789
+	MOVL SI, DI
 	// and    $0x7,%dil
-	LONG $0x07e78040
+	ANDB $0x7, DIB
 	// shr    $0x3,%rsi
-	LONG $0x03eec148
+	SHRQ $0x3, SI
 	// movzbl (%rsi,%rax,1),%ebp
-	LONG $0x062cb60f
+	MOVBLZX (SI)(AX*1), BP
 	// shrx   %edi,%ebp,%ecx
-	LONG $0xf743e2c4; BYTE $0xcd
+	SHRXL DI, BP, CX
 	// and    %r10d,%ecx
-	WORD $0x2144; BYTE $0xd1
+	ANDL R10, CX
 	// and    %ebx,%ecx
-	WORD $0xd921
+	ANDL BX, CX
 	// bts    %edi,%ebp
-	WORD $0xab0f; BYTE $0xfd
+	BTSL DI, BP
 	// mov    %bpl,(%rsi,%rax,1)
-	LONG $0x062c8840
+	MOVB BPB, (SI)(AX*1)
 	// movzwl %r12w,%esi
-	LONG $0xf4b70f41
+	MOVWLZX R12, SI
 	// mov    %r12d,%edi
-	WORD $0x8944; BYTE $0xe7
+	MOVL R12, DI
 	// and    $0x7,%dil
-	LONG $0x07e78040
+	ANDB $0x7, DIB
 	// shr    $0x3,%rsi
-	LONG $0x03eec148
+	SHRQ $0x3, SI
 	// movzbl (%rsi,%rax,1),%ebp
-	LONG $0x062cb60f
+	MOVBLZX (SI)(AX*1), BP
 	// shrx   %edi,%ebp,%ebx
-	LONG $0xf743e2c4; BYTE $0xdd
+	SHRXL DI, BP, BX
 	// bts    %edi,%ebp
-	WORD $0xab0f; BYTE $0xfd
+	BTSL DI, BP
 	// mov    %bpl,(%rsi,%rax,1)
-	LONG $0x062c8840
+	MOVB BPB, (SI)(AX*1)
 	// bzhi   %r15d,%edx,%edx
-	LONG $0xf500e2c4; BYTE $0xd2
+	BZHIL R15, DX, DX
 	// movzwl %dx,%esi
-	WORD $0xb70f; BYTE $0xf2
+	MOVWLZX DX, SI
 	// and    $0x7,%dl
-	WORD $0xe280; BYTE $0x07
+	ANDB $0x7, DL
 	// shr    $0x3,%rsi
-	LONG $0x03eec148
+	SHRQ $0x3, SI
 	// movzbl (%rsi,%rax,1),%edi
-	LONG $0x063cb60f
+	MOVBLZX (SI)(AX*1), DI
 	// shrx   %edx,%edi,%ebp
-	LONG $0xf76be2c4; BYTE $0xef
+	SHRXL DX, DI, BP
 	// and    %ebx,%ebp
-	WORD $0xdd21
+	ANDL BX, BP
 	// bts    %edx,%edi
-	WORD $0xab0f; BYTE $0xd7
+	BTSL DX, DI
 	// mov    %dil,(%rsi,%rax,1)
-	LONG $0x063c8840
+	MOVB DIB, (SI)(AX*1)
 	// bzhi   %r15d,%r8d,%edx
-	LONG $0xf500c2c4; BYTE $0xd0
+	BZHIL R15, R8, DX
 	// movzwl %dx,%esi
-	WORD $0xb70f; BYTE $0xf2
+	MOVWLZX DX, SI
 	// and    $0x7,%dl
-	WORD $0xe280; BYTE $0x07
+	ANDB $0x7, DL
 	// shr    $0x3,%rsi
-	LONG $0x03eec148
+	SHRQ $0x3, SI
 	// movzbl (%rsi,%rax,1),%edi
-	LONG $0x063cb60f
+	MOVBLZX (SI)(AX*1), DI
 	// shrx   %edx,%edi,%ebx
-	LONG $0xf76be2c4; BYTE $0xdf
+	SHRXL DX, DI, BX
 	// and    %ebp,%ebx
-	WORD $0xeb21
+	ANDL BP, BX
 	// and    %ecx,%ebx
-	WORD $0xcb21
+	ANDL CX, BX
 	// bts    %edx,%edi
-	WORD $0xab0f; BYTE $0xd7
+	BTSL DX, DI
 	// mov    %dil,(%rsi,%rax,1)
-	LONG $0x063c8840
+	MOVB DIB, (SI)(AX*1)
 	// bzhi   %r15d,%r9d,%ecx
-	LONG $0xf500c2c4; BYTE $0xc9
+	BZHIL R15, R9, CX
 	// mov    %ecx,%edx
-	WORD $0xca89
+	MOVL CX, DX
 	// and    $0x7,%dl
-	WORD $0xe280; BYTE $0x07
+	ANDB $0x7, DL
 	// shr    $0x3,%rcx
-	LONG $0x03e9c148
+	SHRQ $0x3, CX
 	// movzbl (%rcx,%rax,1),%esi
-	LONG $0x0134b60f
+	MOVBLZX (CX)(AX*1), SI
 	// shrx   %edx,%esi,%edi
-	LONG $0xf76be2c4; BYTE $0xfe
+	SHRXL DX, SI, DI
 	// and    %ebx,%edi
-	WORD $0xdf21
+	ANDL BX, DI
 	// bts    %edx,%esi
-	WORD $0xab0f; BYTE $0xd6
+	BTSL DX, SI
 	// mov    %sil,(%rcx,%rax,1)
-	LONG $0x01348840
+	MOVB SIB, (CX)(AX*1)
 	// test   $0x1,%dil
-	LONG $0x01c7f640
+	TESTB $0x1, DIB
 	// sete   %al
-	WORD $0x940f; BYTE $0xc0
+	SETEQ AL
 	// pop    %rbx
-	BYTE $0x5b
+	POPQ BX
 	// pop    %r12
-	WORD $0x5c41
+	POPQ R12
 	// pop    %r14
-	WORD $0x5e41
+	POPQ R14
 	// pop    %r15
-	WORD $0x5f41
+	POPQ R15
 	// pop    %rbp
-	BYTE $0x5d
-	// ret    
-	BYTE $0xc3
+	POPQ BP
+	// ret
+	RET
 
 TEXT PBF8_Test(SB), NOSPLIT, $0
 	// push   %rbp
-	BYTE $0x55
+	PUSHQ BP
 	// push   %r15
-	WORD $0x5741
+	PUSHQ R15
 	// push   %r14
-	WORD $0x5641
+	PUSHQ R14
 	// push   %rbx
-	BYTE $0x53
+	PUSHQ BX
 	// push   %rax
-	BYTE $0x50
+	SUBQ $8, SP
 	// mov    %edx,%r15d
-	WORD $0x8941; BYTE $0xd7
+	MOVL DX, R15
 	// mov    %esi,%ebx
-	WORD $0xf389
+	MOVL SI, BX
 	// mov    %rdi,%r14
-	WORD $0x8949; BYTE $0xfe
+	MOVQ DI, R14
 	// mov    %rcx,%rdi
-	WORD $0x8948; BYTE $0xcf
+	MOVQ CX, DI
 	// mov    %r8d,%esi
-	WORD $0x8944; BYTE $0xc6
+	MOVL R8, SI
 	// call   0 <_ZN3pbf4HashEPKhj>
 	CALL _ZN3pbf4HashEPKhj(SB)
 	// mov    %rax,%rcx
-	WORD $0x8948; BYTE $0xc1
+	MOVQ AX, CX
 	// mov    %rdx,%rbp
-	WORD $0x8948; BYTE $0xd5
+	MOVQ DX, BP
 	// rorx   $0x18,%ecx,%eax
-	LONG $0xf07be3c4; WORD $0x18c1
+	RORXL $0x18, CX, AX
 	// mov    %rcx,%rdx
-	WORD $0x8948; BYTE $0xca
+	MOVQ CX, DX
 	// shr    $0x20,%rdx
-	LONG $0x20eac148
+	SHRQ $0x20, DX
 	// rorx   $0x1c,%ebp,%edi
-	LONG $0xf07be3c4; WORD $0x1cfd
+	RORXL $0x1c, BP, DI
 	// mov    %rbp,%rsi
-	WORD $0x8948; BYTE $0xee
+	MOVQ BP, SI
 	// shr    $0x20,%rsi
-	LONG $0x20eec148
+	SHRQ $0x20, SI
 	// rorx   $0x1a,%edx,%edx
-	LONG $0xf07be3c4; WORD $0x1ad2
+	RORXL $0x1a, DX, DX
 	// xor    %eax,%edi
-	WORD $0xc731
+	XORL AX, DI
 	// xor    %edx,%edi
-	WORD $0xd731
+	XORL DX, DI
 	// rorx   $0x1e,%esi,%eax
-	LONG $0xf07be3c4; WORD $0x1ec6
+	RORXL $0x1e, SI, AX
 	// xor    %edi,%eax
-	WORD $0xf831
+	XORL DI, AX
 	// xor    %edx,%edx
-	WORD $0xd231
+	XORL DX, DX
 	// div    %r15d
-	WORD $0xf741; BYTE $0xf7
+	DIVL R15
 	// vmovq  %rbp,%xmm0
-	LONG $0x6ef9e1c4; BYTE $0xc5
+	VMOVQ BP, X0
 	// vmovq  %rcx,%xmm1
-	LONG $0x6ef9e1c4; BYTE $0xc9
+	VMOVQ CX, X1
 	// shlx   %rbx,%rdx,%rax
-	LONG $0xf7e1e2c4; BYTE $0xc2
+	SHLXQ BX, DX, AX
 	// add    %r14,%rax
-	WORD $0x014c; BYTE $0xf0
+	ADDQ R14, AX
 	// vpunpcklqdq %xmm0,%xmm1,%xmm0
-	LONG $0xc06cf1c5
+	VPUNPCKLQDQ X0, X1, X0
 	// add    $0x3,%bl
-	WORD $0xc380; BYTE $0x03
+	ADDB $0x3, BL
 	// mov    $0xffffffff,%ecx
-	LONG $0xffffffb9; BYTE $0xff
+	MOVL $0xffffffff, CX
 	// shlx   %ebx,%ecx,%ecx
-	LONG $0xf761e2c4; BYTE $0xc9
+	SHLXL BX, CX, CX
 	// not    %ecx
-	WORD $0xd1f7
+	NOTL CX
 	// vmovd  %ecx,%xmm1
-	LONG $0xc96ef9c5
+	VMOVD CX, X1
 	// vpbroadcastd %xmm1,%ymm1
-	LONG $0x587de2c4; BYTE $0xc9
+	VPBROADCASTD X1, Y1
 	// vpsrld $0x10,%xmm0,%xmm2
-	LONG $0xd072e9c5; BYTE $0x10
+	VPSRLD $0x10, X0, X2
 	// vinserti128 $0x1,%xmm2,%ymm0,%ymm0
-	LONG $0x387de3c4; WORD $0x01c2
+	VINSERTI128 $0x1, X2, Y0, Y0
 	// vpand  %ymm0,%ymm1,%ymm0
-	LONG $0xc0dbf5c5
+	VPAND Y0, Y1, Y0
 	// vpsrld $0x5,%ymm0,%ymm1
-	LONG $0xd072f5c5; BYTE $0x05
+	VPSRLD $0x5, Y0, Y1
 	// vpcmpeqd %ymm2,%ymm2,%ymm2
-	LONG $0xd276edc5
+	VPCMPEQD Y2, Y2, Y2
 	// vpxor  %xmm3,%xmm3,%xmm3
-	LONG $0xdbefe1c5
+	VPXOR X3, X3, X3
 	// vpgatherdd %ymm2,(%rax,%ymm1,4),%ymm3
-	LONG $0x906de2c4; WORD $0x881c
+	VPGATHERDD Y2, (AX)(Y1*4), Y3
 	// vpbroadcastd 0x2e(%rip),%ymm1        # ef8 <PBF8_Test+0xd8>
-	QUAD $0x00002e0d587de2c4; BYTE $0x00
+	VPBROADCASTD pbf8_test_mask31<>(SB), Y1
 	// vpand  %ymm1,%ymm0,%ymm0
-	LONG $0xc1dbfdc5
+	VPAND Y1, Y0, Y0
 	// vpbroadcastd 0x25(%rip),%ymm1        # efc <PBF8_Test+0xdc>
-	QUAD $0x0000250d587de2c4; BYTE $0x00
+	VPBROADCASTD pbf8_test_one<>(SB), Y1
 	// vpsllvd %ymm0,%ymm1,%ymm0
-	LONG $0x4775e2c4; BYTE $0xc0
+	VPSLLVD Y0, Y1, Y0
 	// vpandn %ymm0,%ymm3,%ymm1
-	LONG $0xc8dfe5c5
+	VPANDN Y0, Y3, Y1
 	// vptest %ymm0,%ymm1
-	LONG $0x177de2c4; BYTE $0xc8
+	VPTEST Y0, Y1
 	// sete   %al
-	WORD $0x940f; BYTE $0xc0
+	SETEQ AL
 	// add    $0x8,%rsp
-	LONG $0x08c48348
+	ADDQ $0x8, SP
 	// pop    %rbx
-	BYTE $0x5b
+	POPQ BX
 	// pop    %r14
-	WORD $0x5e41
+	POPQ R14
 	// pop    %r15
-	WORD $0x5f41
+	POPQ R15
 	// pop    %rbp
-	BYTE $0x5d
-	// vzeroupper 
-	WORD $0xf8c5; BYTE $0x77
-	// ret    
-	BYTE $0xc3
-	// data 10
-	QUAD $0x00010000001f9066; WORD $0x0000
-
+	POPQ BP
+	// vzeroupper
+	VZEROUPPER
+	// ret
+	RET

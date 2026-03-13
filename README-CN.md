@@ -74,10 +74,6 @@ BenchmarkBitsAndBloomSet-16          1000000            44.57 ns/op
 BenchmarkBitsAndBloomTest-16         1000000            37.94 ns/op
 BenchmarkTylerTreatSet-16            1000000            43.94 ns/op
 BenchmarkTylerTreatTest-16           1000000            20.80 ns/op
-
-// U7-155H & Go-1.24 (to fix: injection is broken since Go-1.21)
-BenchmarkPageBloomFilterSet-16       1000000            26.35 ns/op
-BenchmarkPageBloomFilterTest-16      1000000            23.97 ns/op
 ```
 
 ## Java
