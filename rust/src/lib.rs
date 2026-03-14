@@ -2,8 +2,17 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+use crate::pbf::BloomFilter;
+
 mod hash;
 pub mod pbf;
+
+#[macro_export]
+macro_rules! new_bloom_filter_fast {
+    ($item:expr, $fpr:expr) => {
+        $crate::pbf::PageBloomFilter::<{ $crate::pbf::best_way_const($fpr) }>::from_estimate($item, $fpr)
+    };
+}
 
 
 #[test]
@@ -64,6 +73,24 @@ fn test_new() {
 }
 
 #[test]
+fn test_new_small() {
+    let bf = pbf::new_bloom_filter(1, 0.1);
+    assert!(bf.valid());
+    assert_eq!(4, bf.get_way());
+    assert_eq!(6, bf.get_page_level());
+    assert_eq!(1, bf.get_page_num());
+    assert_eq!(64, bf.get_data().len());
+}
+
+#[test]
+fn test_new_fast() {
+    let bf = new_bloom_filter_fast!(500, 0.01);
+    assert_eq!(7, bf.get_way());
+    assert_eq!(7, bf.get_page_level());
+    assert_eq!(640, bf.get_data().len());
+}
+
+#[test]
 fn test_operate() {
     let _doit = |way: u8| {
         let mut bf = pbf::new_pbf(way, 7, 3);
@@ -97,6 +124,7 @@ fn test_clear_resets_unique_cnt() {
 }
 
 #[test]
+#[ignore]
 fn benchmark() {
     let n = 1000000_usize;
     let mut bf = pbf::new_bloom_filter(n, 0.01);
@@ -112,4 +140,18 @@ fn benchmark() {
         bf.test(&(i as u64).to_le_bytes());
     }
     println!("pbf-test: {:.2}ns/op", (test.elapsed().as_nanos() as u64) as f64 / n as f64);
+
+    let mut fast = new_bloom_filter_fast!(n, 0.01);
+
+    let set = std::time::Instant::now();
+    for i in 0..(n/2) {
+        fast.set(&(i as u64).to_le_bytes());
+    }
+    println!("pbf-fast-set: {:.2}ns/op", (set.elapsed().as_nanos() as u64) as f64 / (n/2) as f64);
+
+    let test = std::time::Instant::now();
+    for i in 0..n {
+        fast.test(&(i as u64).to_le_bytes());
+    }
+    println!("pbf-fast-test: {:.2}ns/op", (test.elapsed().as_nanos() as u64) as f64 / n as f64);
 }

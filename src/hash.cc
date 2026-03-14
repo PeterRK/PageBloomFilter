@@ -67,6 +67,9 @@ static FORCE_INLINE void End(uint64_t& h0, uint64_t& h1, uint64_t& h2, uint64_t&
 //SpookyHash
 V128 Hash(const uint8_t* msg, unsigned len) noexcept {
 	constexpr uint64_t magic = 0xdeadbeefdeadbeefULL;
+	// This implementation intentionally uses direct little-endian word loads.
+	// It targets mainstream CPUs that tolerate unaligned accesses efficiently,
+	// rather than fully portable byte-wise decoding.
 
 	uint64_t a = 0;
 	uint64_t b = 0;

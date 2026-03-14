@@ -87,7 +87,7 @@ if (bf.test(hello)) {
     System.out.println("find Hello");
 }
 ```
-[Benchmark](java/src/test/java/com/github/peterrk/pbf/BloomFilterBenchmark.java) shows it runs much faster than Google's [Guava](https://github.com/google/guava), but sometimes a liitle slower than Alexandr Nikitin's [bloom-filter-scala](https://github.com/alexandrnikitin/bloom-filter-scala). We see Java version without dedicated optimization is inferior to the Go version.
+[Benchmark](java/src/test/java/com/github/peterrk/pbf/BloomFilterBenchmark.java) shows it runs much faster than Google's [Guava](https://github.com/google/guava). On the newer U7-155H/OpenJDK-21 numbers below, it is also slightly faster than Alexandr Nikitin's [bloom-filter-scala](https://github.com/alexandrnikitin/bloom-filter-scala). It is still slower than the Go and C++ implementations.
 ```
 // i7-10710U & OpenJDK-17
 pbfSet       50.962 ns/op
@@ -98,8 +98,8 @@ nikitinSet   86.931 ns/op
 nikitinTest  62.133 ns/op
 
 // U7-155H & OpenJDK-21
-pbfSet       24.562 ns/op
-pbfTest      20.511 ns/op
+pbfSet       20.780 ns/op
+pbfTest      16.831 ns/op
 guavaSet     44.889 ns/op
 guavaTest    45.652 ns/op
 nikitinSet   22.474 ns/op
@@ -117,7 +117,7 @@ if (bf.Test(hello)) {
     Console.WriteLine("find Hello");
 }
 ```
-C# code is very similar to Java, but runs slower. It's faster than [BloomFilter.NetCore](https://github.com/vla/BloomFilter.NetCore).
+C# code is very similar to Java, but the numbers below are still slower than the Java version. It remains faster than [BloomFilter.NetCore](https://github.com/vla/BloomFilter.NetCore).
 ```
 // i7-10710U & .NET-7
 pbf-set:  83.461274 ns/op
@@ -161,8 +161,14 @@ if (bf.set(hello)) {
 if (bf.test(hello)) {
     println!("find Hello");
 }
+
+// If false positive rate is a compile-time constant, use the fast path.
+let mut fast = pbf::new_bloom_filter_fast!(500, 0.01);
+if (fast.set(hello)) {
+    println!("set new Hello");
+}
 ```
-Rust verison is also lack of dedicated optimiztion, but faster than Java version a lot. It shows some advantage in performance against [fastbloom](https://github.com/tomtomwombat/fastbloom) and [rust-bloom-filter](https://github.com/jedisct1/rust-bloom-filter).
+Rust remains competitive against [fastbloom](https://github.com/tomtomwombat/fastbloom) and [rust-bloom-filter](https://github.com/jedisct1/rust-bloom-filter).
 ```
 // i7-10710U & Rust-1.65
 pbf-set:  45.99ns/op

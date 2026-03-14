@@ -7,23 +7,54 @@
 #include <Python.h>
 #include "pbf-c.h"
 
-#define DEFINE_PY_FUNC(way) \
-static PyObject* set##way(PyObject *self, PyObject *args) { \
-	FETCH_ARGS \
-	return PyBool_FromLong(PBF##way##_Set(space.buf, page_level, space.len>>page_level, key, key_len)); \
-} \
-static PyObject* test##way(PyObject *self, PyObject *args) { \
-	FETCH_ARGS \
-	return PyBool_FromLong(PBF##way##_Test(space.buf, page_level, space.len>>page_level, key, key_len)); \
+static int validate_page_buffer(Py_buffer* space, unsigned page_level) {
+	if (page_level > 31) {
+		PyErr_SetString(PyExc_ValueError, "page_level is too large");
+		return 0;
+	}
+	Py_ssize_t page_size = (Py_ssize_t)1 << page_level;
+	if (space->len < page_size) {
+		PyErr_SetString(PyExc_ValueError, "buffer is smaller than one page");
+		return 0;
+	}
+	if (space->len % page_size != 0) {
+		PyErr_SetString(PyExc_ValueError, "buffer length must be a multiple of page size");
+		return 0;
+	}
+	return 1;
 }
 
-#define FETCH_ARGS \
-	Py_buffer space; \
-	unsigned page_level; \
-	const uint8_t* key; \
-	Py_ssize_t key_len; \
-	if (!PyArg_ParseTuple(args, "y*Is#", \
-		&space, &page_level, &key, &key_len)) return NULL;
+#define PARSE_RW_BUFFER_AND_KEY()                                             \
+	Py_buffer space = {0};                                                    \
+	const uint8_t* key = NULL;                                                \
+	Py_ssize_t key_len = 0;                                                   \
+	unsigned page_level = 0;                                                  \
+	if (!PyArg_ParseTuple(args, "w*Is#",                                       \
+		&space, &page_level, &key, &key_len)) {                               \
+		return NULL;                                                           \
+	}
+
+#define DEFINE_PY_FUNC(way) \
+static PyObject* set##way(PyObject *self, PyObject *args) { \
+	PARSE_RW_BUFFER_AND_KEY() \
+	if (!validate_page_buffer(&space, page_level)) { \
+		PyBuffer_Release(&space); \
+		return NULL; \
+	} \
+	int ret = PBF##way##_Set(space.buf, page_level, space.len>>page_level, key, key_len); \
+	PyBuffer_Release(&space); \
+	return PyBool_FromLong(ret); \
+} \
+static PyObject* test##way(PyObject *self, PyObject *args) { \
+	PARSE_RW_BUFFER_AND_KEY() \
+	if (!validate_page_buffer(&space, page_level)) { \
+		PyBuffer_Release(&space); \
+		return NULL; \
+	} \
+	int ret = PBF##way##_Test(space.buf, page_level, space.len>>page_level, key, key_len); \
+	PyBuffer_Release(&space); \
+	return PyBool_FromLong(ret); \
+}
 
 DEFINE_PY_FUNC(4)
 DEFINE_PY_FUNC(5)
@@ -33,9 +64,10 @@ DEFINE_PY_FUNC(8)
 
 
 static PyObject* clear(PyObject *self, PyObject *args) {
-	Py_buffer space;
-	if (!PyArg_ParseTuple(args, "y*", &space)) return NULL;
+	Py_buffer space = {0};
+	if (!PyArg_ParseTuple(args, "w*", &space)) return NULL;
 	memset(space.buf, 0, space.itemsize * space.len);
+	PyBuffer_Release(&space);
 	Py_RETURN_NONE;
 }
 

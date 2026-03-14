@@ -87,7 +87,7 @@ if (bf.test(hello)) {
     System.out.println("find Hello");
 }
 ```
-[测评](java/src/test/java/com/github/peterrk/pbf/BloomFilterBenchmark.java) 表明本实现比Google的[Guava](https://github.com/google/guava)要快很多，而有时稍逊于Alexandr Nikitin的[bloom-filter-scala](https://github.com/alexandrnikitin/bloom-filter-scala)。由于缺少针对性优化，Java版没有Go版快。
+[测评](java/src/test/java/com/github/peterrk/pbf/BloomFilterBenchmark.java) 表明本实现比Google的[Guava](https://github.com/google/guava)要快很多。下面 U7-155H/OpenJDK-21 这一组数据里，也已经略快于 Alexandr Nikitin 的 [bloom-filter-scala](https://github.com/alexandrnikitin/bloom-filter-scala)。不过整体上仍然慢于 Go 和 C++ 版本。
 ```
 // i7-10710U & OpenJDK-17
 pbfSet       50.962 ns/op
@@ -98,8 +98,8 @@ nikitinSet   86.931 ns/op
 nikitinTest  62.133 ns/op
 
 // U7-155H & OpenJDK-21
-pbfSet       24.562 ns/op
-pbfTest      20.511 ns/op
+pbfSet       20.780 ns/op
+pbfTest      16.831 ns/op
 guavaSet     44.889 ns/op
 guavaTest    45.652 ns/op
 nikitinSet   22.474 ns/op
@@ -117,7 +117,7 @@ if (bf.Test(hello)) {
     Console.WriteLine("find Hello");
 }
 ```
-C#版代码和Java版高度一致，不过跑出来要慢不少。性能胜过[BloomFilter.NetCore](https://github.com/vla/BloomFilter.NetCore)。
+C#版代码和Java版高度一致，不过从下面数据看仍明显慢于Java版。性能依然胜过[BloomFilter.NetCore](https://github.com/vla/BloomFilter.NetCore)。
 ```
 // i7-10710U & .NET-7
 pbf-set:  83.461274 ns/op
@@ -161,8 +161,14 @@ if (bf.set(hello)) {
 if (bf.test(hello)) {
     println!("find Hello");
 }
+
+// 当假阳率是编译期常量时，可走静态分发的快速路径。
+let mut fast = pbf::new_bloom_filter_fast!(500, 0.01);
+if (fast.set(hello)) {
+    println!("set new Hello");
+}
 ```
-Rust版也缺少针对性优化，照样快过Java。看上去比[fastbloom](https://github.com/tomtomwombat/fastbloom)和[rust-bloom-filter](https://github.com/jedisct1/rust-bloom-filter)强。
+Rust版对[fastbloom](https://github.com/tomtomwombat/fastbloom)和[rust-bloom-filter](https://github.com/jedisct1/rust-bloom-filter)仍有竞争力。
 ```
 // i7-10710U & Rust-1.65
 pbf-set:  45.99ns/op

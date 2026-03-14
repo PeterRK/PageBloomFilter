@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+using System.Buffers.Binary;
+
 namespace PageBloomFilter {
     public sealed class Hash {
         public struct V128 {
@@ -66,15 +68,15 @@ namespace PageBloomFilter {
 
             int off = 0;
             for (int end = key.Length & ~0x1f; off < end; off += 32) {
-                s.c += BitConverter.ToUInt64(key[off..]);
-                s.d += BitConverter.ToUInt64(key[(off + 8)..]);
+                s.c += BinaryPrimitives.ReadUInt64LittleEndian(key[off..]);
+                s.d += BinaryPrimitives.ReadUInt64LittleEndian(key[(off + 8)..]);
                 s.Mix();
-                s.a += BitConverter.ToUInt64(key[(off + 16)..]);
-                s.b += BitConverter.ToUInt64(key[(off + 24)..]);
+                s.a += BinaryPrimitives.ReadUInt64LittleEndian(key[(off + 16)..]);
+                s.b += BinaryPrimitives.ReadUInt64LittleEndian(key[(off + 24)..]);
             }
             if (key.Length - off >= 16) {
-                s.c += BitConverter.ToUInt64(key[off..]);
-                s.d += BitConverter.ToUInt64(key[(off + 8)..]);
+                s.c += BinaryPrimitives.ReadUInt64LittleEndian(key[off..]);
+                s.d += BinaryPrimitives.ReadUInt64LittleEndian(key[(off + 8)..]);
                 s.Mix();
                 off += 16;
             }
@@ -91,8 +93,8 @@ namespace PageBloomFilter {
                     s.d += ((ulong)key[off + 12]) << 32;
                     goto case 12;
                 case 12:
-                    s.d += BitConverter.ToUInt32(key[(off + 8)..]);
-                    s.c += BitConverter.ToUInt64(key[off..]);
+                    s.d += BinaryPrimitives.ReadUInt32LittleEndian(key[(off + 8)..]);
+                    s.c += BinaryPrimitives.ReadUInt64LittleEndian(key[off..]);
                     break;
                 case 11:
                     s.d += ((ulong)key[off + 10]) << 16;
@@ -104,7 +106,7 @@ namespace PageBloomFilter {
                     s.d += key[off + 8];
                     goto case 8;
                 case 8:
-                    s.c += BitConverter.ToUInt64(key[off..]);
+                    s.c += BinaryPrimitives.ReadUInt64LittleEndian(key[off..]);
                     break;
                 case 7:
                     s.c += ((ulong)key[off + 6]) << 48;
@@ -116,7 +118,7 @@ namespace PageBloomFilter {
                     s.c += ((ulong)key[off + 4]) << 32;
                     goto case 4;
                 case 4:
-                    s.c += BitConverter.ToUInt32(key[off..]);
+                    s.c += BinaryPrimitives.ReadUInt32LittleEndian(key[off..]);
                     break;
                 case 3:
                     s.c += ((ulong)key[off + 2]) << 16;

@@ -5,6 +5,7 @@
 package com.github.peterrk.pbf;
 
 import java.lang.Math;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public abstract class PageBloomFilter {
@@ -18,7 +19,7 @@ public abstract class PageBloomFilter {
     public int getPageNum() { return pageNum; }
 
     public long getUniqueCnt() { return uniqueCnt; }
-    public byte[] getData() { return data; }
+    public ByteBuffer getData() { return ByteBuffer.wrap(data).asReadOnlyBuffer(); }
 
     public long capacity() {
          return (long)data.length * 8 / getWay();
@@ -74,6 +75,9 @@ public abstract class PageBloomFilter {
         }
 
         long pageNum = (n + (1L << pageLevel) - 1L) >> pageLevel;
+        if (pageNum == 0) {
+            pageNum = 1;
+        }
         if (pageNum > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("too many items");
         }
@@ -118,6 +122,16 @@ public abstract class PageBloomFilter {
         }
     }
 
+    public static PageBloomFilter New(int way, int pageLevel, ByteBuffer data, long uniqueCnt) {
+        if (data == null) {
+            throw new IllegalArgumentException("illegal data size");
+        }
+        ByteBuffer view = data.asReadOnlyBuffer();
+        byte[] copy = new byte[view.remaining()];
+        view.get(copy);
+        return New(way, pageLevel, copy, uniqueCnt);
+    }
+
     protected PageBloomFilter(int way, int pageLevel, byte[] data, long uniqueCnt) {
         if (way < 4 || way > 8) {
             throw new IllegalArgumentException("way should be 4-8");
@@ -144,40 +158,55 @@ public abstract class PageBloomFilter {
         return (x << k) | (x >>> (32 - k));
     }
 
-    private static final class HashResult {
-        int offset = 0;
-        int[] codes = new int[8];
-    }
-    private HashResult hash(byte[] key) {
+    protected boolean set(int way, byte[] key) {
         Hash.V128 code = Hash.hash128(key);
         int w0 = (int)code.low;
-        int w1 = (int)(code.low>>>32);
+        int w1 = (int)(code.low >>> 32);
         int w2 = (int)code.high;
-        int w3 = (int)(code.high>>>32);
-        HashResult ret = new HashResult();
-        long x = rot(w0, 8) ^ rot(w1, 6) ^ rot(w2, 4) ^ rot(w3, 2);
-        ret.offset = (int)((x & 0xffffffffL) % pageNum);
-        ret.offset <<= pageLevel;
-        ret.codes[0] = w0 & 0xffff;
-        ret.codes[1] = w0 >>> 16;
-        ret.codes[2] = w1 & 0xffff;
-        ret.codes[3] = w1 >>> 16;
-        ret.codes[4] = w2 & 0xffff;
-        ret.codes[5] = w2 >>> 16;
-        ret.codes[6] = w3 & 0xffff;
-        ret.codes[7] = w3 >>> 16;
-        return ret;
-    }
-
-    protected boolean set(int way, byte[] key) {
-        HashResult h = hash(key);
+        int w3 = (int)(code.high >>> 32);
+        int offset = (int)(((rot(w0, 8) ^ rot(w1, 6) ^ rot(w2, 4) ^ rot(w3, 2)) & 0xffffffffL) % pageNum);
+        offset <<= pageLevel;
         int mask = (1 << (pageLevel+3)) - 1;
         byte hit = 1;
-        for (int i = 0; i < way; i++) {
-            int idx = h.codes[i] & mask;
-            byte bit = (byte)(1 << (idx & 7));
-            hit &= (byte)(data[h.offset+(idx>>>3)] >>> (idx & 7));
-            data[h.offset+(idx>>>3)] |= bit;
+        int idx = (w0 & 0xffff) & mask;
+        byte bit = (byte)(1 << (idx & 7));
+        hit &= (byte)(data[offset+(idx>>>3)] >>> (idx & 7));
+        data[offset+(idx>>>3)] |= bit;
+        idx = (w0 >>> 16) & mask;
+        bit = (byte)(1 << (idx & 7));
+        hit &= (byte)(data[offset+(idx>>>3)] >>> (idx & 7));
+        data[offset+(idx>>>3)] |= bit;
+        idx = (w1 & 0xffff) & mask;
+        bit = (byte)(1 << (idx & 7));
+        hit &= (byte)(data[offset+(idx>>>3)] >>> (idx & 7));
+        data[offset+(idx>>>3)] |= bit;
+        idx = (w1 >>> 16) & mask;
+        bit = (byte)(1 << (idx & 7));
+        hit &= (byte)(data[offset+(idx>>>3)] >>> (idx & 7));
+        data[offset+(idx>>>3)] |= bit;
+        if (way > 4) {
+            idx = (w2 & 0xffff) & mask;
+            bit = (byte)(1 << (idx & 7));
+            hit &= (byte)(data[offset+(idx>>>3)] >>> (idx & 7));
+            data[offset+(idx>>>3)] |= bit;
+            if (way > 5) {
+                idx = (w2 >>> 16) & mask;
+                bit = (byte)(1 << (idx & 7));
+                hit &= (byte)(data[offset+(idx>>>3)] >>> (idx & 7));
+                data[offset+(idx>>>3)] |= bit;
+                if (way > 6) {
+                    idx = (w3 & 0xffff) & mask;
+                    bit = (byte)(1 << (idx & 7));
+                    hit &= (byte)(data[offset+(idx>>>3)] >>> (idx & 7));
+                    data[offset+(idx>>>3)] |= bit;
+                    if (way > 7) {
+                        idx = (w3 >>> 16) & mask;
+                        bit = (byte)(1 << (idx & 7));
+                        hit &= (byte)(data[offset+(idx>>>3)] >>> (idx & 7));
+                        data[offset+(idx>>>3)] |= bit;
+                    }
+                }
+            }
         }
         if (hit != 0) {
             return false;
@@ -187,13 +216,60 @@ public abstract class PageBloomFilter {
     }
 
     protected boolean test(int way, byte[] key) {
-        HashResult h = hash(key);
+        Hash.V128 code = Hash.hash128(key);
+        int w0 = (int)code.low;
+        int w1 = (int)(code.low >>> 32);
+        int w2 = (int)code.high;
+        int w3 = (int)(code.high >>> 32);
+        int offset = (int)(((rot(w0, 8) ^ rot(w1, 6) ^ rot(w2, 4) ^ rot(w3, 2)) & 0xffffffffL) % pageNum);
+        offset <<= pageLevel;
         int mask = (1 << (pageLevel+3)) - 1;
-        for (int i = 0; i < way; i++) {
-            int idx = h.codes[i] & mask;
-            byte bit = (byte)(1 << (idx & 7));
-            if ((data[h.offset+(idx>>>3)] & bit) == 0) {
+        int idx = (w0 & 0xffff) & mask;
+        byte bit = (byte)(1 << (idx & 7));
+        if ((data[offset+(idx>>>3)] & bit) == 0) {
+            return false;
+        }
+        idx = (w0 >>> 16) & mask;
+        bit = (byte)(1 << (idx & 7));
+        if ((data[offset+(idx>>>3)] & bit) == 0) {
+            return false;
+        }
+        idx = (w1 & 0xffff) & mask;
+        bit = (byte)(1 << (idx & 7));
+        if ((data[offset+(idx>>>3)] & bit) == 0) {
+            return false;
+        }
+        idx = (w1 >>> 16) & mask;
+        bit = (byte)(1 << (idx & 7));
+        if ((data[offset+(idx>>>3)] & bit) == 0) {
+            return false;
+        }
+        if (way > 4) {
+            idx = (w2 & 0xffff) & mask;
+            bit = (byte)(1 << (idx & 7));
+            if ((data[offset+(idx>>>3)] & bit) == 0) {
                 return false;
+            }
+            if (way > 5) {
+                idx = (w2 >>> 16) & mask;
+                bit = (byte)(1 << (idx & 7));
+                if ((data[offset+(idx>>>3)] & bit) == 0) {
+                    return false;
+                }
+                if (way > 6) {
+                    idx = (w3 & 0xffff) & mask;
+                    bit = (byte)(1 << (idx & 7));
+                    if ((data[offset+(idx>>>3)] & bit) == 0) {
+                        return false;
+                    }
+                    if (way > 7) {
+                        idx = (w3 >>> 16) & mask;
+                        bit = (byte)(1 << (idx & 7));
+                        if ((data[offset+(idx>>>3)] & bit) == 0) {
+                            return false;
+                        }
+                    }
+                }
             }
         }
         return true;

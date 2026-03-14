@@ -24,6 +24,18 @@ TEST(PBF, New) {
 	ASSERT_EQ(640, p->data_size());
 }
 
+TEST(PBF, SmallEstimate) {
+	auto bf = NEW_BLOOM_FILTER(1, 0.1);
+	ASSERT_FALSE(!bf);
+	ASSERT_EQ(4, bf.way());
+	ASSERT_EQ(6, bf.page_level());
+	ASSERT_EQ(64, bf.data_size());
+	auto p = pbf::New(1, 0.1);
+	ASSERT_NE(nullptr, p);
+	ASSERT_FALSE(!*p);
+	ASSERT_EQ(1, p->page_num());
+}
+
 template <unsigned N>
 void DoTest() {
 	pbf::PageBloomFilter<N> bf(7, 3);

@@ -18,11 +18,11 @@ class PageBloomFilter:
         self.page_num = page_num
         data_size = page_num << page_level
         if data is None:
-            self.data = bytearray(data_size)
+            self._data = bytearray(data_size)
             self.clear()
         else:
             assert len(data) == data_size
-            self.data = bytearray(data)
+            self._data = bytearray(data)
             self.unique_cnt = unique_cnt
 
         self._set, self._test = PageBloomFilter._funcs[way]
@@ -35,24 +35,28 @@ class PageBloomFilter:
         8: (_pbf.set8, _pbf.test8),
     }
 
+    @property
+    def data(self):
+        return memoryview(self._data).toreadonly()
+
     def clear(self):
         self.unique_cnt = 0
-        _pbf.clear(self.data)
+        _pbf.clear(self._data)
 
     def set(self, key):
-        if self._set(self.data, self.page_level, key):
+        if self._set(self._data, self.page_level, key):
             self.unique_cnt += 1
             return True
         return False
 
     def test(self, key):
-        return self._test(self.data, self.page_level, key)
+        return self._test(self._data, self.page_level, key)
 
     def capacity(self):
-        return len(self.data) * 8 / self.way
+        return len(self._data) * 8 / self.way
 
-    def virual_capacity(self, fpr):
-        t = math.log1p(-math.pow(fpr, 1.0/self.way)) / math.log1p(-1.0/(len(self.data) * 8))
+    def virtual_capacity(self, fpr):
+        t = math.log1p(-math.pow(fpr, 1.0/self.way)) / math.log1p(-1.0/(len(self._data) * 8))
         return int(t) / self.way
 
 
@@ -100,6 +104,8 @@ def create(item, fpr):
         page_level = 12
 
     page_num = (n + (1 << page_level) - 1) >> page_level
+    if page_num == 0:
+        page_num = 1
     return PageBloomFilter(way, page_level, page_num)
 
 
@@ -131,6 +137,11 @@ def test():
     _test_create()
     for i in range(4, 9):
         _test_operate(i)
+    data = bytearray(1 << 6)
+    assert _pbf.set4(data, 6, struct.pack("<q", 1))
+    assert _pbf.test4(data, 6, struct.pack("<q", 1))
+    _pbf.clear(data)
+    assert not _pbf.test4(data, 6, struct.pack("<q", 1))
 
 
 def benchmark():

@@ -4,7 +4,7 @@
 # license that can be found in the LICENSE file.
 
 import os
-from distutils.core import setup, Extension
+from setuptools import Extension, setup
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

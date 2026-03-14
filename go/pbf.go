@@ -6,12 +6,13 @@ package pbf
 
 import (
 	"math"
-	"reflect"
 	"unsafe"
 )
 
 type PageBloomFilter interface {
 	Clear()
+	// Go slices are always mutable views. Callers must treat the returned slice
+	// as read-only; mutating it breaks unique-count bookkeeping.
 	Data() []byte
 	Unique() int
 	PageLevel() uint32
@@ -65,6 +66,9 @@ func NewBloomFilter(item int, fpr float64) PageBloomFilter {
 	}
 
 	m := (n + (1 << pageLevel) - 1) >> pageLevel
+	if m == 0 {
+		m = 1
+	}
 	if m > math.MaxInt32 {
 		return nil
 	}
@@ -134,18 +138,11 @@ type pageBloomFilter struct {
 // clear data
 func (bf *pageBloomFilter) Clear() {
 	bf.uniqueCnt = 0
-	slc := (*reflect.SliceHeader)(unsafe.Pointer(&bf.data))
-	var vec []uint64
-	ref := (*reflect.SliceHeader)(unsafe.Pointer(&vec))
-	ref.Data = slc.Data
-	ref.Len = slc.Len / 8
-	ref.Cap = ref.Len
-	for i := 0; i < len(vec); i++ {
-		vec[i] = 0
-	}
+	clear(bf.data)
 }
 
 // get inner data
+// The returned slice aliases internal storage and must not be modified.
 func (bf *pageBloomFilter) Data() []byte {
 	return bf.data
 }

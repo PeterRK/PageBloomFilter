@@ -15,6 +15,15 @@ namespace PageBloomFilter.Tests {
             Assert.That(bf.Data.Length, Is.EqualTo(640));
         }
 
+        [Test]
+        public void CreateSmallTest() {
+            var bf = PageBloomFilter.New(1, 0.1);
+            Assert.That(bf.Way, Is.EqualTo(4));
+            Assert.That(bf.PageLevel, Is.EqualTo(6));
+            Assert.That(bf.PageNum, Is.EqualTo(1));
+            Assert.That(bf.Data.Length, Is.EqualTo(64));
+        }
+
         private static void DoTest(int way) {
             PageBloomFilter bf = PageBloomFilter.New(way, 7, 3);
             var key = new Span<byte>(new byte[8]);

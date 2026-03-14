@@ -14,7 +14,7 @@ namespace PageBloomFilter {
         public uint PageNum { get => pageNum; }
 
         public long UniqueCnt { get => uniqueCnt; }
-        public byte[] Data { get => data; }
+        public ReadOnlyMemory<byte> Data { get => data; }
 
         public long Capacity {
             get => data.LongLength * 8 / Way;
@@ -68,6 +68,9 @@ namespace PageBloomFilter {
             }
 
             long pageNum = (n + (1L << pageLevel) - 1L) >> pageLevel;
+            if (pageNum == 0) {
+                pageNum = 1;
+            }
             if (pageNum > Int32.MaxValue) {
                 throw new ArgumentException("too many items");
             }
@@ -138,44 +141,55 @@ namespace PageBloomFilter {
             return (x << k) | (x >> (32 - k));
         }
 
-        private struct HashResult {
-            public uint offset;
-            public uint[] codes;
-            public HashResult() {
-                offset = 0;
-                codes = new uint[8];
-            }
-        }
-        private HashResult PageHash(ReadOnlySpan<byte> key) {
+        protected bool Set(int way, ReadOnlySpan<byte> key) {
             var code = Hash.Hash128(key);
             var w0 = (uint)code.low;
             var w1 = (uint)(code.low >> 32);
             var w2 = (uint)code.high;
             var w3 = (uint)(code.high >> 32);
-            var ret = new HashResult();
-            var x = Rot(w0, 8) ^ Rot(w1, 6) ^ Rot(w2, 4) ^ Rot(w3, 2);
-            ret.offset = x % pageNum;
-            ret.offset <<= pageLevel;
-            ret.codes[0] = w0 & 0xffff;
-            ret.codes[1] = w0 >> 16;
-            ret.codes[2] = w1 & 0xffff;
-            ret.codes[3] = w1 >> 16;
-            ret.codes[4] = w2 & 0xffff;
-            ret.codes[5] = w2 >> 16;
-            ret.codes[6] = w3 & 0xffff;
-            ret.codes[7] = w3 >> 16;
-            return ret;
-        }
-
-        protected bool Set(int way, ReadOnlySpan<byte> key) {
-            var h = PageHash(key);
+            var offset = (Rot(w0, 8) ^ Rot(w1, 6) ^ Rot(w2, 4) ^ Rot(w3, 2)) % pageNum;
+            offset <<= pageLevel;
             uint mask = (1U << (pageLevel + 3)) - 1U;
             int hit = 1;
-            for (int i = 0; i < way; i++) {
-                uint idx = h.codes[i] & mask;
-                byte bit = (byte)(1u << (int)(idx & 7));
-                hit &= data[h.offset + (idx >> 3)] >> (int)(idx & 7);
-                data[h.offset + (idx >> 3)] |= bit;
+            uint idx = (w0 & 0xffff) & mask;
+            byte bit = (byte)(1u << (int)(idx & 7));
+            hit &= data[offset + (idx >> 3)] >> (int)(idx & 7);
+            data[offset + (idx >> 3)] |= bit;
+            idx = (w0 >> 16) & mask;
+            bit = (byte)(1u << (int)(idx & 7));
+            hit &= data[offset + (idx >> 3)] >> (int)(idx & 7);
+            data[offset + (idx >> 3)] |= bit;
+            idx = (w1 & 0xffff) & mask;
+            bit = (byte)(1u << (int)(idx & 7));
+            hit &= data[offset + (idx >> 3)] >> (int)(idx & 7);
+            data[offset + (idx >> 3)] |= bit;
+            idx = (w1 >> 16) & mask;
+            bit = (byte)(1u << (int)(idx & 7));
+            hit &= data[offset + (idx >> 3)] >> (int)(idx & 7);
+            data[offset + (idx >> 3)] |= bit;
+            if (way > 4) {
+                idx = (w2 & 0xffff) & mask;
+                bit = (byte)(1u << (int)(idx & 7));
+                hit &= data[offset + (idx >> 3)] >> (int)(idx & 7);
+                data[offset + (idx >> 3)] |= bit;
+                if (way > 5) {
+                    idx = (w2 >> 16) & mask;
+                    bit = (byte)(1u << (int)(idx & 7));
+                    hit &= data[offset + (idx >> 3)] >> (int)(idx & 7);
+                    data[offset + (idx >> 3)] |= bit;
+                    if (way > 6) {
+                        idx = (w3 & 0xffff) & mask;
+                        bit = (byte)(1u << (int)(idx & 7));
+                        hit &= data[offset + (idx >> 3)] >> (int)(idx & 7);
+                        data[offset + (idx >> 3)] |= bit;
+                        if (way > 7) {
+                            idx = (w3 >> 16) & mask;
+                            bit = (byte)(1u << (int)(idx & 7));
+                            hit &= data[offset + (idx >> 3)] >> (int)(idx & 7);
+                            data[offset + (idx >> 3)] |= bit;
+                        }
+                    }
+                }
             }
             if (hit != 0) {
                 return false;
@@ -185,13 +199,60 @@ namespace PageBloomFilter {
         }
 
         protected bool Test(int way, ReadOnlySpan<byte> key) {
-            var h = PageHash(key);
+            var code = Hash.Hash128(key);
+            var w0 = (uint)code.low;
+            var w1 = (uint)(code.low >> 32);
+            var w2 = (uint)code.high;
+            var w3 = (uint)(code.high >> 32);
+            var offset = (Rot(w0, 8) ^ Rot(w1, 6) ^ Rot(w2, 4) ^ Rot(w3, 2)) % pageNum;
+            offset <<= pageLevel;
             uint mask = (1U << (pageLevel + 3)) - 1U;
-            for (int i = 0; i < way; i++) {
-                uint idx = h.codes[i] & mask;
-                byte bit = (byte)(1U << (int)(idx & 7));
-                if ((data[h.offset + (idx >> 3)] & bit) == 0) {
+            uint idx = (w0 & 0xffff) & mask;
+            byte bit = (byte)(1U << (int)(idx & 7));
+            if ((data[offset + (idx >> 3)] & bit) == 0) {
+                return false;
+            }
+            idx = (w0 >> 16) & mask;
+            bit = (byte)(1U << (int)(idx & 7));
+            if ((data[offset + (idx >> 3)] & bit) == 0) {
+                return false;
+            }
+            idx = (w1 & 0xffff) & mask;
+            bit = (byte)(1U << (int)(idx & 7));
+            if ((data[offset + (idx >> 3)] & bit) == 0) {
+                return false;
+            }
+            idx = (w1 >> 16) & mask;
+            bit = (byte)(1U << (int)(idx & 7));
+            if ((data[offset + (idx >> 3)] & bit) == 0) {
+                return false;
+            }
+            if (way > 4) {
+                idx = (w2 & 0xffff) & mask;
+                bit = (byte)(1U << (int)(idx & 7));
+                if ((data[offset + (idx >> 3)] & bit) == 0) {
                     return false;
+                }
+                if (way > 5) {
+                    idx = (w2 >> 16) & mask;
+                    bit = (byte)(1U << (int)(idx & 7));
+                    if ((data[offset + (idx >> 3)] & bit) == 0) {
+                        return false;
+                    }
+                    if (way > 6) {
+                        idx = (w3 & 0xffff) & mask;
+                        bit = (byte)(1U << (int)(idx & 7));
+                        if ((data[offset + (idx >> 3)] & bit) == 0) {
+                            return false;
+                        }
+                        if (way > 7) {
+                            idx = (w3 >> 16) & mask;
+                            bit = (byte)(1U << (int)(idx & 7));
+                            if ((data[offset + (idx >> 3)] & bit) == 0) {
+                                return false;
+                            }
+                        }
+                    }
                 }
             }
             return true;

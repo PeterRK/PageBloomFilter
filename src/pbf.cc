@@ -61,12 +61,14 @@ template <unsigned N>
 class BloomFilterImp : public BloomFilter {
 public:
 	size_t capacity() const noexcept { return self()->capacity(); }
-	size_t virual_capacity(float fpr) const noexcept { return self()->virual_capacity(fpr); }
+	size_t virtual_capacity(float fpr) const noexcept { return self()->virtual_capacity(fpr); }
 	unsigned way() const noexcept { return self()->way(); }
 	bool test(const uint8_t* data, unsigned len) const noexcept { return self()->test(data, len); }
 	bool set(const uint8_t* data, unsigned len) noexcept { return self()->set(data, len); }
 
 	explicit BloomFilterImp(PageBloomFilter<N>&& bf) {
+		// BloomFilterImp intentionally reuses the PageBloomFilter storage layout
+		// so the polymorphic wrapper adds no extra state beyond the vptr.
 		*self() = std::move(bf);
 	}
 
@@ -129,4 +131,3 @@ std::unique_ptr<BloomFilter> New(unsigned way, unsigned page_level, unsigned pag
 }
 
 } //pbf
-

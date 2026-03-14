@@ -24,6 +24,14 @@ func TestNew(t *testing.T) {
 	assert(t, len(bf.Data()) == 640)
 }
 
+func TestSmallEstimate(t *testing.T) {
+	bf := NewBloomFilter(1, 0.1)
+	assert(t, bf != nil)
+	assert(t, bf.Way() == 4)
+	assert(t, bf.PageLevel() == 6)
+	assert(t, len(bf.Data()) == 64)
+}
+
 func doTest(t *testing.T, way uint32) {
 	bf := NewPageBloomFilter(way, 7, 3)
 	assert(t, bf != nil)

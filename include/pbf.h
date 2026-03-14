@@ -120,7 +120,7 @@ public:
 	size_t capacity() const noexcept {
 		return data_size() * 8 / N;
 	}
-	size_t virual_capacity(float fpr) const noexcept {
+	size_t virtual_capacity(float fpr) const noexcept {
 		auto t = std::log1p(-std::pow(static_cast<double>(fpr), 1.0 / N)) / std::log1p(-1.0 / (data_size()*8));
 		return static_cast<size_t>(t) / N;
 	}
@@ -138,6 +138,8 @@ extern template class PageBloomFilter<8>;
 
 static constexpr unsigned BestWay(float fpr) noexcept {
 	fpr = std::min(std::max(fpr, 0.0005f), 0.1f);
+	// Approximate ceil(log2(2 / fpr)) with integer bit checks to keep this
+	// selector constexpr-friendly and aligned with the Rust implementation.
 	auto n = static_cast<unsigned>(2.0f / fpr);
 	n += 1;
 	for (unsigned i = 1; i < 32; i++) {
@@ -176,6 +178,7 @@ static PageBloomFilter<N> Create(size_t item, float fpr) {
 		page_level = 12;
 	}
 	size_t page_num = (n + (1UL << page_level) - 1) >> page_level;
+	page_num = std::max<size_t>(page_num, 1);
 	if (page_num > INT32_MAX) {
 		page_num = 0;
 	}
@@ -185,7 +188,7 @@ static PageBloomFilter<N> Create(size_t item, float fpr) {
 struct BloomFilter : public _PageBloomFilter {
 	virtual ~BloomFilter() = default;
 	virtual size_t capacity() const noexcept = 0;
-	virtual size_t virual_capacity(float fpr) const noexcept = 0;
+	virtual size_t virtual_capacity(float fpr) const noexcept = 0;
 	virtual unsigned way() const noexcept = 0;
 	virtual bool test(const uint8_t* data, unsigned len) const noexcept = 0;
 	virtual bool set(const uint8_t* data, unsigned len) noexcept = 0;
