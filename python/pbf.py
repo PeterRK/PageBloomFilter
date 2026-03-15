@@ -1,120 +1,124 @@
-# Copyright (c) 2023, Ruan Kunliang.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
-
 import math
-import time
 import struct
-import _pbf
+import time
+
+from _pbf import PageBloomFilter as _NativePageBloomFilter
+
+__all__ = ["PageBloomFilter"]
+
+_LN2 = math.log(2.0)
 
 
 class PageBloomFilter:
     def __init__(self, way, page_level, page_num, unique_cnt=0, data=None):
-        assert type(way) is int and 4 <= way <= 8 and \
-               type(page_level) is int and (8-8/way) <= page_level <= 13 and \
-               type(page_num) is int and 0 < page_num < 0xffffffff
-        self.way = way
-        self.page_level = page_level
-        self.page_num = page_num
-        data_size = page_num << page_level
-        if data is None:
-            self._data = bytearray(data_size)
-            self.clear()
-        else:
-            assert len(data) == data_size
-            self._data = bytearray(data)
-            self.unique_cnt = unique_cnt
+        self._native = _NativePageBloomFilter(way, page_level, page_num, unique_cnt, data)
 
-        self._set, self._test = PageBloomFilter._funcs[way]
+    @property
+    def way(self):
+        return self._native.way
 
-    _funcs = {
-        4: (_pbf.set4, _pbf.test4),
-        5: (_pbf.set5, _pbf.test5),
-        6: (_pbf.set6, _pbf.test6),
-        7: (_pbf.set7, _pbf.test7),
-        8: (_pbf.set8, _pbf.test8),
-    }
+    @property
+    def page_level(self):
+        return self._native.page_level
+
+    @property
+    def page_num(self):
+        return self._native.page_num
+
+    @property
+    def unique_cnt(self):
+        return self._native.unique_cnt
 
     @property
     def data(self):
-        return memoryview(self._data).toreadonly()
+        return self._native.data
 
     def clear(self):
-        self.unique_cnt = 0
-        _pbf.clear(self._data)
+        self._native.clear()
 
     def set(self, key):
-        if self._set(self._data, self.page_level, key):
-            self.unique_cnt += 1
-            return True
-        return False
+        return self._native.set(key)
 
     def test(self, key):
-        return self._test(self._data, self.page_level, key)
+        return self._native.test(key)
 
     def capacity(self):
-        return len(self._data) * 8 / self.way
+        return self._native.capacity()
 
     def virtual_capacity(self, fpr):
-        t = math.log1p(-math.pow(fpr, 1.0/self.way)) / math.log1p(-1.0/(len(self._data) * 8))
-        return int(t) / self.way
+        return self._native.virtual_capacity(fpr)
 
+    def virual_capacity(self, fpr):
+        return self._native.virual_capacity(fpr)
 
-_LN2 = math.log(2)
+    def export_state(self):
+        return self._native.export_state()
 
+    def __contains__(self, key):
+        return key in self._native
 
-def create(item, fpr):
-    """
-    :param item: number of items to hold
-    :param fpr: false positive rate, 0.0005-0.1
-    :return: PageBloomFilter
-    """
-    if item < 1:
-        item = 1
+    def __repr__(self):
+        return repr(self._native)
 
-    if fpr > 0.1:
-        fpr = 0.1
-    elif fpr < 0.0005:
-        fpr = 0.0005
+    @staticmethod
+    def best_way(fpr):
+        if fpr > 0.1:
+            fpr = 0.1
+        elif fpr < 0.0005:
+            fpr = 0.0005
 
-    w = -math.log2(fpr)
-    bpi = w / (_LN2 * 8)
-    if w > 9:
-        x = w - 7
-        bpi *= 1 + 0.0025*x*x
-    elif w > 3:
-        bpi *= 1.01
+        way = round(-math.log2(fpr))
+        if way < 4:
+            return 4
+        if way > 8:
+            return 8
+        return way
 
-    way = round(w)
-    if way < 4:
-        way = 4
-    elif way > 8:
-        way = 8
+    @classmethod
+    def create(cls, item, fpr):
+        if item < 1:
+            item = 1
 
-    n = int(bpi * item)
-    page_level = None
-    for i in range(6, 12):
-        if n >= (1 << (i+4)):
-            continue
-        page_level = i
-        if page_level < (8 - 8/way):
-            page_level += 1
-        break
-    if page_level is None:
+        if fpr > 0.1:
+            fpr = 0.1
+        elif fpr < 0.0005:
+            fpr = 0.0005
+
+        w = -math.log2(fpr)
+        bpi = w / (_LN2 * 8.0)
+        if w > 9.0:
+            x = w - 7.0
+            bpi *= 1.0 + 0.0025 * x * x
+        elif w > 3.0:
+            bpi *= 1.01
+
+        way = cls.best_way(fpr)
+        n = int(bpi * item)
         page_level = 12
+        for i in range(6, 12):
+            if n >= (1 << (i + 4)):
+                continue
+            page_level = i
+            if page_level < (8 - 8 / way):
+                page_level += 1
+            break
 
-    page_num = (n + (1 << page_level) - 1) >> page_level
-    if page_num == 0:
-        page_num = 1
-    return PageBloomFilter(way, page_level, page_num)
+        page_num = (n + (1 << page_level) - 1) >> page_level
+        if page_num == 0:
+            page_num = 1
+        if page_num >= 0x100000000:
+            raise OverflowError("too many items for the Python implementation")
 
+        return cls(way, page_level, page_num)
 
-def restore(way, page_level, data, unique_cnt):
-    return PageBloomFilter(way, page_level, len(data)>>page_level, unique_cnt, data)
+    @classmethod
+    def restore(cls, way, page_level, data, unique_cnt=0):
+        page_num = len(data) >> page_level
+        return cls(way, page_level, page_num, unique_cnt=unique_cnt, data=data)
 
 
 def _test_create():
-    bf = create(500, 0.01)
+    bf = PageBloomFilter.create(500, 0.01)
     assert bf.way == 7
     assert bf.page_level == 7
     assert len(bf.data) == 640
@@ -137,16 +141,11 @@ def test():
     _test_create()
     for i in range(4, 9):
         _test_operate(i)
-    data = bytearray(1 << 6)
-    assert _pbf.set4(data, 6, struct.pack("<q", 1))
-    assert _pbf.test4(data, 6, struct.pack("<q", 1))
-    _pbf.clear(data)
-    assert not _pbf.test4(data, 6, struct.pack("<q", 1))
 
 
 def benchmark():
     size = 1000000
-    bf = create(size, 0.01)
+    bf = PageBloomFilter.create(size, 0.01)
 
     keys = [struct.pack("<q", i) for i in range(size)]
 
@@ -155,13 +154,11 @@ def benchmark():
         bf.set(keys[i])
     end = time.time_ns()
     delta = float(end - begin)
-    
-    print("pbf-set: {} ns/op".format(delta / (size/2)))
+    print("pbf-set: {} ns/op".format(delta / (size / 2)))
 
     begin = time.time_ns()
     for i in range(size):
         bf.test(keys[i])
     end = time.time_ns()
     delta = float(end - begin)
-
     print("pbf-test: {} ns/op".format(delta / size))

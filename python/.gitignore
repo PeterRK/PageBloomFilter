@@ -1,2 +1,11 @@
 build/*
 __pycache__/*
+dist/*
+*.egg-info/*
+*.pyc
+*.pyo
+*.pyd
+_pbf*.so
+.venv/
+venv/
+*.o
