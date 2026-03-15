@@ -138,7 +138,7 @@ if bf.set("Hello"):
 if bf.test("Hello"):
     print("find Hello")
 ```
-Python版基于C扩展实现，虽然还是慢，不过足以吊打[pybloom](https://github.com/jaybaird/python-bloomfilter)。
+Python版基于C扩展实现，虽然还是慢，不过相对[pybloom](https://github.com/jaybaird/python-bloomfilter)仍然快很多。
 ```
 // i7-10710U & Python-3.11
 pbf-set:       307.835638 ns/op
@@ -147,8 +147,10 @@ pybloom-set:  2770.372372 ns/op
 pybloom-test: 2417.377588 ns/op
 
 // U7-155H & Python-3.12
-pbf-set:  127.227066 ns/op
-pbf-test: 101.274176 ns/op
+pbf-set:     71.520046 ns/op
+pbf-test:    62.544441 ns/op
+rbloom-set:  83.451979 ns/op
+rbloom-test: 44.645030 ns/op
 ```
 
 ## Rust

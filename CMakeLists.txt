@@ -12,18 +12,21 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 option(PBF_ENABLE_AVX2 "Enable AVX2-optimized page probes" OFF)
 option(PBF_ENABLE_AESNI_HASH "Enable AES-NI hash implementation" OFF)
 
-enable_testing()
+include(CTest)
 
 include_directories(include)
 
 add_library(pbf SHARED src/pbf.cc src/hash.cc)
 
 find_package(Threads REQUIRED)
-find_package(GTest REQUIRED)
 
-add_executable(pbf-test test/test.cc src/pbf.cc src/hash.cc)
-target_link_libraries(pbf-test PRIVATE GTest::gtest Threads::Threads)
-add_test(NAME pbf-unit-tests COMMAND pbf-test)
+if(BUILD_TESTING)
+    find_package(GTest REQUIRED)
+
+    add_executable(pbf-test test/test.cc src/pbf.cc src/hash.cc)
+    target_link_libraries(pbf-test PRIVATE GTest::gtest Threads::Threads)
+    add_test(NAME pbf-unit-tests COMMAND pbf-test)
+endif()
 
 add_executable(bench test/bench.cc src/pbf.cc src/hash.cc)
 

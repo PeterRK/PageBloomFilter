@@ -13,6 +13,14 @@
 #error "only support little endian"
 #endif
 
+// Design note:
+// The fallback hash below is intentionally specialized for little-endian
+// machines with efficient unaligned loads, which matches the supported target
+// set for this project. It is not meant to be a fully portable byte-wise
+// implementation across arbitrary architectures or sanitization modes.
+// Cross-language compatibility is preserved by keeping every implementation on
+// the same little-endian word layout.
+
 namespace pbf {
 
 #if defined(USE_AESNI_HASH)
@@ -67,9 +75,10 @@ static FORCE_INLINE void End(uint64_t& h0, uint64_t& h1, uint64_t& h2, uint64_t&
 //SpookyHash
 V128 Hash(const uint8_t* msg, unsigned len) noexcept {
 	constexpr uint64_t magic = 0xdeadbeefdeadbeefULL;
-	// This implementation intentionally uses direct little-endian word loads.
-	// It targets mainstream CPUs that tolerate unaligned accesses efficiently,
-	// rather than fully portable byte-wise decoding.
+	// Direct little-endian word loads are part of the intended fast path here.
+	// The project explicitly targets little-endian platforms where unaligned
+	// reads are acceptable and performant, so we keep this form instead of
+	// paying the extra cost of portable byte-wise decoding.
 
 	uint64_t a = 0;
 	uint64_t b = 0;

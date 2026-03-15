@@ -12,7 +12,7 @@ import zipfile
 
 
 NAME = "pbf"
-VERSION = "0.1"
+VERSION = "0.2"
 SUMMARY = "Page Bloom Filter"
 ROOT = pathlib.Path(__file__).resolve().parent
 REPO_ROOT = ROOT.parent

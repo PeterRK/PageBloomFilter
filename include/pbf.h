@@ -195,9 +195,15 @@ struct BloomFilter : public _PageBloomFilter {
 };
 
 extern std::unique_ptr<BloomFilter> New(size_t item, float fpr);
+// Restore a BloomFilter from raw bitmap data.
+// `page_num` must match the supplied bitmap length and `unique_cnt` is trusted
+// as caller-provided metadata rather than recomputed from the bitmap.
 extern std::unique_ptr<BloomFilter> New(unsigned way, unsigned page_level, unsigned page_num,
 										size_t unique_cnt=0, const uint8_t* data=nullptr);
 
+// Convenience overload for restoring from a contiguous bitmap buffer.
+// `data_size` must be an exact multiple of `(1 << page_level)` bytes; otherwise
+// the computed page count would be truncated before dispatching to `New(...)`.
 static inline std::unique_ptr<BloomFilter> New(unsigned way, unsigned page_level,
 											   const uint8_t* data, size_t data_size, size_t unique_cnt) {
 	return New(way, page_level, data_size>>page_level, unique_cnt, data);

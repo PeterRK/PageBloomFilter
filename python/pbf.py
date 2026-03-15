@@ -142,23 +142,3 @@ def test():
     for i in range(4, 9):
         _test_operate(i)
 
-
-def benchmark():
-    size = 1000000
-    bf = PageBloomFilter.create(size, 0.01)
-
-    keys = [struct.pack("<q", i) for i in range(size)]
-
-    begin = time.time_ns()
-    for i in range(0, size, 2):
-        bf.set(keys[i])
-    end = time.time_ns()
-    delta = float(end - begin)
-    print("pbf-set: {} ns/op".format(delta / (size / 2)))
-
-    begin = time.time_ns()
-    for i in range(size):
-        bf.test(keys[i])
-    end = time.time_ns()
-    delta = float(end - begin)
-    print("pbf-test: {} ns/op".format(delta / size))

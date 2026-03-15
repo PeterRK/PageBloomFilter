@@ -1,0 +1,10 @@
+a.out
+*.so
+*.so.*
+*.out
+*.txt
+
+# Optional third-party test dependencies
+bf/
+bloom.h
+robin_hood.h

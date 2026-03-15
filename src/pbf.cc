@@ -67,8 +67,19 @@ public:
 	bool set(const uint8_t* data, unsigned len) noexcept { return self()->set(data, len); }
 
 	explicit BloomFilterImp(PageBloomFilter<N>&& bf) {
-		// BloomFilterImp intentionally reuses the PageBloomFilter storage layout
-		// so the polymorphic wrapper adds no extra state beyond the vptr.
+		// Design note:
+		// This wrapper intentionally reuses the _PageBloomFilter state already
+		// embedded at offset 0 in BloomFilter/BloomFilterImp and treats that
+		// prefix as the storage for PageBloomFilter<N>. The goal is to expose a
+		// virtual interface without duplicating the bitmap state in a second
+		// member object.
+		//
+		// This relies on the current inheritance/layout contract remaining
+		// unchanged: BloomFilterImp must not add data members, must preserve the
+		// _PageBloomFilter base prefix, and must remain size/alignment-compatible
+		// with PageBloomFilter<N>. The static_asserts below lock down those
+		// assumptions so layout changes fail at compile time instead of silently
+		// breaking the wrapper.
 		*self() = std::move(bf);
 	}
 
