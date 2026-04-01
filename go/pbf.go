@@ -9,6 +9,8 @@ import (
 	"unsafe"
 )
 
+const maxPageNum = 1 << 19
+
 type PageBloomFilter interface {
 	Clear()
 	// Go slices are always mutable views. Callers must treat the returned slice
@@ -69,7 +71,7 @@ func NewBloomFilter(item int, fpr float64) PageBloomFilter {
 	if m == 0 {
 		m = 1
 	}
-	if m > math.MaxInt32 {
+	if m >= maxPageNum {
 		return nil
 	}
 	pageNum := uint32(m)
@@ -81,7 +83,7 @@ func NewBloomFilter(item int, fpr float64) PageBloomFilter {
 // pageNum: number of pages
 // New clean PageBloomFilter
 func NewPageBloomFilter(way, pageLevel, pageNum uint32) PageBloomFilter {
-	if way < 4 || way > 8 || pageNum == 0 ||
+	if way < 4 || way > 8 || pageNum == 0 || pageNum >= maxPageNum ||
 		pageLevel < (8-8/way) || pageLevel > 13 {
 		return nil
 	}
@@ -113,16 +115,18 @@ func cast(way uint32, bf *pageBloomFilter) PageBloomFilter {
 func CreatePageBloomFilter(way, pageLevel uint32, data []byte,
 	uniqueCnt int) PageBloomFilter {
 	pageSize := int(1) << pageLevel
+	computedPageNum := len(data) / pageSize
 	if way < 4 || way > 8 ||
 		pageLevel < (8-8/way) || pageLevel > 13 ||
-		len(data) == 0 || len(data)%pageSize != 0 {
+		len(data) == 0 || len(data)%pageSize != 0 ||
+		computedPageNum >= maxPageNum {
 		return nil
 	}
 	temp := make([]byte, len(data))
 	copy(temp, data)
 	return cast(way, &pageBloomFilter{
 		pageLevel: pageLevel,
-		pageNum:   uint32(len(data) / pageSize),
+		pageNum:   uint32(computedPageNum),
 		uniqueCnt: uniqueCnt,
 		data:      temp,
 	})

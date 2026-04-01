@@ -9,6 +9,8 @@ namespace PageBloomFilter {
         private long uniqueCnt = 0;
         private readonly byte[] data;
 
+        private const int MaxPageNum = 1 << 18;
+
         public abstract int Way { get; }
         public int PageLevel { get => pageLevel; }
         public uint PageNum { get => pageNum; }
@@ -71,7 +73,7 @@ namespace PageBloomFilter {
             if (pageNum == 0) {
                 pageNum = 1;
             }
-            if (pageNum > Int32.MaxValue) {
+            if (pageNum >= MaxPageNum) {
                 throw new ArgumentException("too many items");
             }
             return New(way, pageLevel, (uint)pageNum);
@@ -94,8 +96,8 @@ namespace PageBloomFilter {
             if (pageLevel < (8 - 8 / way) || pageLevel > 13) {
                 throw new ArgumentException("pageLevel should be 7-13");
             }
-            if (pageNum <= 0) {
-                throw new ArgumentException("pageNum should be positive");
+            if (pageNum == 0 || pageNum >= MaxPageNum) {
+                throw new ArgumentException("pageNum should be in [1, 1<<18)");
             }
 
             this.pageLevel = pageLevel;
@@ -125,8 +127,12 @@ namespace PageBloomFilter {
             if (data.Length == 0 || data.Length % pageSize != 0) {
                 throw new ArgumentException("illegal data size");
             }
+            uint computedPageNum = (uint)(data.Length / pageSize);
+            if (computedPageNum >= MaxPageNum) {
+                throw new ArgumentException("too many pages");
+            }
             this.pageLevel = pageLevel;
-            this.pageNum = (uint)(data.Length / pageSize);
+            this.pageNum = computedPageNum;
             this.uniqueCnt = uniqueCnt;
             this.data = new byte[data.Length];
             data.CopyTo(this.data);
@@ -150,46 +156,15 @@ namespace PageBloomFilter {
             var offset = (Rot(w0, 8) ^ Rot(w1, 6) ^ Rot(w2, 4) ^ Rot(w3, 2)) % pageNum;
             offset <<= pageLevel;
             uint mask = (1U << (pageLevel + 3)) - 1U;
+            Span<uint> halves = stackalloc uint[8] {
+                w0, w0 >> 16, w1, w1 >> 16, w2, w2 >> 16, w3, w3 >> 16
+            };
             int hit = 1;
-            uint idx = (w0 & 0xffff) & mask;
-            byte bit = (byte)(1u << (int)(idx & 7));
-            hit &= data[offset + (idx >> 3)] >> (int)(idx & 7);
-            data[offset + (idx >> 3)] |= bit;
-            idx = (w0 >> 16) & mask;
-            bit = (byte)(1u << (int)(idx & 7));
-            hit &= data[offset + (idx >> 3)] >> (int)(idx & 7);
-            data[offset + (idx >> 3)] |= bit;
-            idx = (w1 & 0xffff) & mask;
-            bit = (byte)(1u << (int)(idx & 7));
-            hit &= data[offset + (idx >> 3)] >> (int)(idx & 7);
-            data[offset + (idx >> 3)] |= bit;
-            idx = (w1 >> 16) & mask;
-            bit = (byte)(1u << (int)(idx & 7));
-            hit &= data[offset + (idx >> 3)] >> (int)(idx & 7);
-            data[offset + (idx >> 3)] |= bit;
-            if (way > 4) {
-                idx = (w2 & 0xffff) & mask;
-                bit = (byte)(1u << (int)(idx & 7));
+            for (int i = 0; i < way; i++) {
+                uint idx = halves[i] & mask;
+                byte bit = (byte)(1u << (int)(idx & 7));
                 hit &= data[offset + (idx >> 3)] >> (int)(idx & 7);
                 data[offset + (idx >> 3)] |= bit;
-                if (way > 5) {
-                    idx = (w2 >> 16) & mask;
-                    bit = (byte)(1u << (int)(idx & 7));
-                    hit &= data[offset + (idx >> 3)] >> (int)(idx & 7);
-                    data[offset + (idx >> 3)] |= bit;
-                    if (way > 6) {
-                        idx = (w3 & 0xffff) & mask;
-                        bit = (byte)(1u << (int)(idx & 7));
-                        hit &= data[offset + (idx >> 3)] >> (int)(idx & 7);
-                        data[offset + (idx >> 3)] |= bit;
-                        if (way > 7) {
-                            idx = (w3 >> 16) & mask;
-                            bit = (byte)(1u << (int)(idx & 7));
-                            hit &= data[offset + (idx >> 3)] >> (int)(idx & 7);
-                            data[offset + (idx >> 3)] |= bit;
-                        }
-                    }
-                }
             }
             if (hit != 0) {
                 return false;
@@ -207,53 +182,13 @@ namespace PageBloomFilter {
             var offset = (Rot(w0, 8) ^ Rot(w1, 6) ^ Rot(w2, 4) ^ Rot(w3, 2)) % pageNum;
             offset <<= pageLevel;
             uint mask = (1U << (pageLevel + 3)) - 1U;
-            uint idx = (w0 & 0xffff) & mask;
-            byte bit = (byte)(1U << (int)(idx & 7));
-            if ((data[offset + (idx >> 3)] & bit) == 0) {
-                return false;
-            }
-            idx = (w0 >> 16) & mask;
-            bit = (byte)(1U << (int)(idx & 7));
-            if ((data[offset + (idx >> 3)] & bit) == 0) {
-                return false;
-            }
-            idx = (w1 & 0xffff) & mask;
-            bit = (byte)(1U << (int)(idx & 7));
-            if ((data[offset + (idx >> 3)] & bit) == 0) {
-                return false;
-            }
-            idx = (w1 >> 16) & mask;
-            bit = (byte)(1U << (int)(idx & 7));
-            if ((data[offset + (idx >> 3)] & bit) == 0) {
-                return false;
-            }
-            if (way > 4) {
-                idx = (w2 & 0xffff) & mask;
-                bit = (byte)(1U << (int)(idx & 7));
-                if ((data[offset + (idx >> 3)] & bit) == 0) {
-                    return false;
-                }
-                if (way > 5) {
-                    idx = (w2 >> 16) & mask;
-                    bit = (byte)(1U << (int)(idx & 7));
-                    if ((data[offset + (idx >> 3)] & bit) == 0) {
-                        return false;
-                    }
-                    if (way > 6) {
-                        idx = (w3 & 0xffff) & mask;
-                        bit = (byte)(1U << (int)(idx & 7));
-                        if ((data[offset + (idx >> 3)] & bit) == 0) {
-                            return false;
-                        }
-                        if (way > 7) {
-                            idx = (w3 >> 16) & mask;
-                            bit = (byte)(1U << (int)(idx & 7));
-                            if ((data[offset + (idx >> 3)] & bit) == 0) {
-                                return false;
-                            }
-                        }
-                    }
-                }
+            Span<uint> halves = stackalloc uint[8] {
+                w0, w0 >> 16, w1, w1 >> 16, w2, w2 >> 16, w3, w3 >> 16
+            };
+            for (int i = 0; i < way; i++) {
+                uint idx = halves[i] & mask;
+                byte bit = (byte)(1U << (int)(idx & 7));
+                if ((data[offset + (idx >> 3)] & bit) == 0) return false;
             }
             return true;
         }

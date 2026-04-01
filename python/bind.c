@@ -389,8 +389,6 @@ static PyMethodDef PyPageBloomFilter_methods[] = {
     {"capacity", (PyCFunction)PyPageBloomFilter_capacity, METH_NOARGS, "return nominal capacity"},
     {"virtual_capacity", (PyCFunction)PyPageBloomFilter_virtual_capacity, METH_VARARGS,
      "estimate capacity by false-positive rate"},
-    {"virual_capacity", (PyCFunction)PyPageBloomFilter_virtual_capacity, METH_VARARGS,
-     "deprecated misspelling kept for compatibility"},
     {"export_state", (PyCFunction)PyPageBloomFilter_export_state, METH_NOARGS,
      "return (way, page_level, data, unique_cnt)"},
     {NULL, NULL, 0, NULL}

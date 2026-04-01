@@ -7,6 +7,7 @@ from _pbf import PageBloomFilter as _NativePageBloomFilter
 __all__ = ["PageBloomFilter"]
 
 _LN2 = math.log(2.0)
+_MAX_PAGE_NUM = 1 << 19
 
 
 class PageBloomFilter:
@@ -47,9 +48,6 @@ class PageBloomFilter:
 
     def virtual_capacity(self, fpr):
         return self._native.virtual_capacity(fpr)
-
-    def virual_capacity(self, fpr):
-        return self._native.virual_capacity(fpr)
 
     def export_state(self):
         return self._native.export_state()
@@ -106,8 +104,8 @@ class PageBloomFilter:
         page_num = (n + (1 << page_level) - 1) >> page_level
         if page_num == 0:
             page_num = 1
-        if page_num >= 0x100000000:
-            raise OverflowError("too many items for the Python implementation")
+        if page_num >= _MAX_PAGE_NUM:
+            raise OverflowError("too many items")
 
         return cls(way, page_level, page_num)
 

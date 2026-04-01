@@ -27,8 +27,9 @@ public class BloomFilterBenchmark {
     @Benchmark
     public void pbfSet(PageBloomFilterSetState ctx) {
         byte[] key = new byte[8];
+        ByteBuffer buf = ByteBuffer.wrap(key).order(ByteOrder.nativeOrder());
         for (long i = 0; i < N; i++) {
-            ByteBuffer.wrap(key).order(ByteOrder.nativeOrder()).putLong(i);
+            buf.putLong(0, i);
             ctx.bf.set(key);
         }
     }
@@ -36,8 +37,9 @@ public class BloomFilterBenchmark {
     @Benchmark
     public void pbfTest(PageBloomFilterTestState ctx) {
         byte[] key = new byte[8];
+        ByteBuffer buf = ByteBuffer.wrap(key).order(ByteOrder.nativeOrder());
         for (long i = 0; i < N; i++) {
-            ByteBuffer.wrap(key).order(ByteOrder.nativeOrder()).putLong(i);
+            buf.putLong(0, i);
             ctx.bf.test(key);
         }
     }
@@ -45,8 +47,9 @@ public class BloomFilterBenchmark {
     @Benchmark
     public void guavaSet(GuavaSetState ctx) {
         byte[] key = new byte[8];
+        ByteBuffer buf = ByteBuffer.wrap(key).order(ByteOrder.nativeOrder());
         for (long i = 0; i < N; i++) {
-            ByteBuffer.wrap(key).order(ByteOrder.nativeOrder()).putLong(i);
+            buf.putLong(0, i);
             ctx.bf.put(key);
         }
     }
@@ -54,8 +57,9 @@ public class BloomFilterBenchmark {
     @Benchmark
     public void guavaTest(GuavaTestState ctx) {
         byte[] key = new byte[8];
+        ByteBuffer buf = ByteBuffer.wrap(key).order(ByteOrder.nativeOrder());
         for (long i = 0; i < N; i++) {
-            ByteBuffer.wrap(key).order(ByteOrder.nativeOrder()).putLong(i);
+            buf.putLong(0, i);
             ctx.bf.mightContain(key);
         }
     }
@@ -63,8 +67,9 @@ public class BloomFilterBenchmark {
     @Benchmark
     public void nikitinSet(NikitinSetState ctx) {
         byte[] key = new byte[8];
+        ByteBuffer buf = ByteBuffer.wrap(key).order(ByteOrder.nativeOrder());
         for (long i = 0; i < N; i++) {
-            ByteBuffer.wrap(key).order(ByteOrder.nativeOrder()).putLong(i);
+            buf.putLong(0, i);
             ctx.bf.add(key);
         }
     }
@@ -72,8 +77,9 @@ public class BloomFilterBenchmark {
     @Benchmark
     public void nikitinTest(NikitinTestState ctx) {
         byte[] key = new byte[8];
+        ByteBuffer buf = ByteBuffer.wrap(key).order(ByteOrder.nativeOrder());
         for (long i = 0; i < N; i++) {
-            ByteBuffer.wrap(key).order(ByteOrder.nativeOrder()).putLong(i);
+            buf.putLong(0, i);
             ctx.bf.mightContain(key);
         }
     }
@@ -101,8 +107,9 @@ public class BloomFilterBenchmark {
         public void setup() {
             bf = PageBloomFilter.New(N, falsePositiveRate);
             byte[] key = new byte[8];
+            ByteBuffer buf = ByteBuffer.wrap(key).order(ByteOrder.nativeOrder());
             for (long i = 0; i < N; i += 2) {
-                ByteBuffer.wrap(key).order(ByteOrder.nativeOrder()).putLong(i);
+                buf.putLong(0, i);
                 bf.set(key);
             }
         }

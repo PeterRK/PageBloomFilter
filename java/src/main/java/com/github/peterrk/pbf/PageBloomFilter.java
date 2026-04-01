@@ -34,6 +34,7 @@ public abstract class PageBloomFilter {
     public abstract boolean test(byte[] key);
     
     private static final double LN2 = Math.log(2);
+    private static final int MAX_PAGE_NUM = 1 << 18;
 
     public static PageBloomFilter New(long item, double falsePositiveRate) {
         if (item < 1) {
@@ -78,7 +79,7 @@ public abstract class PageBloomFilter {
         if (pageNum == 0) {
             pageNum = 1;
         }
-        if (pageNum > Integer.MAX_VALUE) {
+        if (pageNum >= MAX_PAGE_NUM) {
             throw new IllegalArgumentException("too many items");
         }
         return New(way, pageLevel, (int)pageNum);
@@ -102,8 +103,8 @@ public abstract class PageBloomFilter {
         if (pageLevel < (8-8/way) || pageLevel > 13) {
             throw new IllegalArgumentException("pageLevel should be 7-13");
         }
-        if (pageNum <= 0) {
-            throw new IllegalArgumentException("pageNum should be positive");
+        if (pageNum <= 0 || pageNum >= MAX_PAGE_NUM) {
+            throw new IllegalArgumentException("pageNum should be in [1, 1<<18)");
         }
         this.pageLevel = pageLevel;
         this.pageNum = pageNum;
@@ -143,8 +144,12 @@ public abstract class PageBloomFilter {
         if (data == null || data.length == 0 || data.length%pageSize != 0) {
             throw new IllegalArgumentException("illegal data size");
         }
+        int pageNum = data.length / pageSize;
+        if (pageNum >= MAX_PAGE_NUM) {
+            throw new IllegalArgumentException("too many pages");
+        }
         this.pageLevel = pageLevel;
-        this.pageNum = data.length / pageSize;
+        this.pageNum = pageNum;
         this.uniqueCnt = uniqueCnt;
         this.data = data;
     }
@@ -158,116 +163,62 @@ public abstract class PageBloomFilter {
         return (x << k) | (x >>> (32 - k));
     }
 
+    // Returns true if the bit was already set, and sets it unconditionally.
+    private boolean checkAndSet(int offset, int idx) {
+        int pos = offset + (idx >>> 3);
+        byte bit = (byte)(1 << (idx & 7));
+        boolean wasSet = (data[pos] & bit) != 0;
+        data[pos] |= bit;
+        return wasSet;
+    }
+
+    private boolean testBit(int offset, int idx) {
+        return (data[offset + (idx >>> 3)] & (byte)(1 << (idx & 7))) != 0;
+    }
+
     protected boolean set(int way, byte[] key) {
         Hash.V128 code = Hash.hash128(key);
-        int w0 = (int)code.low;
-        int w1 = (int)(code.low >>> 32);
-        int w2 = (int)code.high;
-        int w3 = (int)(code.high >>> 32);
-        int offset = (int)(((rot(w0, 8) ^ rot(w1, 6) ^ rot(w2, 4) ^ rot(w3, 2)) & 0xffffffffL) % pageNum);
-        offset <<= pageLevel;
+        int w0 = (int)code.low,  w1 = (int)(code.low >>> 32);
+        int w2 = (int)code.high, w3 = (int)(code.high >>> 32);
+        int offset = (int)(((rot(w0, 8) ^ rot(w1, 6) ^ rot(w2, 4) ^ rot(w3, 2)) & 0xffffffffL) % pageNum) << pageLevel;
         int mask = (1 << (pageLevel+3)) - 1;
-        byte hit = 1;
-        int idx = (w0 & 0xffff) & mask;
-        byte bit = (byte)(1 << (idx & 7));
-        hit &= (byte)(data[offset+(idx>>>3)] >>> (idx & 7));
-        data[offset+(idx>>>3)] |= bit;
-        idx = (w0 >>> 16) & mask;
-        bit = (byte)(1 << (idx & 7));
-        hit &= (byte)(data[offset+(idx>>>3)] >>> (idx & 7));
-        data[offset+(idx>>>3)] |= bit;
-        idx = (w1 & 0xffff) & mask;
-        bit = (byte)(1 << (idx & 7));
-        hit &= (byte)(data[offset+(idx>>>3)] >>> (idx & 7));
-        data[offset+(idx>>>3)] |= bit;
-        idx = (w1 >>> 16) & mask;
-        bit = (byte)(1 << (idx & 7));
-        hit &= (byte)(data[offset+(idx>>>3)] >>> (idx & 7));
-        data[offset+(idx>>>3)] |= bit;
+        boolean hit = checkAndSet(offset, w0 & mask)
+                    & checkAndSet(offset, (w0 >>> 16) & mask)
+                    & checkAndSet(offset, w1 & mask)
+                    & checkAndSet(offset, (w1 >>> 16) & mask);
         if (way > 4) {
-            idx = (w2 & 0xffff) & mask;
-            bit = (byte)(1 << (idx & 7));
-            hit &= (byte)(data[offset+(idx>>>3)] >>> (idx & 7));
-            data[offset+(idx>>>3)] |= bit;
+            hit &= checkAndSet(offset, w2 & mask);
             if (way > 5) {
-                idx = (w2 >>> 16) & mask;
-                bit = (byte)(1 << (idx & 7));
-                hit &= (byte)(data[offset+(idx>>>3)] >>> (idx & 7));
-                data[offset+(idx>>>3)] |= bit;
+                hit &= checkAndSet(offset, (w2 >>> 16) & mask);
                 if (way > 6) {
-                    idx = (w3 & 0xffff) & mask;
-                    bit = (byte)(1 << (idx & 7));
-                    hit &= (byte)(data[offset+(idx>>>3)] >>> (idx & 7));
-                    data[offset+(idx>>>3)] |= bit;
+                    hit &= checkAndSet(offset, w3 & mask);
                     if (way > 7) {
-                        idx = (w3 >>> 16) & mask;
-                        bit = (byte)(1 << (idx & 7));
-                        hit &= (byte)(data[offset+(idx>>>3)] >>> (idx & 7));
-                        data[offset+(idx>>>3)] |= bit;
+                        hit &= checkAndSet(offset, (w3 >>> 16) & mask);
                     }
                 }
             }
         }
-        if (hit != 0) {
-            return false;
-        }
+        if (hit) return false;
         uniqueCnt++;
         return true;
     }
 
     protected boolean test(int way, byte[] key) {
         Hash.V128 code = Hash.hash128(key);
-        int w0 = (int)code.low;
-        int w1 = (int)(code.low >>> 32);
-        int w2 = (int)code.high;
-        int w3 = (int)(code.high >>> 32);
-        int offset = (int)(((rot(w0, 8) ^ rot(w1, 6) ^ rot(w2, 4) ^ rot(w3, 2)) & 0xffffffffL) % pageNum);
-        offset <<= pageLevel;
+        int w0 = (int)code.low,  w1 = (int)(code.low >>> 32);
+        int w2 = (int)code.high, w3 = (int)(code.high >>> 32);
+        int offset = (int)(((rot(w0, 8) ^ rot(w1, 6) ^ rot(w2, 4) ^ rot(w3, 2)) & 0xffffffffL) % pageNum) << pageLevel;
         int mask = (1 << (pageLevel+3)) - 1;
-        int idx = (w0 & 0xffff) & mask;
-        byte bit = (byte)(1 << (idx & 7));
-        if ((data[offset+(idx>>>3)] & bit) == 0) {
-            return false;
-        }
-        idx = (w0 >>> 16) & mask;
-        bit = (byte)(1 << (idx & 7));
-        if ((data[offset+(idx>>>3)] & bit) == 0) {
-            return false;
-        }
-        idx = (w1 & 0xffff) & mask;
-        bit = (byte)(1 << (idx & 7));
-        if ((data[offset+(idx>>>3)] & bit) == 0) {
-            return false;
-        }
-        idx = (w1 >>> 16) & mask;
-        bit = (byte)(1 << (idx & 7));
-        if ((data[offset+(idx>>>3)] & bit) == 0) {
-            return false;
-        }
+        if (!testBit(offset, w0 & mask) || !testBit(offset, (w0 >>> 16) & mask)
+         || !testBit(offset, w1 & mask) || !testBit(offset, (w1 >>> 16) & mask)) return false;
         if (way > 4) {
-            idx = (w2 & 0xffff) & mask;
-            bit = (byte)(1 << (idx & 7));
-            if ((data[offset+(idx>>>3)] & bit) == 0) {
-                return false;
-            }
+            if (!testBit(offset, w2 & mask)) return false;
             if (way > 5) {
-                idx = (w2 >>> 16) & mask;
-                bit = (byte)(1 << (idx & 7));
-                if ((data[offset+(idx>>>3)] & bit) == 0) {
-                    return false;
-                }
+                if (!testBit(offset, (w2 >>> 16) & mask)) return false;
                 if (way > 6) {
-                    idx = (w3 & 0xffff) & mask;
-                    bit = (byte)(1 << (idx & 7));
-                    if ((data[offset+(idx>>>3)] & bit) == 0) {
-                        return false;
-                    }
+                    if (!testBit(offset, w3 & mask)) return false;
                     if (way > 7) {
-                        idx = (w3 >>> 16) & mask;
-                        bit = (byte)(1 << (idx & 7));
-                        if ((data[offset+(idx>>>3)] & bit) == 0) {
-                            return false;
-                        }
+                        if (!testBit(offset, (w3 >>> 16) & mask)) return false;
                     }
                 }
             }

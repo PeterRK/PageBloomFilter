@@ -82,6 +82,8 @@ static inline Word operator%(Word m, const Divisor<Word>& d) noexcept {
 }
 
 
+static constexpr unsigned kMaxPageNum = 1u << 19;
+
 class _PageBloomFilter {
 public:
 	bool operator!() const noexcept { return m_space == nullptr; }
@@ -110,7 +112,7 @@ public:
 
 	// page_level should be (8-8/N) ~ 13
 	PageBloomFilter(unsigned page_level, unsigned page_num, size_t unique_cnt=0, const uint8_t* data=nullptr) {
-		if (page_level < (8-8/N) || page_level > 13 || page_num == 0) {
+		if (page_level < (8-8/N) || page_level > 13 || page_num == 0 || page_num >= kMaxPageNum) {
 			return;
 		}
 		init(page_level, page_num, unique_cnt, data);
@@ -121,6 +123,7 @@ public:
 		return data_size() * 8 / N;
 	}
 	size_t virtual_capacity(float fpr) const noexcept {
+		assert(fpr > 0.0f && fpr < 1.0f);
 		auto t = std::log1p(-std::pow(static_cast<double>(fpr), 1.0 / N)) / std::log1p(-1.0 / (data_size()*8));
 		return static_cast<size_t>(t) / N;
 	}
@@ -179,7 +182,7 @@ static PageBloomFilter<N> Create(size_t item, float fpr) {
 	}
 	size_t page_num = (n + (1UL << page_level) - 1) >> page_level;
 	page_num = std::max<size_t>(page_num, 1);
-	if (page_num > INT32_MAX) {
+	if (page_num >= kMaxPageNum) {
 		page_num = 0;
 	}
 	return PageBloomFilter<N>(page_level, page_num);
