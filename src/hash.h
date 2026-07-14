@@ -6,7 +6,7 @@
 #ifndef PAGE_BLOOM_FILTER_HASH_H
 #define PAGE_BLOOM_FILTER_HASH_H
 
-#include <cstdint>
+#include <stdint.h>
 #include "platform.h"
 
 namespace pbf {

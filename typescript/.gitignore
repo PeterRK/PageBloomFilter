@@ -1,0 +1,4 @@
+dist/
+native/build/
+node_modules/
+*.tgz

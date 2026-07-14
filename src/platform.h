@@ -13,8 +13,10 @@
 #define PBF_ARCH_X86_64 1
 #elif defined(_M_ARM64) || defined(__aarch64__)
 #define PBF_ARCH_AARCH64 1
+#elif defined(__wasm32__)
+#define PBF_ARCH_WASM32 1
 #else
-#error "PageBloomFilter requires an x86-64 or AArch64 target with unaligned memory access"
+#error "PageBloomFilter requires an x86-64, AArch64, or WebAssembly target with unaligned memory access"
 #endif
 
 #if defined(_WIN32)
@@ -26,6 +28,8 @@
       (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
 #elif defined(PBF_ARCH_X86_64)
 #elif defined(PBF_ARCH_AARCH64) && defined(__AARCH64EL__)
+#elif defined(PBF_ARCH_WASM32)
+// WebAssembly linear-memory loads are little-endian and permit unaligned access.
 #else
 #error "Unable to verify that PageBloomFilter is being built for a little-endian target"
 #endif

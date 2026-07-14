@@ -181,6 +181,44 @@ rbloom-set:  83.451979 ns/op
 rbloom-test: 44.645030 ns/op
 ```
 
+## TypeScript
+
+```typescript
+import { PageBloomFilter } from "pagebloomfilter";
+
+const bf = await PageBloomFilter.create(500, 0.01);
+if (bf.set("Hello")) {
+    console.log("set new Hello");
+}
+if (bf.test("Hello")) {
+    console.log("find Hello");
+}
+bf.dispose();
+```
+
+The TypeScript implementation uses the same portable WebAssembly backend in
+Node.js and browsers.
+
+```shell
+cd typescript
+npm install
+npm test
+npm run benchmark
+```
+
+The benchmark compares PageBloomFilter with
+[fast-bloom-filter](https://github.com/NicolasDuran/fast-bloom-filter) and
+[bloom-filters](https://github.com/Callidon/bloom-filters).
+```
+// U7-155H & Node.js-25.9.0
+pbf-wasm-set:         28.95 ns/op
+pbf-wasm-test:        28.78 ns/op
+fast-bloom-set:       29.41 ns/op
+fast-bloom-test:      26.45 ns/op
+bloom-filters-set:  4198.82 ns/op
+bloom-filters-test: 4240.60 ns/op
+```
+
 ## Rust
 ```rust
 let mut bf = pbf::new_bloom_filter(500, 0.01);

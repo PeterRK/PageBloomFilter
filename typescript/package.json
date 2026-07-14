@@ -1,0 +1,40 @@
+{
+  "name": "pagebloomfilter",
+  "version": "1.2.1",
+  "description": "Page Bloom Filter for JavaScript and WebAssembly runtimes",
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PeterRK/PageBloomFilter.git",
+    "directory": "typescript"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "node scripts/clean.mjs",
+    "build:wasm": "node scripts/build-wasm.mjs",
+    "build:ts": "tsc -p tsconfig.json",
+    "build": "npm run clean && npm run build:wasm && npm run build:ts",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "benchmark": "npm run build && node --expose-gc benchmark/benchmark.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "bloom-filters": "^3.0.4",
+    "fast-bloom-filter": "^3.0.0",
+    "typescript": "^7.0.2"
+  }
+}
