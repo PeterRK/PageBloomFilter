@@ -1,3 +1,5 @@
+//go:build amd64 && amd64.v3
+
 #include "textflag.h"
 
 DATA hash_dispatch_table<>+0(SB)/8, $hash_tail_0<>(SB)

@@ -55,7 +55,7 @@ Set8   58.4ns ± 9%  32.4ns ± 5%  -44.53%  (p=0.000 n=20+19)
 Test8  44.8ns ± 2%  18.4ns ± 7%  -58.86%  (p=0.000 n=19+20)
 ```
 
-AMD64环境中注入版默认开启，编译前最好先执行[go-inject.sh](go/go-inject.sh)生成新的注入函数。注入函数生成脚本依赖clang和binutils，以及python，建议在Linux环境执行。
+注入版仅在AMD64 v3及更高等级开启；默认的AMD64 v1构建使用原生Go实现。可通过`GOAMD64=v3 go build`启用注入版。编译前最好先执行[go-inject.sh](go/go-inject.sh)生成新的注入函数。注入函数生成脚本依赖clang和binutils，以及python，建议在Linux环境执行。
 
 [测评](https://gist.github.com/PeterRK/b0df9e80caaaee1e9349e295cb435a67) 表明本实现比知名的 [bits-and-blooms](https://github.com/bits-and-blooms/bloom)和[Tyler Treat版](https://github.com/tylertreat/BoomFilters)要快2倍：
 ```

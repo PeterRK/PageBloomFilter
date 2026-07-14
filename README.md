@@ -55,7 +55,7 @@ Set8   58.4ns ± 9%  32.4ns ± 5%  -44.53%  (p=0.000 n=20+19)
 Test8  44.8ns ± 2%  18.4ns ± 7%  -58.86%  (p=0.000 n=19+20)
 ```
 
-We suggest that user should execute [go-inject.sh](go/go-inject.sh) to gnerate new injecting code before build. Clang, binutils and python are needed.
+The injected implementation is enabled only for AMD64 v3 and higher; the default AMD64 v1 build uses the pure Go implementation. Build with `GOAMD64=v3 go build` to enable injection. We suggest that users execute [go-inject.sh](go/go-inject.sh) to generate new injecting code before building. Clang, binutils and python are needed.
 
 [Benchmark](https://gist.github.com/PeterRK/b0df9e80caaaee1e9349e295cb435a67) shows it runs 2x time faster than other famous bloom filter implements, [bits-and-blooms](https://github.com/bits-and-blooms/bloom) and [Tyler Treat's](https://github.com/tylertreat/BoomFilters):
 ```

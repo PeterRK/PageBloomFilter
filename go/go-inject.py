@@ -122,6 +122,8 @@ def main(size_file, data_file, code_file, out_file):
 		func_body = None
 
 	with open(out_file, 'w') as f:
+		print('//go:build amd64 && amd64.v3', file=f)
+		print('', file=f)
 		print('#include "textflag.h"', file=f)
 		print('', file=f)
 		for name, body in func_list:

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-clang -O3 -std=c++14 -march=native \
+clang -O3 -std=c++14 -march=x86-64-v3 \
 	-fno-asynchronous-unwind-tables -fno-exceptions  \
 	-DC_ALL_IN_ONE -S -fPIE -I../include ../src/pbf-c.cc -o origin.asm && \
 python ./wash-asm.py origin.asm washed.asm && \
