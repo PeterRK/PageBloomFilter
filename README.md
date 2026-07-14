@@ -196,27 +196,36 @@ if (bf.test("Hello")) {
 bf.dispose();
 ```
 
-The TypeScript implementation uses the same portable WebAssembly backend in
-Node.js and browsers.
+The TypeScript implementation uses WebAssembly in Node.js and browsers.
 
 ```shell
 cd typescript
 npm install
 npm test
-npm run benchmark
+npm run benchmark:binary
+npm run benchmark:string
 ```
 
-The benchmark compares PageBloomFilter with
-[fast-bloom-filter](https://github.com/NicolasDuran/fast-bloom-filter) and
-[bloom-filters](https://github.com/Callidon/bloom-filters).
+The benchmark uses the same 8-character hex keys as raw UTF-8 bytes (`-raw`)
+and strings (`-str`). It compares against
+[fast-bloom-filter](https://github.com/NicolasDuran/fast-bloom-filter),
+[bloomfilter.js](https://github.com/jasondavies/bloomfilter.js), and
+[Mnemonist](https://github.com/Yomguithereal/mnemonist).
+
 ```
 // U7-155H & Node.js-25.9.0
-pbf-wasm-set:         28.95 ns/op
-pbf-wasm-test:        28.78 ns/op
-fast-bloom-set:       29.41 ns/op
-fast-bloom-test:      26.45 ns/op
-bloom-filters-set:  4198.82 ns/op
-bloom-filters-test: 4240.60 ns/op
+pbf-raw-set:          34.32 ns/op
+pbf-raw-test:         32.68 ns/op
+fast-bloom-raw-set:   41.13 ns/op
+fast-bloom-raw-test:  34.94 ns/op
+pbf-str-set:          55.20 ns/op
+pbf-str-test:         52.14 ns/op
+fast-bloom-str-set:   54.25 ns/op
+fast-bloom-str-test:  51.94 ns/op
+bloomfilter-str-set:  45.18 ns/op
+bloomfilter-str-test: 40.56 ns/op
+mnemonist-str-set:   164.20 ns/op
+mnemonist-str-test:  157.54 ns/op
 ```
 
 ## Rust

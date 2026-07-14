@@ -29,12 +29,15 @@
     "build:ts": "tsc -p tsconfig.json",
     "build": "npm run clean && npm run build:wasm && npm run build:ts",
     "test": "npm run build && node --test test/*.test.mjs",
-    "benchmark": "npm run build && node --expose-gc benchmark/benchmark.mjs"
+    "benchmark": "npm run benchmark:binary",
+    "benchmark:binary": "npm run build && node --expose-gc benchmark/benchmark.mjs --mode=binary",
+    "benchmark:string": "npm run build && node --expose-gc benchmark/benchmark.mjs --mode=string"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "bloom-filters": "^3.0.4",
+    "bloomfilter": "^1.1.0",
     "fast-bloom-filter": "^3.0.0",
+    "mnemonist": "^0.40.4",
     "typescript": "^7.0.2"
   }
 }

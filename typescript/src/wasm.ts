@@ -4,36 +4,25 @@ import {
   createLayout,
   requireInteger,
   validateLayout,
+  type Allocation,
+  type FilterOperation,
   type PageBloomFilterInit,
   type WasmSource,
 } from "./api.js";
 
-type PbfFunction = (
-  space: number,
-  pageLevel: number,
-  pageNum: number,
-  key: number,
-  keyLength: number,
-) => number;
-
 interface PbfWasmExports extends WebAssembly.Exports {
   memory: WebAssembly.Memory;
   __heap_base: WebAssembly.Global;
-  PBF4_Set: PbfFunction;
-  PBF4_Test: PbfFunction;
-  PBF5_Set: PbfFunction;
-  PBF5_Test: PbfFunction;
-  PBF6_Set: PbfFunction;
-  PBF6_Test: PbfFunction;
-  PBF7_Set: PbfFunction;
-  PBF7_Test: PbfFunction;
-  PBF8_Set: PbfFunction;
-  PBF8_Test: PbfFunction;
-}
-
-interface Allocation {
-  pointer: number;
-  length: number;
+  PBF4_Set: FilterOperation;
+  PBF4_Test: FilterOperation;
+  PBF5_Set: FilterOperation;
+  PBF5_Test: FilterOperation;
+  PBF6_Set: FilterOperation;
+  PBF6_Test: FilterOperation;
+  PBF7_Set: FilterOperation;
+  PBF7_Test: FilterOperation;
+  PBF8_Set: FilterOperation;
+  PBF8_Test: FilterOperation;
 }
 
 interface AllocationGroup {
@@ -131,11 +120,11 @@ class WasmContext {
     return { pointer, length };
   }
 
-  #operation(set: boolean, way: number): PbfFunction {
+  #operation(set: boolean, way: number): FilterOperation {
     const functionName = `PBF${way}_${set ? "Set" : "Test"}` as keyof PbfWasmExports;
     const operation = this.#exports[functionName];
     if (typeof operation !== "function") throw new RangeError(`unsupported way: ${way}`);
-    return operation as PbfFunction;
+    return operation as FilterOperation;
   }
 
   create(item: number, fpr: number): PageBloomFilter {

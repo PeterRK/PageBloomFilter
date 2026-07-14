@@ -17,7 +17,8 @@ export type SerializedState = readonly [
   uniqueCount: number,
 ];
 
-type FilterOperation = (
+/** @internal */
+export type FilterOperation = (
   space: number,
   pageLevel: number,
   pageNum: number,
@@ -25,7 +26,8 @@ type FilterOperation = (
   keyLength: number,
 ) => number;
 
-interface Allocation {
+/** @internal */
+export interface Allocation {
   pointer: number;
   length: number;
 }
@@ -344,4 +346,3 @@ export class PageBloomFilter {
     return `PageBloomFilter(way=${this.way}, pageLevel=${this.pageLevel}, pageNum=${this.pageNum}, uniqueCount=${this.#uniqueCount})`;
   }
 }
-

@@ -192,26 +192,36 @@ if (bf.test("Hello")) {
 bf.dispose();
 ```
 
-TypeScript 版在 Node.js 和浏览器中使用同一个可移植的 WebAssembly 后端。
+TypeScript 版在 Node.js 和浏览器中使用 WebAssembly 后端。
 
 ```shell
 cd typescript
 npm install
 npm test
-npm run benchmark
+npm run benchmark:binary
+npm run benchmark:string
 ```
 
-横评对象为
-[fast-bloom-filter](https://github.com/NicolasDuran/fast-bloom-filter) 和
-[bloom-filters](https://github.com/Callidon/bloom-filters)。
+测评使用相同的 8 位十六进制 key，分别以 UTF-8 字节（`-raw`）和字符串
+（`-str`）传入，并与
+[fast-bloom-filter](https://github.com/NicolasDuran/fast-bloom-filter)、
+[bloomfilter.js](https://github.com/jasondavies/bloomfilter.js) 和
+[Mnemonist](https://github.com/Yomguithereal/mnemonist) 对比。
+
 ```
 // U7-155H & Node.js-25.9.0
-pbf-wasm-set:         28.95 ns/op
-pbf-wasm-test:        28.78 ns/op
-fast-bloom-set:       29.41 ns/op
-fast-bloom-test:      26.45 ns/op
-bloom-filters-set:  4198.82 ns/op
-bloom-filters-test: 4240.60 ns/op
+pbf-raw-set:          34.32 ns/op
+pbf-raw-test:         32.68 ns/op
+fast-bloom-raw-set:   41.13 ns/op
+fast-bloom-raw-test:  34.94 ns/op
+pbf-str-set:          55.20 ns/op
+pbf-str-test:         52.14 ns/op
+fast-bloom-str-set:   54.25 ns/op
+fast-bloom-str-test:  51.94 ns/op
+bloomfilter-str-set:  45.18 ns/op
+bloomfilter-str-test: 40.56 ns/op
+mnemonist-str-set:   164.20 ns/op
+mnemonist-str-test:  157.54 ns/op
 ```
 
 ## Rust
