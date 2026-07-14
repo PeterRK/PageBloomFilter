@@ -12,6 +12,16 @@ if (bf.test("Hello")) {
     std::cout << "find Hello" << std::endl;
 }
 ```
+
+原生 C/C++ 快速路径明确只支持小端序的 x86-64 和 AArch64，要求机器能够进行
+非对齐的 32/64 位内存读取；其他架构和大端序目标会在编译期被拒绝。GCC、Clang
+和 MSVC 使用相同的位图及哈希布局。AVX2 探测路径由
+`-march=x86-64-v3`、`-mavx2` 或 `/arch:AVX2` 等编译器目标参数自动选择。
+在 x86-64 上，CMake 通过默认开启的 `PBF_ENABLE_AVX2` 添加相应参数；其他架构
+不提供该选项。定义 C/C++ 宏 `DISABLE_SIMD_OPTIMIZE` 可覆盖编译器目标并强制
+使用标量路径。`PBF_ENABLE_AESNI_HASH` 同样仅在 x86-64 上提供，但默认关闭；
+由于它会改变哈希和持久化数据兼容性，必须显式开启。
+
 在AESNI指令加持下，性能一骑绝尘，标准版也足够惊艳。
 ```
 // U7-155H & Clang-18
@@ -132,12 +142,26 @@ bf.net-test: 40.12608 ns/op
 
 ## Python
 ```python
-bf = pbf.create(500, 0.01)
+from pbf import PageBloomFilter
+
+bf = PageBloomFilter.create(500, 0.01)
 if bf.set("Hello"):
     print("set new Hello")
 if bf.test("Hello"):
     print("find Hello")
 ```
+
+可以只在本地生成 CPython wheel 和源码包，不会自动发布：
+
+```shell
+cd python
+python -m build
+python -m pip install dist/pagebloomfilter-*.whl
+```
+
+发行包名为 `pagebloomfilter`，导入名仍为 `pbf`。平台 wheel 默认使用基线标量
+哈希及探测路径，不会隐含要求 AVX2 或 AES-NI。
+
 Python版基于C扩展实现，虽然还是慢，不过相对[pybloom](https://github.com/jaybaird/python-bloomfilter)仍然快很多。
 ```
 // i7-10710U & Python-3.11
@@ -222,8 +246,10 @@ var bf2 = PageBloomFilter.New(bf.Way, bf.PageLevel, bf.Data, bf.UniqueCnt);
 ```
 ```python
 # Python
-bf = pbf.create(500, 0.01)
-bf2 = pbf.restore(bf.way, bf.page_level, bf.data, bf.unique_cnt)
+from pbf import PageBloomFilter
+
+bf = PageBloomFilter.create(500, 0.01)
+bf2 = PageBloomFilter.restore(bf.way, bf.page_level, bf.data, bf.unique_cnt)
 ```
 ```rust
 // Rust

@@ -166,14 +166,18 @@ static PyObject* module_restore(PyObject* self, PyObject* args, PyObject* kwargs
     static char* kwlist[] = {"way", "page_level", "data", "unique_cnt", NULL};
     unsigned way;
     unsigned page_level;
-    size_t unique_cnt = 0;
+    unsigned long long unique_cnt_arg = 0;
     PyObject* data_obj;
     Py_buffer data = {0};
     unsigned page_num;
     PyObject* result = NULL;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "IIO|K", kwlist,
-                                     &way, &page_level, &data_obj, &unique_cnt)) {
+                                     &way, &page_level, &data_obj, &unique_cnt_arg)) {
+        return NULL;
+    }
+    if (unique_cnt_arg > SIZE_MAX) {
+        PyErr_SetString(PyExc_OverflowError, "unique_cnt is too large for this platform");
         return NULL;
     }
     if (PyObject_GetBuffer(data_obj, &data, PyBUF_CONTIG_RO) != 0) {
@@ -186,7 +190,7 @@ static PyObject* module_restore(PyObject* self, PyObject* args, PyObject* kwargs
     }
 
     page_num = (unsigned)(data.len >> page_level);
-    result = new_filter_object(way, page_level, page_num, unique_cnt, (const char*)data.buf);
+    result = new_filter_object(way, page_level, page_num, (size_t)unique_cnt_arg, (const char*)data.buf);
     PyBuffer_Release(&data);
     return result;
 }
@@ -210,15 +214,21 @@ static int PyPageBloomFilter_init(PyPageBloomFilter* self, PyObject* args, PyObj
     unsigned page_level;
     unsigned page_num;
     size_t unique_cnt = 0;
+    unsigned long long unique_cnt_arg = 0;
     PyObject* data_obj = Py_None;
     Py_buffer data = {0};
     PyObject* bytearray = NULL;
     Py_ssize_t data_size;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "III|KO", kwlist,
-                                     &way, &page_level, &page_num, &unique_cnt, &data_obj)) {
+                                     &way, &page_level, &page_num, &unique_cnt_arg, &data_obj)) {
         return -1;
     }
+    if (unique_cnt_arg > SIZE_MAX) {
+        PyErr_SetString(PyExc_OverflowError, "unique_cnt is too large for this platform");
+        return -1;
+    }
+    unique_cnt = (size_t)unique_cnt_arg;
 
     data_size = (Py_ssize_t)page_num << page_level;
     if (!validate_layout(way, page_level, page_num, data_size)) {
@@ -403,25 +413,27 @@ static PyGetSetDef PyPageBloomFilter_getset[] = {
     {NULL, NULL, NULL, NULL, NULL}
 };
 
-static PySequenceMethods PyPageBloomFilter_as_sequence = {
-    .sq_contains = PyPageBloomFilter_contains,
-};
+static PySequenceMethods PyPageBloomFilter_as_sequence = {0};
 
 static PyTypeObject PyPageBloomFilterType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "_pbf.PageBloomFilter",
-    .tp_basicsize = sizeof(PyPageBloomFilter),
-    .tp_itemsize = 0,
-    .tp_dealloc = (destructor)PyPageBloomFilter_dealloc,
-    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    .tp_doc = "Page Bloom Filter backed by the native C implementation",
-    .tp_methods = PyPageBloomFilter_methods,
-    .tp_getset = PyPageBloomFilter_getset,
-    .tp_as_sequence = &PyPageBloomFilter_as_sequence,
-    .tp_init = (initproc)PyPageBloomFilter_init,
-    .tp_new = PyPageBloomFilter_new,
-    .tp_repr = (reprfunc)PyPageBloomFilter_repr,
 };
+
+static void configure_page_bloom_filter_type(void) {
+    PyPageBloomFilter_as_sequence.sq_contains = PyPageBloomFilter_contains;
+    PyPageBloomFilterType.tp_name = "_pbf.PageBloomFilter";
+    PyPageBloomFilterType.tp_basicsize = sizeof(PyPageBloomFilter);
+    PyPageBloomFilterType.tp_itemsize = 0;
+    PyPageBloomFilterType.tp_dealloc = (destructor)PyPageBloomFilter_dealloc;
+    PyPageBloomFilterType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+    PyPageBloomFilterType.tp_doc = "Page Bloom Filter backed by the native C implementation";
+    PyPageBloomFilterType.tp_methods = PyPageBloomFilter_methods;
+    PyPageBloomFilterType.tp_getset = PyPageBloomFilter_getset;
+    PyPageBloomFilterType.tp_as_sequence = &PyPageBloomFilter_as_sequence;
+    PyPageBloomFilterType.tp_init = (initproc)PyPageBloomFilter_init;
+    PyPageBloomFilterType.tp_new = PyPageBloomFilter_new;
+    PyPageBloomFilterType.tp_repr = (reprfunc)PyPageBloomFilter_repr;
+}
 
 #define PARSE_RW_BUFFER_AND_KEY()                                             \
     Py_buffer space = {0};                                                    \
@@ -501,6 +513,9 @@ static struct PyModuleDef module = {
 PyMODINIT_FUNC PyInit__pbf(void) {
     PyObject* m;
 
+    if ((PyPageBloomFilterType.tp_flags & Py_TPFLAGS_READY) == 0) {
+        configure_page_bloom_filter_type();
+    }
     if (PyType_Ready(&PyPageBloomFilterType) < 0) {
         return NULL;
     }

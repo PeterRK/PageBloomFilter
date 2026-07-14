@@ -12,6 +12,19 @@ if (bf.test("Hello")) {
     std::cout << "find Hello" << std::endl;
 }
 ```
+
+The native C/C++ fast path intentionally supports only little-endian x86-64
+and AArch64 targets where unaligned 32-bit and 64-bit memory reads are
+available. Other architectures and big-endian targets are rejected at compile
+time. GCC, Clang, and MSVC use the same bitmap and hash layout. AVX2 page probes
+are selected from compiler target flags such as `-march=x86-64-v3`, `-mavx2`,
+or `/arch:AVX2`. On x86-64, CMake adds the appropriate flag by default through
+`PBF_ENABLE_AVX2=ON`; this option is not provided on other architectures.
+Defining the C/C++ macro `DISABLE_SIMD_OPTIMIZE` overrides the compiler target
+and forces the scalar path. The x86-64-only `PBF_ENABLE_AESNI_HASH` option
+remains disabled by default and must be enabled explicitly, because it changes
+hash and persisted-data compatibility.
+
 C++ implement runs extremely fast with aesni instruction. The standard compatible version is also good enough.
 ```
 // U7-155H & Clang-18
@@ -132,12 +145,27 @@ bf.net-test: 40.12608 ns/op
 
 ## Python
 ```python
-bf = pbf.create(500, 0.01)
+from pbf import PageBloomFilter
+
+bf = PageBloomFilter.create(500, 0.01)
 if bf.set("Hello"):
     print("set new Hello")
 if bf.test("Hello"):
     print("find Hello")
 ```
+
+The CPython extension can be built as a wheel and source distribution without
+publishing either artifact:
+
+```shell
+cd python
+python -m build
+python -m pip install dist/pagebloomfilter-*.whl
+```
+
+The distribution name is `pagebloomfilter`; the import name remains `pbf`.
+Platform wheels intentionally use the baseline scalar hash/probe path.
+
 Python with c extension is still slow, but it remains much faster than [pybloom](https://github.com/jaybaird/python-bloomfilter).
 ```
 // i7-10710U & Python-3.11
@@ -222,8 +250,10 @@ var bf2 = PageBloomFilter.New(bf.Way, bf.PageLevel, bf.Data, bf.UniqueCnt);
 ```
 ```python
 # Python
-bf = pbf.create(500, 0.01)
-bf2 = pbf.restore(bf.way, bf.page_level, bf.data, bf.unique_cnt)
+from pbf import PageBloomFilter
+
+bf = PageBloomFilter.create(500, 0.01)
+bf2 = PageBloomFilter.restore(bf.way, bf.page_level, bf.data, bf.unique_cnt)
 ```
 ```rust
 // Rust

@@ -1,21 +1,34 @@
 import base64
 import csv
 import hashlib
+import io
 import os
 import pathlib
 import shutil
-import subprocess
 import sys
 import sysconfig
+import tarfile
 import tempfile
 import zipfile
 
+from setuptools import Distribution, Extension
+from setuptools.command.build_ext import build_ext
 
-NAME = "pbf"
-VERSION = "0.2"
-SUMMARY = "Page Bloom Filter"
+
+NAME = "pagebloomfilter"
+VERSION = "1.2.1"
+SUMMARY = "Fast page-based Bloom filter"
 ROOT = pathlib.Path(__file__).resolve().parent
-REPO_ROOT = ROOT.parent
+
+
+def _find_source_root():
+    for candidate in (ROOT.parent, ROOT):
+        if (candidate / "include" / "pbf-c.h").is_file() and (candidate / "src" / "hash.cc").is_file():
+            return candidate
+    raise RuntimeError("PageBloomFilter C/C++ sources were not found")
+
+
+SOURCE_ROOT = _find_source_root()
 
 
 def _normalize_dist_info_name(name):
@@ -27,56 +40,81 @@ def _platform_tag():
 
 
 def _interpreter_tag():
+    if sys.implementation.name != "cpython":
+        raise RuntimeError("the native extension currently supports CPython only")
     return f"cp{sys.version_info.major}{sys.version_info.minor}"
 
 
-def _wheel_tag():
+def _abi_tag():
     tag = _interpreter_tag()
-    return f"{tag}-{tag}-{_platform_tag()}"
+    flags = getattr(sys, "abiflags", "")
+    if sysconfig.get_config_var("Py_GIL_DISABLED") and "t" not in flags:
+        flags += "t"
+    return f"{tag}{flags}"
 
 
-def _extension_suffix():
-    return sysconfig.get_config_var("EXT_SUFFIX") or ".so"
-
-
-def _run(cmd, cwd=None):
-    subprocess.check_call(cmd, cwd=cwd)
+def _wheel_tag():
+    return f"{_interpreter_tag()}-{_abi_tag()}-{_platform_tag()}"
 
 
 def _compile_extension(output_dir):
     output_dir = pathlib.Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    cc = os.environ.get("CC", "gcc")
-    cxx = os.environ.get("CXX", "g++")
-    include_python = sysconfig.get_paths()["include"]
-    cflags = [flag for flag in (sysconfig.get_config_var("CFLAGS") or "").split() if flag]
-    cppflags = [flag for flag in (sysconfig.get_config_var("CPPFLAGS") or "").split() if flag]
-    ldflags = [flag for flag in (sysconfig.get_config_var("LDFLAGS") or "").split() if flag]
+    if os.name == "nt":
+        extra_compile_args = ["/O2"]
+    else:
+        extra_compile_args = ["-O3", "-fno-strict-aliasing"]
 
-    bind_obj = output_dir / "bind.o"
-    pbf_c_obj = output_dir / "pbf-c.o"
-    hash_obj = output_dir / "hash.o"
-    ext_path = output_dir / f"_pbf{_extension_suffix()}"
+    extension = Extension(
+        "_pbf",
+        sources=[
+            str(ROOT / "bind.c"),
+            str(SOURCE_ROOT / "src" / "pbf-c.cc"),
+            str(SOURCE_ROOT / "src" / "hash.cc"),
+        ],
+        include_dirs=[str(SOURCE_ROOT / "include"), str(SOURCE_ROOT / "src")],
+        language="c++",
+        extra_compile_args=extra_compile_args,
+    )
+    distribution = Distribution({"name": NAME, "ext_modules": [extension]})
+    command = build_ext(distribution)
+    command.ensure_finalized()
+    command.build_lib = str(output_dir)
+    command.build_temp = str(output_dir / "temp")
+    command.force = True
+    command.run()
 
-    common_includes = [f"-I{include_python}", f"-I{REPO_ROOT / 'include'}"]
-    _run([cc, "-O3", "-fPIC", "-c", str(ROOT / "bind.c"), "-o", str(bind_obj), *common_includes, *cppflags, *cflags])
-    _run([cxx, "-O3", "-std=c++14", "-fPIC", "-c", str(REPO_ROOT / "src" / "pbf-c.cc"), "-o", str(pbf_c_obj),
-          f"-I{REPO_ROOT / 'include'}"])
-    _run([cxx, "-O3", "-std=c++14", "-fPIC", "-c", str(REPO_ROOT / "src" / "hash.cc"), "-o", str(hash_obj),
-          f"-I{REPO_ROOT / 'include'}"])
-    _run([cxx, "-shared", str(bind_obj), str(pbf_c_obj), str(hash_obj), "-o", str(ext_path), *ldflags])
+    ext_path = pathlib.Path(command.get_ext_fullpath("_pbf"))
+    if not ext_path.is_file():
+        raise RuntimeError(f"extension build did not produce {ext_path}")
     return ext_path
+
+
+def _project_text(name):
+    for base in (SOURCE_ROOT, ROOT):
+        path = base / name
+        if path.is_file():
+            return path.read_text(encoding="utf-8")
+    return ""
 
 
 def _metadata_text():
     return "\n".join(
         [
-            "Metadata-Version: 2.1",
+            "Metadata-Version: 2.2",
             f"Name: {NAME}",
             f"Version: {VERSION}",
             f"Summary: {SUMMARY}",
+            "Requires-Python: >=3.9",
+            "License: BSD-3-Clause",
+            "License-File: LICENSE",
+            "Project-URL: Homepage, https://github.com/PeterRK/PageBloomFilter",
+            "Project-URL: Repository, https://github.com/PeterRK/PageBloomFilter",
+            "Project-URL: Issues, https://github.com/PeterRK/PageBloomFilter/issues",
+            "Description-Content-Type: text/markdown",
             "",
+            _project_text("README.md"),
         ]
     )
 
@@ -85,7 +123,7 @@ def _wheel_text(tag):
     return "\n".join(
         [
             "Wheel-Version: 1.0",
-            "Generator: local-build-backend",
+            "Generator: pagebloomfilter-build-backend",
             "Root-Is-Purelib: false",
             f"Tag: {tag}",
             "",
@@ -102,20 +140,27 @@ def _record_line(path, data):
 def _build_layout(build_dir):
     build_dir = pathlib.Path(build_dir)
     build_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(ROOT / "pbf.py", build_dir / "pbf.py")
-    _compile_extension(build_dir)
-    return build_dir
+    module_path = build_dir / "pbf.py"
+    shutil.copy2(ROOT / "pbf.py", module_path)
+    extension_path = _compile_extension(build_dir)
+    return build_dir, module_path, extension_path
 
 
 def _dist_info_dir(base_dir):
     return pathlib.Path(base_dir) / f"{_normalize_dist_info_name(NAME)}-{VERSION}.dist-info"
 
 
-def prepare_metadata_for_build_wheel(metadata_directory, config_settings=None):
-    dist_info = _dist_info_dir(metadata_directory)
+def _write_metadata(dist_info):
+    dist_info = pathlib.Path(dist_info)
     dist_info.mkdir(parents=True, exist_ok=True)
     (dist_info / "METADATA").write_text(_metadata_text(), encoding="utf-8")
     (dist_info / "WHEEL").write_text(_wheel_text(_wheel_tag()), encoding="utf-8")
+    (dist_info / "LICENSE").write_text(_project_text("LICENSE"), encoding="utf-8")
+
+
+def prepare_metadata_for_build_wheel(metadata_directory, config_settings=None):
+    dist_info = _dist_info_dir(metadata_directory)
+    _write_metadata(dist_info)
     return dist_info.name
 
 
@@ -123,7 +168,7 @@ def get_requires_for_build_wheel(config_settings=None):
     return []
 
 
-def get_requires_for_build_editable(config_settings=None):
+def get_requires_for_build_sdist(config_settings=None):
     return []
 
 
@@ -131,34 +176,34 @@ def _build_wheel_file(wheel_directory):
     tag = _wheel_tag()
     wheel_name = f"{_normalize_dist_info_name(NAME)}-{VERSION}-{tag}.whl"
     wheel_path = pathlib.Path(wheel_directory) / wheel_name
-    dist_info_name = f"{_normalize_dist_info_name(NAME)}-{VERSION}.dist-info"
 
     with tempfile.TemporaryDirectory() as tmp:
-        tmp_path = pathlib.Path(tmp)
-        layout = _build_layout(tmp_path / "wheel")
-        dist_info = layout / dist_info_name
-        dist_info.mkdir(parents=True, exist_ok=True)
+        layout, module_path, extension_path = _build_layout(pathlib.Path(tmp) / "wheel")
+        dist_info = _dist_info_dir(layout)
+        _write_metadata(dist_info)
 
-        metadata = _metadata_text().encode("utf-8")
-        wheel = _wheel_text(tag).encode("utf-8")
-        (dist_info / "METADATA").write_bytes(metadata)
-        (dist_info / "WHEEL").write_bytes(wheel)
-
+        payload = [
+            module_path,
+            extension_path,
+            dist_info / "METADATA",
+            dist_info / "WHEEL",
+            dist_info / "LICENSE",
+        ]
         records = []
-        files = [layout / "pbf.py", next(layout.glob("_pbf*.so")), dist_info / "METADATA", dist_info / "WHEEL"]
-        for path in files:
+        for path in payload:
             rel = path.relative_to(layout).as_posix()
             records.append(_record_line(rel, path.read_bytes()))
 
-        record_rel = f"{dist_info_name}/RECORD"
-        with (dist_info / "RECORD").open("w", encoding="utf-8", newline="") as fp:
+        record_path = dist_info / "RECORD"
+        record_rel = record_path.relative_to(layout).as_posix()
+        with record_path.open("w", encoding="utf-8", newline="") as fp:
             writer = csv.writer(fp)
             writer.writerows(records)
             writer.writerow((record_rel, "", ""))
+        payload.append(record_path)
 
         with zipfile.ZipFile(wheel_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-            for path in [layout / "pbf.py", next(layout.glob("_pbf*.so")), dist_info / "METADATA",
-                         dist_info / "WHEEL", dist_info / "RECORD"]:
+            for path in payload:
                 zf.write(path, path.relative_to(layout).as_posix())
 
     return wheel_name
@@ -169,10 +214,39 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
     return _build_wheel_file(wheel_directory)
 
 
-def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
-    return build_wheel(wheel_directory, config_settings, metadata_directory)
+def _sdist_files():
+    files = [
+        (ROOT / "pyproject.toml", pathlib.Path("pyproject.toml")),
+        (ROOT / "build_backend.py", pathlib.Path("build_backend.py")),
+        (ROOT / "setup.py", pathlib.Path("setup.py")),
+        (ROOT / "pbf.py", pathlib.Path("pbf.py")),
+        (ROOT / "bind.c", pathlib.Path("bind.c")),
+        (SOURCE_ROOT / "README.md", pathlib.Path("README.md")),
+        (SOURCE_ROOT / "LICENSE", pathlib.Path("LICENSE")),
+    ]
+    for directory in ("include", "src"):
+        base = SOURCE_ROOT / directory
+        for path in sorted(base.rglob("*")):
+            if path.is_file():
+                files.append((path, path.relative_to(SOURCE_ROOT)))
+    return files
+
+
+def build_sdist(sdist_directory, config_settings=None):
+    pathlib.Path(sdist_directory).mkdir(parents=True, exist_ok=True)
+    base_name = f"{_normalize_dist_info_name(NAME)}-{VERSION}"
+    sdist_name = f"{base_name}.tar.gz"
+    sdist_path = pathlib.Path(sdist_directory) / sdist_name
+    with tarfile.open(sdist_path, "w:gz", format=tarfile.PAX_FORMAT) as archive:
+        for source, relative in _sdist_files():
+            archive.add(source, arcname=(pathlib.Path(base_name) / relative).as_posix(), recursive=False)
+        metadata = _metadata_text().encode("utf-8")
+        info = tarfile.TarInfo((pathlib.Path(base_name) / "PKG-INFO").as_posix())
+        info.size = len(metadata)
+        info.mode = 0o644
+        archive.addfile(info, io.BytesIO(metadata))
+    return sdist_name
 
 
 def build_inplace():
-    ext_path = _compile_extension(ROOT)
-    return ext_path
+    return _compile_extension(ROOT)

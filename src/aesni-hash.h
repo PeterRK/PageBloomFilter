@@ -7,6 +7,12 @@
 #define AESNI_HASH_H
 
 #include <stdint.h>
+#include "platform.h"
+
+#if !defined(PBF_ARCH_X86_64)
+#error "AES-NI hashing is supported on x86-64 targets only"
+#endif
+
 #include <immintrin.h>
 
 
@@ -70,11 +76,26 @@ static __m128i AESNI_Hash128(const uint8_t* msg, unsigned len, uint32_t seed = 0
 			case 11: mix(GREEDILY_READ(11,msg)); break;
 			case 10: mix(GREEDILY_READ(10,msg)); break;
 			case 9: mix(GREEDILY_READ(9,msg)); break;
-			case 8: mix((__m128i)_mm_load_sd((const double*)msg)); break;
+			case 8:
+#if defined(_MSC_VER)
+				// MSVC cannot directly convert __m128d to __m128i. Preserve
+				// the same eight input bytes through the existing safe load.
+				mix(GREEDILY_READ(8,msg));
+#else
+				mix((__m128i)_mm_load_sd((const double*)msg));
+#endif
+				break;
 			case 7: mix(GREEDILY_READ(7,msg)); break;
 			case 6: mix(GREEDILY_READ(6,msg)); break;
 			case 5: mix(GREEDILY_READ(5,msg)); break;
-			case 4: mix((__m128i)_mm_load_ss((const float*)msg)); break;
+			case 4:
+#if defined(_MSC_VER)
+				// MSVC cannot directly convert __m128 to __m128i.
+				mix(GREEDILY_READ(4,msg));
+#else
+				mix((__m128i)_mm_load_ss((const float*)msg));
+#endif
+				break;
 			case 3: mix(GREEDILY_READ(3,msg)); break;
 			case 2: mix(GREEDILY_READ(2,msg)); break;
 			case 1: mix(GREEDILY_READ(1,msg)); break;

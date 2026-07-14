@@ -14,7 +14,43 @@
 #include <algorithm>
 #include <type_traits>
 
+#if defined(_MSC_VER)
+#include <intrin.h>
+#endif
+
 namespace pbf {
+
+namespace detail {
+
+template <typename Word>
+struct MultiplyHigh;
+
+template <>
+struct MultiplyHigh<uint16_t> {
+	static uint16_t get(uint16_t a, uint16_t b) noexcept {
+		return static_cast<uint16_t>((static_cast<uint32_t>(a) * b) >> 16U);
+	}
+};
+
+template <>
+struct MultiplyHigh<uint32_t> {
+	static uint32_t get(uint32_t a, uint32_t b) noexcept {
+		return static_cast<uint32_t>((static_cast<uint64_t>(a) * b) >> 32U);
+	}
+};
+
+template <>
+struct MultiplyHigh<uint64_t> {
+	static uint64_t get(uint64_t a, uint64_t b) noexcept {
+#if defined(_MSC_VER)
+		return __umulh(a, b);
+#else
+		return static_cast<uint64_t>((static_cast<unsigned __int128>(a) * b) >> 64U);
+#endif
+	}
+};
+
+} // detail
 
 //Lemire-Kaser-Kurz
 template <typename Word>
@@ -24,11 +60,8 @@ private:
 				  || std::is_same<Word, uint32_t>::value, "");
 	Word m_val = 0;
 #ifndef DISABLE_SOFT_DIVIDE
-	static constexpr unsigned BITWIDTH = sizeof(Word)*8;
 	using DoubleWord = typename std::conditional<std::is_same<Word,uint8_t>::value, uint16_t,
 			typename std::conditional<std::is_same<Word,uint16_t>::value, uint32_t, uint64_t>::type>::type;
-	using QuaterWord = typename std::conditional<std::is_same<Word,uint8_t>::value, uint32_t,
-			typename std::conditional<std::is_same<Word,uint16_t>::value, uint64_t, __uint128_t>::type>::type;
 	DoubleWord m_fac = 0;
 #endif
 
@@ -54,7 +87,8 @@ public:
 #ifdef DISABLE_SOFT_DIVIDE
 		return m / m_val;
 #else
-		Word q = (m * (QuaterWord)m_fac) >> (BITWIDTH * 2);
+		Word q = static_cast<Word>(detail::MultiplyHigh<DoubleWord>::get(
+				static_cast<DoubleWord>(m), m_fac));
 		if (m_fac == 0) {
 			q = m;
 		}
@@ -66,7 +100,8 @@ public:
 #ifdef DISABLE_SOFT_DIVIDE
 		return m % m_val;
 #else
-		return ((QuaterWord)m_val * (DoubleWord)(m * m_fac)) >> (BITWIDTH * 2);
+		return static_cast<Word>(detail::MultiplyHigh<DoubleWord>::get(
+				static_cast<DoubleWord>(m_val), static_cast<DoubleWord>(m * m_fac)));
 #endif
 	}
 };
@@ -156,7 +191,7 @@ static constexpr unsigned BestWay(float fpr) noexcept {
 template <unsigned N>
 static PageBloomFilter<N> Create(size_t item, float fpr) {
 	assert(N == BestWay(fpr));
-	item = std::max(item, 1UL);
+	item = std::max<size_t>(item, 1);
 	fpr = std::min(std::max(fpr, 0.0005f), 0.1f);
 	auto w = -std::log2(fpr);
 	auto bpi = w / (std::log(2) * 8);

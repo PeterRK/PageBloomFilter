@@ -3,6 +3,7 @@
 import pathlib
 import shutil
 import sys
+from importlib.machinery import EXTENSION_SUFFIXES
 
 import build_backend
 
@@ -22,9 +23,11 @@ def main(argv):
 
     if argv == ["clean"]:
         root = pathlib.Path(__file__).resolve().parent
-        for path in root.glob("_pbf*.so"):
-            path.unlink()
+        for path in root.glob("_pbf*"):
+            if path.is_file() and any(path.name.endswith(suffix) for suffix in EXTENSION_SUFFIXES):
+                path.unlink()
         shutil.rmtree(root / "dist", ignore_errors=True)
+        shutil.rmtree(root / "temp", ignore_errors=True)
         shutil.rmtree(root / "__pycache__", ignore_errors=True)
         return 0
 

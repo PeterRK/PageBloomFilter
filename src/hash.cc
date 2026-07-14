@@ -9,10 +9,6 @@
 #include "xxh3.h"
 #endif
 
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-#error "only support little endian"
-#endif
-
 // Design note:
 // The fallback hash below is intentionally specialized for little-endian
 // machines with efficient unaligned loads, which matches the supported target

@@ -36,6 +36,31 @@ TEST(PBF, SmallEstimate) {
 	ASSERT_EQ(1, p->page_num());
 }
 
+template <typename Word, size_t D, size_t V>
+void CheckDivisors(const Word (&divisors)[D], const Word (&values)[V]) {
+	for (Word divisor : divisors) {
+		pbf::Divisor<Word> fast(divisor);
+		for (Word value : values) {
+			ASSERT_EQ(static_cast<Word>(value / divisor), fast.div(value));
+			ASSERT_EQ(static_cast<Word>(value % divisor), fast.mod(value));
+		}
+	}
+}
+
+TEST(PBF, SoftDivide) {
+	const uint8_t divisors8[] = {1, 2, 3, 7, 127, 251, 255};
+	const uint8_t values8[] = {0, 1, 2, 7, 63, 127, 128, 251, 254, 255};
+	CheckDivisors(divisors8, values8);
+
+	const uint16_t divisors16[] = {1, 2, 3, 255, 256, 257, 65521, 65535};
+	const uint16_t values16[] = {0, 1, 2, 255, 256, 257, 32767, 32768, 65534, 65535};
+	CheckDivisors(divisors16, values16);
+
+	const uint32_t divisors32[] = {1U, 2U, 3U, 65535U, 65536U, 65537U, 0x7fffffffU, 0xfffffffbU, 0xffffffffU};
+	const uint32_t values32[] = {0U, 1U, 2U, 65535U, 65536U, 65537U, 0x7fffffffU, 0x80000000U, 0xfffffffeU, 0xffffffffU};
+	CheckDivisors(divisors32, values32);
+}
+
 template <unsigned N>
 void DoTest() {
 	pbf::PageBloomFilter<N> bf(7, 3);
