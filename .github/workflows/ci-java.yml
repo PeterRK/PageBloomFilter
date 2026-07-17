@@ -1,0 +1,25 @@
+name: Java CI
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-java-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  java:
+    name: Java / Maven package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "11"
+          cache: maven
+      - run: mvn --batch-mode --file java/pom.xml verify
+      - run: mvn --batch-mode --file java/pom.xml org.apache.maven.plugins:maven-source-plugin:3.3.1:jar-no-fork org.apache.maven.plugins:maven-javadoc-plugin:3.11.2:jar

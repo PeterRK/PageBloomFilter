@@ -3,7 +3,12 @@
 # license that can be found in the LICENSE file.
 
 cmake_minimum_required(VERSION 3.10)
-project(PageBloomFilter)
+project(PageBloomFilter VERSION 1.3.0 LANGUAGES CXX)
+
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+option(BUILD_SHARED_LIBS "Build PageBloomFilter as a shared library" ON)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -19,10 +24,19 @@ endif()
 
 include(CTest)
 
-include_directories(include)
-
-add_library(pbf SHARED src/pbf.cc src/hash.cc)
-set_target_properties(pbf PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
+add_library(pbf src/pbf.cc src/pbf-c.cc src/hash.cc)
+add_library(PageBloomFilter::pbf ALIAS pbf)
+target_include_directories(pbf
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+set_target_properties(pbf PROPERTIES
+    EXPORT_NAME pbf
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+    WINDOWS_EXPORT_ALL_SYMBOLS ON
+)
 
 find_package(Threads REQUIRED)
 
@@ -30,11 +44,13 @@ if(BUILD_TESTING)
     find_package(GTest REQUIRED)
 
     add_executable(pbf-test test/test.cc src/pbf.cc src/hash.cc)
+    target_include_directories(pbf-test PRIVATE include)
     target_link_libraries(pbf-test PRIVATE GTest::gtest Threads::Threads)
     add_test(NAME pbf-unit-tests COMMAND pbf-test)
 endif()
 
 add_executable(bench test/bench.cc src/pbf.cc src/hash.cc)
+target_include_directories(bench PRIVATE include)
 
 include(CheckCXXCompilerFlag)
 
@@ -83,6 +99,41 @@ foreach(target IN LISTS PBF_TARGETS)
     pbf_enable_optional_simd(${target})
     pbf_enable_optional_aesni_hash(${target})
 endforeach()
+
+install(TARGETS pbf
+    EXPORT PageBloomFilterTargets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+install(FILES include/pbf.h include/pbf-c.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+install(FILES LICENSE
+    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/PageBloomFilter
+)
+install(EXPORT PageBloomFilterTargets
+    FILE PageBloomFilterTargets.cmake
+    NAMESPACE PageBloomFilter::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/PageBloomFilter
+)
+
+configure_package_config_file(
+    cmake/PageBloomFilterConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/PageBloomFilterConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/PageBloomFilter
+)
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/PageBloomFilterConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/PageBloomFilterConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/PageBloomFilterConfigVersion.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/PageBloomFilter
+)
 
 #include_directories(3rd-party/include)
 #link_directories(3rd-party/lib)

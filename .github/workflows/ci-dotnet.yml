@@ -1,0 +1,23 @@
+name: .NET CI
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-dotnet-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dotnet:
+    name: .NET / NuGet package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - run: dotnet test csharp/PageBloomFilter.sln --configuration Release
+      - run: dotnet pack csharp/PageBloomFilter/PageBloomFilter.csproj --configuration Release --no-restore --output artifacts/nuget

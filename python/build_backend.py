@@ -16,7 +16,7 @@ from setuptools.command.build_ext import build_ext
 
 
 NAME = "pagebloomfilter"
-VERSION = "1.2.1"
+VERSION = "1.3.0"
 SUMMARY = "Fast page-based Bloom filter"
 ROOT = pathlib.Path(__file__).resolve().parent
 
@@ -106,6 +106,7 @@ def _metadata_text():
             f"Name: {NAME}",
             f"Version: {VERSION}",
             f"Summary: {SUMMARY}",
+            "Author: Ruan Kunliang",
             "Requires-Python: >=3.9",
             "License: BSD-3-Clause",
             "License-File: LICENSE",
