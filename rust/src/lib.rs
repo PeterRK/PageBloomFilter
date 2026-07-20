@@ -84,6 +84,41 @@ fn test_new_small() {
 }
 
 #[test]
+#[should_panic(expected = "pageNum should be in [1, 1 << 18)")]
+fn test_page_num_limit() {
+    let _ = pbf::PageBloomFilter::<4>::new(6, 1 << 18);
+}
+
+#[test]
+fn test_stable_bitmap_layout() {
+    let mut bf = pbf::new_bloom_filter(1, 0.01);
+    let keys: &[&[u8]] = &[
+        b"alpha",
+        "中文键".as_bytes(),
+        b"",
+        &[0x00, 0x01, 0x02, 0x03, 0xff],
+    ];
+    for key in keys {
+        assert!(bf.set(key));
+    }
+
+    let hex =
+        "0000000010000000000000004000000000000000000000100100000000010000\
+         0000000200000000000000000000040000000000040000008040000000000000\
+         0000004000004180020000002000000000000100080080000000800000000010\
+         0000000080000000000000000000410000800040000000800000000000002000";
+    let expected: Vec<u8> = hex
+        .as_bytes()
+        .chunks_exact(2)
+        .map(|pair| {
+            let digits = std::str::from_utf8(pair).unwrap();
+            u8::from_str_radix(digits, 16).unwrap()
+        })
+        .collect();
+    assert_eq!(expected.as_slice(), bf.get_data());
+}
+
+#[test]
 fn test_new_fast() {
     let bf = new_bloom_filter_fast!(500, 0.01);
     assert_eq!(7, bf.get_way());

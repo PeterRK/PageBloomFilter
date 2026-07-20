@@ -117,7 +117,7 @@ static inline Word operator%(Word m, const Divisor<Word>& d) noexcept {
 }
 
 
-static constexpr unsigned kMaxPageNum = 1u << 19;
+static constexpr unsigned kMaxPageNum = 1u << 18;
 
 class _PageBloomFilter {
 public:
@@ -243,8 +243,19 @@ extern std::unique_ptr<BloomFilter> New(unsigned way, unsigned page_level, unsig
 // `data_size` must be an exact multiple of `(1 << page_level)` bytes; otherwise
 // the computed page count would be truncated before dispatching to `New(...)`.
 static inline std::unique_ptr<BloomFilter> New(unsigned way, unsigned page_level,
-											   const uint8_t* data, size_t data_size, size_t unique_cnt) {
-	return New(way, page_level, data_size>>page_level, unique_cnt, data);
+                                               const uint8_t* data, size_t data_size, size_t unique_cnt) {
+	if (data == nullptr || data_size == 0 || page_level > 13) {
+		return nullptr;
+	}
+	const size_t page_size = size_t{1} << page_level;
+	if (data_size % page_size != 0) {
+		return nullptr;
+	}
+	const size_t page_num = data_size / page_size;
+	if (page_num >= kMaxPageNum) {
+		return nullptr;
+	}
+	return New(way, page_level, static_cast<unsigned>(page_num), unique_cnt, data);
 }
 
 } //pbf

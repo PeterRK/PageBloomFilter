@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { PageBloomFilter } from "../dist/index.js";
+import { validateLayout } from "../dist/api.js";
 
 const keys = [
   "alpha",
@@ -128,6 +129,10 @@ test("creation dispatches every supported way", async () => {
     assert.equal(filter.way, way);
     filter.dispose();
   }
+});
+
+test("page count at the exclusive limit is rejected", () => {
+  assert.throws(() => validateLayout(4, 6, 1 << 18), /too large/);
 });
 
 test("invalid restored layouts are rejected", async () => {

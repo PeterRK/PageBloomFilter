@@ -43,7 +43,7 @@ find_package(Threads REQUIRED)
 if(BUILD_TESTING)
     find_package(GTest REQUIRED)
 
-    add_executable(pbf-test test/test.cc src/pbf.cc src/hash.cc)
+    add_executable(pbf-test test/test.cc src/pbf.cc src/pbf-c.cc src/hash.cc)
     target_include_directories(pbf-test PRIVATE include)
     target_link_libraries(pbf-test PRIVATE GTest::gtest Threads::Threads)
     add_test(NAME pbf-unit-tests COMMAND pbf-test)

@@ -9,7 +9,7 @@ import (
 	"unsafe"
 )
 
-const maxPageNum = 1 << 19
+const maxPageNum = 1 << 18
 
 type PageBloomFilter interface {
 	Clear()

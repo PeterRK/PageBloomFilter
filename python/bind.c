@@ -4,6 +4,8 @@
 #include <Python.h>
 #include "pbf-c.h"
 
+#define MAX_PAGE_NUM (1U << 18)
+
 typedef struct {
     PyObject_HEAD
     unsigned way;
@@ -37,6 +39,10 @@ static int validate_layout(unsigned way, unsigned page_level, unsigned page_num,
     }
     if (page_num == 0) {
         PyErr_SetString(PyExc_ValueError, "page_num must be positive");
+        return 0;
+    }
+    if (page_num >= MAX_PAGE_NUM) {
+        PyErr_SetString(PyExc_OverflowError, "page_num is too large");
         return 0;
     }
     if (page_level >= 63) {

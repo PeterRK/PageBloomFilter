@@ -5,7 +5,9 @@
 package pbf
 
 import (
+	"bytes"
 	"encoding/binary"
+	"encoding/hex"
 	"testing"
 	"unsafe"
 )
@@ -30,6 +32,43 @@ func TestSmallEstimate(t *testing.T) {
 	assert(t, bf.Way() == 4)
 	assert(t, bf.PageLevel() == 6)
 	assert(t, len(bf.Data()) == 64)
+}
+
+func TestPageNumLimit(t *testing.T) {
+	if bf := NewPageBloomFilter(4, 6, 1<<18); bf != nil {
+		t.Fatal("page count at the exclusive limit must be rejected")
+	}
+}
+
+func TestStableBitmapLayout(t *testing.T) {
+	bf := NewBloomFilter(1, 0.01)
+	if bf == nil {
+		t.Fatal("failed to create minimal bloom filter")
+	}
+	keys := []string{
+		"alpha",
+		"中文键",
+		"",
+		string([]byte{0x00, 0x01, 0x02, 0x03, 0xff}),
+	}
+	for _, key := range keys {
+		if !bf.Set(key) {
+			t.Fatalf("key %x was unexpectedly already present", []byte(key))
+		}
+	}
+
+	expected, err := hex.DecodeString(
+		"0000000010000000000000004000000000000000000000100100000000010000" +
+			"0000000200000000000000000000040000000000040000008040000000000000" +
+			"0000004000004180020000002000000000000100080080000000800000000010" +
+			"0000000080000000000000000000410000800040000000800000000000002000",
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(expected, bf.Data()) {
+		t.Fatalf("bitmap mismatch: want %x; got %x", expected, bf.Data())
+	}
 }
 
 func doTest(t *testing.T, way uint32) {

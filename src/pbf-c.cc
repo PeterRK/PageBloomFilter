@@ -13,6 +13,11 @@ extern "C" {
 #define PAGE_BLOOM_FILTER_FUNC(way) \
 bool PBF##way##_Set(void* space, unsigned page_level, unsigned page_num,        \
 	const void* key, unsigned len) {                                            \
+	if (key == nullptr) {                                                      \
+		if (len != 0) return false;                                               \
+		static const uint8_t empty_key = 0;                                       \
+		key = &empty_key;                                                         \
+	}                                                                          \
 	pbf::V128X t;                                                               \
 	t.v = pbf::Hash((const uint8_t*)key, len);                                  \
 	size_t idx = PageHash(t) % page_num;                                        \
@@ -21,6 +26,11 @@ bool PBF##way##_Set(void* space, unsigned page_level, unsigned page_num,        
 } \
 bool PBF##way##_Test(const void* space, unsigned page_level, unsigned page_num, \
 	const void* key, unsigned len) {                                            \
+	if (key == nullptr) {                                                      \
+		if (len != 0) return false;                                               \
+		static const uint8_t empty_key = 0;                                       \
+		key = &empty_key;                                                         \
+	}                                                                          \
 	pbf::V128X t;                                                               \
 	t.v = pbf::Hash((const uint8_t*)key, len);                                  \
 	size_t idx = PageHash(t) % page_num;                                        \

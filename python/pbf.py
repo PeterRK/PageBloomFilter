@@ -7,7 +7,7 @@ from _pbf import PageBloomFilter as _NativePageBloomFilter
 __all__ = ["PageBloomFilter"]
 
 _LN2 = math.log(2.0)
-_MAX_PAGE_NUM = 1 << 19
+_MAX_PAGE_NUM = 1 << 18
 
 
 class PageBloomFilter:
@@ -135,8 +135,39 @@ def _test_operate(way):
         assert not bf.test(struct.pack("<q", i))
 
 
+def _test_page_num_limit():
+    try:
+        _NativePageBloomFilter(4, 6, 1 << 18)
+    except OverflowError:
+        pass
+    else:
+        raise AssertionError("page count at the exclusive limit must be rejected")
+
+
+def _test_stable_bitmap_layout():
+    bf = PageBloomFilter.create(1, 0.01)
+    keys = (
+        b"alpha",
+        "中文键".encode("utf-8"),
+        b"",
+        bytes((0x00, 0x01, 0x02, 0x03, 0xFF)),
+    )
+    for key in keys:
+        assert bf.set(key)
+
+    expected = bytes.fromhex(
+        "0000000010000000000000004000000000000000000000100100000000010000"
+        "0000000200000000000000000000040000000000040000008040000000000000"
+        "0000004000004180020000002000000000000100080080000000800000000010"
+        "0000000080000000000000000000410000800040000000800000000000002000"
+    )
+    assert bf.data == expected
+
+
 def test():
     _test_create()
+    _test_page_num_limit()
+    _test_stable_bitmap_layout()
     for i in range(4, 9):
         _test_operate(i)
 

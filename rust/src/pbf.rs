@@ -5,6 +5,8 @@
 use crate::hash::hash128;
 use std::cmp::max;
 
+const MAX_PAGE_NUM: usize = 1 << 18;
+
 pub trait BloomFilter {
     fn get_way(&self) -> u8;
     fn get_page_level(&self) -> u8;
@@ -85,7 +87,7 @@ fn estimate_params(item: usize, fpr: f32) -> (u8, u8, u32) {
     if page_num == 0 {
         page_num = 1;
     }
-    if page_num > 0xffffffff {
+    if page_num >= MAX_PAGE_NUM {
         panic!("too many items");
     }
     (way, page_level, page_num as u32)
@@ -146,8 +148,8 @@ impl<const W : u8> PageBloomFilter<W> {
         if page_level < (8-8/W) || page_level > 13 {
             panic!("pageLevel should be 7-13");
         }
-        if page_num <= 0 {
-            panic!("pageNum should be positive");
+        if page_num == 0 || page_num as usize >= MAX_PAGE_NUM {
+            panic!("pageNum should be in [1, 1 << 18)");
         }
         return Self {
             page_level: page_level,
@@ -169,7 +171,7 @@ impl<const W : u8> PageBloomFilter<W> {
             panic!("illegal data size");
         }
         let page_num = data.len() / page_size;
-        if page_num > 0xffffffff {
+        if page_num >= MAX_PAGE_NUM {
             panic!("too big data");
         }
         return Self {

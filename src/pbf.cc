@@ -31,6 +31,11 @@ void _PageBloomFilter::clear() noexcept {
 
 template <unsigned N>
 bool PageBloomFilter<N>::test(const uint8_t* data, unsigned len) const noexcept {
+	if (data == nullptr) {
+		if (len != 0) return false;
+		static const uint8_t empty_key = 0;
+		data = &empty_key;
+	}
 	V128X t;
 	t.v = Hash(data, len);
 	size_t idx = PageHash(t) % m_page_num;
@@ -40,6 +45,11 @@ bool PageBloomFilter<N>::test(const uint8_t* data, unsigned len) const noexcept 
 
 template <unsigned N>
 bool PageBloomFilter<N>::set(const uint8_t* data, unsigned len) noexcept {
+	if (data == nullptr) {
+		if (len != 0) return false;
+		static const uint8_t empty_key = 0;
+		data = &empty_key;
+	}
 	V128X t;
 	t.v = Hash(data, len);
 	size_t idx = PageHash(t) % m_page_num;

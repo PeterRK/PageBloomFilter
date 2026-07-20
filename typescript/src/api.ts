@@ -47,7 +47,7 @@ export interface PageBloomFilterInit {
 
 const encoder = new TextEncoder();
 const LN2 = Math.log(2);
-const MAX_PAGE_NUM = 1 << 19;
+const MAX_PAGE_NUM = 1 << 18;
 
 /** @internal */
 export function requireInteger(name: string, value: number, minimum = 0): void {
