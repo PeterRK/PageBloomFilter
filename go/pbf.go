@@ -114,12 +114,18 @@ func cast(way uint32, bf *pageBloomFilter) PageBloomFilter {
 // Create PageBloomFilter with data
 func CreatePageBloomFilter(way, pageLevel uint32, data []byte,
 	uniqueCnt int) PageBloomFilter {
+	if way < 4 || way > 8 {
+		return nil
+	}
+	if pageLevel < (8-8/way) || pageLevel > 13 {
+		return nil
+	}
 	pageSize := int(1) << pageLevel
+	if len(data) == 0 || len(data)%pageSize != 0 {
+		return nil
+	}
 	computedPageNum := len(data) / pageSize
-	if way < 4 || way > 8 ||
-		pageLevel < (8-8/way) || pageLevel > 13 ||
-		len(data) == 0 || len(data)%pageSize != 0 ||
-		computedPageNum >= maxPageNum {
+	if computedPageNum >= maxPageNum {
 		return nil
 	}
 	temp := make([]byte, len(data))

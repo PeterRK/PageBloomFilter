@@ -91,6 +91,80 @@ TEST(PBF, CApiEmptyKey) {
 	EXPECT_FALSE(PBF7_Test(data.data(), 7, 1, nullptr, 1));
 }
 
+static bool CApiSet(unsigned way, void* space, unsigned page_level, unsigned page_num,
+						const void* key, unsigned len) {
+	switch (way) {
+		case 4: return PBF4_Set(space, page_level, page_num, key, len);
+		case 5: return PBF5_Set(space, page_level, page_num, key, len);
+		case 6: return PBF6_Set(space, page_level, page_num, key, len);
+		case 7: return PBF7_Set(space, page_level, page_num, key, len);
+		case 8: return PBF8_Set(space, page_level, page_num, key, len);
+	}
+	return false;
+}
+
+static bool CApiTest(unsigned way, const void* space, unsigned page_level, unsigned page_num,
+						 const void* key, unsigned len) {
+	switch (way) {
+		case 4: return PBF4_Test(space, page_level, page_num, key, len);
+		case 5: return PBF5_Test(space, page_level, page_num, key, len);
+		case 6: return PBF6_Test(space, page_level, page_num, key, len);
+		case 7: return PBF7_Test(space, page_level, page_num, key, len);
+		case 8: return PBF8_Test(space, page_level, page_num, key, len);
+	}
+	return false;
+}
+
+template <unsigned N>
+static void CheckKeyBoundaries() {
+	const unsigned lengths[] = {0, 1, 3, 4, 7, 8, 11, 12, 15, 16, 31, 32, 33, 64};
+	constexpr unsigned page_level = 7;
+	constexpr unsigned page_num = 1;
+	constexpr size_t bitmap_size = size_t{page_num} << page_level;
+
+	for (unsigned len : lengths) {
+		for (unsigned offset = 0; offset < 8; offset++) {
+			SCOPED_TRACE(testing::Message() << "way=" << N << ", len=" << len
+											 << ", offset=" << offset);
+			std::vector<uint8_t> storage(static_cast<size_t>(len) + 8);
+			uint8_t* key = storage.data() + offset;
+			for (unsigned i = 0; i < len; i++) {
+				key[i] = static_cast<uint8_t>((i * 37U + len * 11U) & 0xffU);
+			}
+
+			pbf::PageBloomFilter<N> direct(page_level, page_num);
+			auto dynamic = pbf::New(N, page_level, page_num);
+			std::vector<uint8_t> c_bitmap(bitmap_size);
+			ASSERT_FALSE(!direct);
+			ASSERT_NE(nullptr, dynamic);
+
+			ASSERT_TRUE(direct.set(key, len));
+			ASSERT_TRUE(dynamic->set(key, len));
+			ASSERT_TRUE(CApiSet(N, c_bitmap.data(), page_level, page_num, key, len));
+			EXPECT_TRUE(direct.test(key, len));
+			EXPECT_TRUE(dynamic->test(key, len));
+			EXPECT_TRUE(CApiTest(N, c_bitmap.data(), page_level, page_num, key, len));
+			EXPECT_TRUE(std::equal(direct.data(), direct.data() + bitmap_size, dynamic->data()));
+			EXPECT_TRUE(std::equal(direct.data(), direct.data() + bitmap_size, c_bitmap.begin()));
+
+			direct.clear();
+			dynamic->clear();
+			std::fill(c_bitmap.begin(), c_bitmap.end(), 0);
+			EXPECT_FALSE(direct.test(key, len));
+			EXPECT_FALSE(dynamic->test(key, len));
+			EXPECT_FALSE(CApiTest(N, c_bitmap.data(), page_level, page_num, key, len));
+		}
+	}
+}
+
+TEST(PBF, KeyLengthAndAlignmentBoundaries) {
+	CheckKeyBoundaries<4>();
+	CheckKeyBoundaries<5>();
+	CheckKeyBoundaries<6>();
+	CheckKeyBoundaries<7>();
+	CheckKeyBoundaries<8>();
+}
+
 TEST(PBF, RestoreRejectsInvalidBitmapSize) {
 	std::vector<uint8_t> data(129);
 	EXPECT_EQ(nullptr, pbf::New(7, 7, data.data(), data.size(), 0));

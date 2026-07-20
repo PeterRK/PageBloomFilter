@@ -40,6 +40,43 @@ func TestPageNumLimit(t *testing.T) {
 	}
 }
 
+func TestCreateRejectsInvalidLayoutWithoutPanicking(t *testing.T) {
+	tests := []struct {
+		name      string
+		way       uint32
+		pageLevel uint32
+	}{
+		{name: "way below range", way: 0, pageLevel: 7},
+		{name: "way above range", way: 9, pageLevel: 7},
+		{name: "page level below range", way: 4, pageLevel: 5},
+		{name: "page level above range", way: 4, pageLevel: 14},
+		{name: "page level maximum uint32", way: 4, pageLevel: ^uint32(0)},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if bf := CreatePageBloomFilter(test.way, test.pageLevel, []byte{0}, 0); bf != nil {
+				t.Fatal("invalid layout must be rejected")
+			}
+		})
+	}
+}
+
+func TestCreateCopiesValidBitmap(t *testing.T) {
+	data := make([]byte, 1<<6)
+	data[3] = 0x80
+	bf := CreatePageBloomFilter(4, 6, data, 7)
+	if bf == nil {
+		t.Fatal("valid layout was rejected")
+	}
+	if bf.Unique() != 7 || !bytes.Equal(bf.Data(), data) {
+		t.Fatal("restored state does not match input")
+	}
+	data[3] = 0
+	if bf.Data()[3] != 0x80 {
+		t.Fatal("restored bitmap must not alias input data")
+	}
+}
+
 func TestStableBitmapLayout(t *testing.T) {
 	bf := NewBloomFilter(1, 0.01)
 	if bf == nil {

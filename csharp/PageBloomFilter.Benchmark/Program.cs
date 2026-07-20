@@ -99,7 +99,6 @@ namespace PageBloomFilter.Benchmark {
             set = new TimeSpan(0);
             test = new TimeSpan(0);
             for (int i = 0; i < loop; i++) {
-                bf.Clear();
                 var delta = DoBenchmark(bf2);
                 set += delta.set;
                 test += delta.test;
