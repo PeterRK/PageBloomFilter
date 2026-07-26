@@ -5,12 +5,10 @@ the library crate name is `pbf`.
 
 ```toml
 [dependencies]
-pagebloomfilter = "1.3.0"
+pagebloomfilter = "1.3.1"
 ```
 
 ```rust
-use pbf::pbf::BloomFilter;
-
 let mut bf = pbf::new_bloom_filter(500, 0.01);
 let key = b"Hello";
 

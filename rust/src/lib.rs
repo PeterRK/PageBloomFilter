@@ -2,19 +2,19 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-#[cfg(test)]
-use crate::pbf::BloomFilter;
-
 mod hash;
-pub mod pbf;
+mod pbf;
+
+pub use pbf::{
+    best_way_const, new_bloom_filter, new_pbf, restore_pbf, BloomFilter, PageBloomFilter,
+};
 
 #[macro_export]
 macro_rules! new_bloom_filter_fast {
     ($item:expr, $fpr:expr) => {
-        $crate::pbf::PageBloomFilter::<{ $crate::pbf::best_way_const($fpr) }>::from_estimate($item, $fpr)
+        $crate::PageBloomFilter::<{ $crate::best_way_const($fpr) }>::from_estimate($item, $fpr)
     };
 }
-
 
 #[test]
 fn test_hash() {
@@ -102,8 +102,7 @@ fn test_stable_bitmap_layout() {
         assert!(bf.set(key));
     }
 
-    let hex =
-        "0000000010000000000000004000000000000000000000100100000000010000\
+    let hex = "0000000010000000000000004000000000000000000000100100000000010000\
          0000000200000000000000000000040000000000040000008040000000000000\
          0000004000004180020000002000000000000100080080000000800000000010\
          0000000080000000000000000000410000800040000000800000000000002000";
@@ -166,28 +165,40 @@ fn benchmark() {
     let mut bf = pbf::new_bloom_filter(n, 0.01);
 
     let set = std::time::Instant::now();
-    for i in 0..(n/2) {
+    for i in 0..(n / 2) {
         bf.set(&(i as u64).to_le_bytes());
     }
-    println!("pbf-set: {:.2}ns/op", (set.elapsed().as_nanos() as u64) as f64 / (n/2) as f64);
+    println!(
+        "pbf-set: {:.2}ns/op",
+        (set.elapsed().as_nanos() as u64) as f64 / (n / 2) as f64
+    );
 
     let test = std::time::Instant::now();
     for i in 0..n {
         bf.test(&(i as u64).to_le_bytes());
     }
-    println!("pbf-test: {:.2}ns/op", (test.elapsed().as_nanos() as u64) as f64 / n as f64);
+    println!(
+        "pbf-test: {:.2}ns/op",
+        (test.elapsed().as_nanos() as u64) as f64 / n as f64
+    );
 
     let mut fast = new_bloom_filter_fast!(n, 0.01);
 
     let set = std::time::Instant::now();
-    for i in 0..(n/2) {
+    for i in 0..(n / 2) {
         fast.set(&(i as u64).to_le_bytes());
     }
-    println!("pbf-fast-set: {:.2}ns/op", (set.elapsed().as_nanos() as u64) as f64 / (n/2) as f64);
+    println!(
+        "pbf-fast-set: {:.2}ns/op",
+        (set.elapsed().as_nanos() as u64) as f64 / (n / 2) as f64
+    );
 
     let test = std::time::Instant::now();
     for i in 0..n {
         fast.test(&(i as u64).to_le_bytes());
     }
-    println!("pbf-fast-test: {:.2}ns/op", (test.elapsed().as_nanos() as u64) as f64 / n as f64);
+    println!(
+        "pbf-fast-test: {:.2}ns/op",
+        (test.elapsed().as_nanos() as u64) as f64 / n as f64
+    );
 }
