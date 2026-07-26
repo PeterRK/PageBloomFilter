@@ -15,9 +15,18 @@ jobs:
     name: .NET / NuGet package
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
         with:
-          dotnet-version: "8.0.x"
+          dotnet-version: |
+            8.0.x
+            10.0.x
       - run: dotnet test csharp/PageBloomFilter.sln --configuration Release
       - run: dotnet pack csharp/PageBloomFilter/PageBloomFilter.csproj --configuration Release --no-restore --output artifacts/nuget
+      - name: Upload NuGet package
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: dotnet-nuget
+          path: artifacts/nuget/PageBloomFilter.1.3.0.nupkg
+          if-no-files-found: error
+          retention-days: 7
