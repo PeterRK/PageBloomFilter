@@ -92,7 +92,7 @@ def _compile_extension(output_dir):
 
 
 def _project_text(name):
-    for base in (SOURCE_ROOT, ROOT):
+    for base in (ROOT, SOURCE_ROOT):
         path = base / name
         if path.is_file():
             return path.read_text(encoding="utf-8")
@@ -222,7 +222,7 @@ def _sdist_files():
         (ROOT / "setup.py", pathlib.Path("setup.py")),
         (ROOT / "pbf.py", pathlib.Path("pbf.py")),
         (ROOT / "bind.c", pathlib.Path("bind.c")),
-        (SOURCE_ROOT / "README.md", pathlib.Path("README.md")),
+        (ROOT / "README.md", pathlib.Path("README.md")),
         (SOURCE_ROOT / "LICENSE", pathlib.Path("LICENSE")),
     ]
     for directory in ("include", "src"):

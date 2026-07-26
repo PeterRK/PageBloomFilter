@@ -1,7 +1,11 @@
 # pagebloomfilter
 
-A fast page-based Bloom filter backed by WebAssembly. It supports Node.js and
-modern browsers.
+Fast page-based Bloom filter backed by WebAssembly for Node.js and modern
+browsers.
+
+```shell
+npm install pagebloomfilter@1.3.0
+```
 
 ```typescript
 import { PageBloomFilter } from "pagebloomfilter";
@@ -12,13 +16,8 @@ console.log(bf.test("Hello"));
 bf.dispose();
 ```
 
-Binary keys can be passed as `ArrayBuffer` or any `ArrayBufferView`. Use
-`exportState()` and `PageBloomFilter.restore()` to persist and restore the
-cross-language-compatible bitmap.
+Requires Node.js 18+ or a browser with WebAssembly.
 
-The package requires Node.js 18 or newer when used in Node. Browser runtimes
-must provide WebAssembly, `fetch`, `TextEncoder`, and
-`FinalizationRegistry`.
+Source: https://github.com/PeterRK/PageBloomFilter
 
-Licensed under the BSD 3-Clause License. Full documentation and source:
-https://github.com/PeterRK/PageBloomFilter.
+License: BSD-3-Clause

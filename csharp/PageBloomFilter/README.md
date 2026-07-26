@@ -2,6 +2,10 @@
 
 Fast page-based Bloom filter for .NET 8.
 
+```shell
+dotnet add package PageBloomFilter --version 1.3.0
+```
+
 ```csharp
 using System.Text;
 using PageBloomFilter;
@@ -12,8 +16,6 @@ filter.Set(key);
 Console.WriteLine(filter.Test(key));
 ```
 
-The bitmap format is compatible with the other PageBloomFilter language
-implementations. Licensed under the BSD 3-Clause License.
+Source: https://github.com/PeterRK/PageBloomFilter
 
-Source and full documentation:
-https://github.com/PeterRK/PageBloomFilter.
+License: BSD-3-Clause

@@ -1,11 +1,16 @@
 # pagebloomfilter
 
-Fast page-based Bloom filter for Rust.
+Fast page-based Bloom filter for Rust. The package name is `pagebloomfilter`;
+the library crate name is `pbf`.
 
-The crates.io package is named `pagebloomfilter`; its library crate remains
-`pbf` for source compatibility.
+```toml
+[dependencies]
+pagebloomfilter = "1.3.0"
+```
 
 ```rust
+use pbf::pbf::BloomFilter;
+
 let mut bf = pbf::new_bloom_filter(500, 0.01);
 let key = b"Hello";
 
@@ -13,14 +18,6 @@ assert!(bf.set(key));
 assert!(bf.test(key));
 ```
 
-When the false-positive rate is a compile-time constant, the macro form avoids
-runtime dispatch:
+Source: https://github.com/PeterRK/PageBloomFilter
 
-```rust
-let mut bf = pbf::new_bloom_filter_fast!(500, 0.01);
-assert!(bf.set(b"Hello"));
-```
-
-PageBloomFilter is licensed under the BSD 3-Clause License. The source and
-cross-language format documentation are available at
-https://github.com/PeterRK/PageBloomFilter.
+License: BSD-3-Clause
