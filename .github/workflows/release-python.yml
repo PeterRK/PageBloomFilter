@@ -1,0 +1,102 @@
+name: Publish Python package to PyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Successful Python CI run ID for v1.3.0
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: release-python-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify release candidate
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Verify release branch, CI run and artifacts
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+
+          if [[ ! "${RUN_ID}" =~ ^[0-9]+$ ]]; then
+            echo "run_id must be numeric" >&2
+            exit 1
+          fi
+          if [[ "${GITHUB_REF}" != "refs/heads/release" ]]; then
+            echo "release workflow must run from refs/heads/release" >&2
+            exit 1
+          fi
+
+          run_json="$(curl --fail-with-body --silent --show-error \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}")"
+
+          if ! jq -e --arg sha "${GITHUB_SHA}" '
+            .status == "completed" and
+            .conclusion == "success" and
+            .event == "workflow_dispatch" and
+            .path == ".github/workflows/ci-python.yml" and
+            .head_branch == "release" and
+            .head_sha == $sha
+          ' <<<"${run_json}" >/dev/null; then
+            echo "CI run is not a successful ci-python run for ${GITHUB_SHA}" >&2
+            jq '{id, status, conclusion, event, path, head_sha}' <<<"${run_json}" >&2
+            exit 1
+          fi
+
+          artifacts_json="$(curl --fail-with-body --silent --show-error \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/artifacts?per_page=100")"
+
+          if ! jq -e '
+            ([.artifacts[] | select(.expired == false) | .name] | sort) ==
+            ([
+              "python-sdist",
+              "python-wheels-macos-latest",
+              "python-wheels-ubuntu-latest",
+              "python-wheels-windows-latest"
+            ] | sort)
+          ' <<<"${artifacts_json}" >/dev/null; then
+            echo "CI run does not have the exact expected unexpired artifact set" >&2
+            jq '[.artifacts[] | {name, expired}]' <<<"${artifacts_json}" >&2
+            exit 1
+          fi
+
+  publish:
+    name: Publish to PyPI
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    steps:
+      - name: Download approved distributions
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+          pattern: python-*
+          path: dist
+          merge-multiple: true
+
+      - name: Publish distributions
+        uses: pypa/gh-action-pypi-publish@ba38be9e461d3875417946c167d0b5f3d385a247 # v1.14.1
+        with:
+          packages-dir: dist
