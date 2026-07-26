@@ -4,7 +4,7 @@ Fast page-based Bloom filter for Java 11 and newer.
 
 ```xml
 <dependency>
-    <groupId>com.github.peterrk</groupId>
+    <groupId>io.github.peterrk</groupId>
     <artifactId>pbf</artifactId>
     <version>1.3.0</version>
 </dependency>
