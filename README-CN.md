@@ -2,6 +2,39 @@
 
 采用分页设计的布隆过滤器，兼顾存储密度与访问性能。
 
+## 安装
+
+| 生态 | 版本 | 安装方式 |
+|---|---:|---|
+| C/C++ | v1.3.0 源码发布 | 下载 [GitHub Release 源码](https://github.com/PeterRK/PageBloomFilter/releases/tag/v1.3.0)并使用 CMake 构建 |
+| Go | v1.3.1 | `go get github.com/PeterRK/PageBloomFilter/go@v1.3.1` |
+| Java | 1.3.0 | Maven 坐标 `io.github.peterrk:pbf:1.3.0` |
+| .NET | 1.3.0 | `dotnet add package PageBloomFilter --version 1.3.0` |
+| Python | 1.3.0 | `python -m pip install pagebloomfilter==1.3.0` |
+| Rust | 1.3.1 | `cargo add pagebloomfilter@1.3.1` |
+| TypeScript | 仅源码 | npm 包尚未发布 |
+
+C/C++ 源码可按以下方式配置、构建并按需安装：
+
+```shell
+cmake -S . -B build -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/path/to/install
+cmake --build build --config Release
+cmake --build build --target install --config Release
+```
+
+Maven 用户可添加：
+
+```xml
+<dependency>
+    <groupId>io.github.peterrk</groupId>
+    <artifactId>pbf</artifactId>
+    <version>1.3.0</version>
+</dependency>
+```
+
+> **TypeScript 状态：** `pagebloomfilter` 尚未发布到 npm。目前只能从本仓库
+> 构建 TypeScript/WebAssembly 实现，请勿依赖 `npm install pagebloomfilter`。
+
 ## C++
 ```cpp
 auto bf = NEW_BLOOM_FILTER(500, 0.01);
@@ -261,13 +294,19 @@ rbf-test:       24.93ns/op
 将在U7-155H上的测试数据放到一起看，可以得到性能排位：C++，Go，Rust，Java，C#，Python。
 
 ## 序列化与反序列化
-不同语言实现的数据结构是一致（除了C++的aesni加强版），可以跨语言使用。虽然这里不提供专门的序列化和反序列化API，但也很容易实现：保存和加载`way`、`page_level`、`unique_cnt`三个参数，以及`data`的位图即可。其中`way`和`page_level`是个很小的整数， 可以分别用4bit表示。
+使用标准哈希的各语言实现共享相同的位图布局，因此只需保存和加载 `way`、
+`page_level`、`unique_cnt` 以及 `data` 位图，就能在不同语言间迁移状态。
+C++ 的可选 AES-NI 哈希会产生不同布局，不属于这一兼容范围。
+
+下面保留紧凑的 `Pack` 作为应用自定义布局草图，而不是标准线格式。位域顺序和
+零长度数组依赖编译器扩展，24-bit `unique_cnt` 在编码前必须检查范围；需要长期
+或跨平台存储时，应明确规定字节序，并使用更宽的定长计数字段，不能静默截断。
 ```cpp
 // C++
 auto bf = pbf::New(500, 0.01);
 auto bf2 = pbf::New(bf->way(), bf->page_level(), bf->data(), bf->data_size(), bf->unique_cnt());
 
-// 示例格式（并非标准）
+// 紧凑的应用自定义草图，并非可移植的标准线格式
 struct Pack {
     uint32_t way : 4;
     uint32_t page_level : 4;
@@ -297,6 +336,11 @@ from pbf import PageBloomFilter
 
 bf = PageBloomFilter.create(500, 0.01)
 bf2 = PageBloomFilter.restore(bf.way, bf.page_level, bf.data, bf.unique_cnt)
+```
+```typescript
+const bf = await PageBloomFilter.create(500, 0.01);
+const [way, pageLevel, data, uniqueCount] = bf.exportState();
+const bf2 = await PageBloomFilter.restore(way, pageLevel, data, uniqueCount);
 ```
 ```rust
 // Rust

@@ -78,18 +78,16 @@ public:
 
 	explicit BloomFilterImp(PageBloomFilter<N>&& bf) {
 		// Design note:
-		// This wrapper intentionally reuses the _PageBloomFilter state already
-		// embedded at offset 0 in BloomFilter/BloomFilterImp and treats that
-		// prefix as the storage for PageBloomFilter<N>. The goal is to expose a
-		// virtual interface without duplicating the bitmap state in a second
-		// member object.
+		// This wrapper intentionally reuses the _PageBloomFilter base subobject
+		// as the storage for PageBloomFilter<N>. The goal is to expose a virtual
+		// interface without duplicating the bitmap state in a second member.
 		//
-		// This relies on the current inheritance/layout contract remaining
-		// unchanged: BloomFilterImp must not add data members, must preserve the
-		// _PageBloomFilter base prefix, and must remain size/alignment-compatible
-		// with PageBloomFilter<N>. The static_asserts below lock down those
-		// assumptions so layout changes fail at compile time instead of silently
-		// breaking the wrapper.
+		// PageBloomFilter<N> must therefore add neither storage nor a stricter
+		// alignment requirement. Keep these checks next to the type pun.
+		static_assert(sizeof(PageBloomFilter<N>) == sizeof(_PageBloomFilter),
+					  "PageBloomFilter must not add state");
+		static_assert(alignof(PageBloomFilter<N>) == alignof(_PageBloomFilter),
+					  "PageBloomFilter alignment changed");
 		*self() = std::move(bf);
 	}
 

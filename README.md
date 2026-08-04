@@ -2,6 +2,40 @@
 
 Bloom filter with page, designed for storage density and query speed.
 
+## Installation
+
+| Ecosystem | Version | Install |
+|---|---:|---|
+| C/C++ | v1.3.0 source release | Download the [GitHub release source](https://github.com/PeterRK/PageBloomFilter/releases/tag/v1.3.0) and build it with CMake |
+| Go | v1.3.1 | `go get github.com/PeterRK/PageBloomFilter/go@v1.3.1` |
+| Java | 1.3.0 | Maven coordinate `io.github.peterrk:pbf:1.3.0` |
+| .NET | 1.3.0 | `dotnet add package PageBloomFilter --version 1.3.0` |
+| Python | 1.3.0 | `python -m pip install pagebloomfilter==1.3.0` |
+| Rust | 1.3.1 | `cargo add pagebloomfilter@1.3.1` |
+| TypeScript | source only | The npm package has not been published |
+
+For C/C++, configure, build, and optionally install the source release:
+
+```shell
+cmake -S . -B build -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/path/to/install
+cmake --build build --config Release
+cmake --build build --target install --config Release
+```
+
+Maven users can add:
+
+```xml
+<dependency>
+    <groupId>io.github.peterrk</groupId>
+    <artifactId>pbf</artifactId>
+    <version>1.3.0</version>
+</dependency>
+```
+
+> **TypeScript status:** `pagebloomfilter` is not published on npm. The
+> TypeScript/WebAssembly implementation can currently be built only from this
+> repository; do not rely on `npm install pagebloomfilter` yet.
+
 ## C++
 ```cpp
 auto bf = NEW_BLOOM_FILTER(500, 0.01);
@@ -265,13 +299,22 @@ rbf-test:       24.93ns/op
 With test data on U7-155H machine, we got performance rank: C++, Go, Rust, Java, C#, Python.
 
 ## Serialize & Deserialize
-Data structures of different implements, except C++ with aesni, are consistent, so you can do cross-language serializing and deserializing without dedicated serialize & deserialize APIs. Just save and restore 3 scalar parameters `way`, `page_level`, `unique_cnt`, and the `data` bitmap. Values of `way` and `page_level` are always tiny integers, which can be represented by 4 bit.
+The standard-hash implementations share the same bitmap layout, so state can be
+moved across languages by saving `way`, `page_level`, `unique_cnt`, and the
+`data` bitmap. The optional C++ AES-NI hash is excluded because it produces a
+different layout.
+
+The compact `Pack` below is intentionally retained as an application-defined layout
+sketch, not a standard wire format. Its bit-field ordering and zero-length array are
+compiler-specific extensions, and its 24-bit `unique_cnt` must be range-checked before
+encoding. For durable or cross-platform storage, define byte order explicitly and use
+a wider fixed-width count rather than silently truncating it.
 ```cpp
 // C++
 auto bf = pbf::New(500, 0.01);
 auto bf2 = pbf::New(bf->way(), bf->page_level(), bf->data(), bf->data_size(), bf->unique_cnt());
 
-// A example (not standard) format
+// Compact application-defined sketch; not a portable wire format.
 struct Pack {
     uint32_t way : 4;
     uint32_t page_level : 4;
@@ -301,6 +344,11 @@ from pbf import PageBloomFilter
 
 bf = PageBloomFilter.create(500, 0.01)
 bf2 = PageBloomFilter.restore(bf.way, bf.page_level, bf.data, bf.unique_cnt)
+```
+```typescript
+const bf = await PageBloomFilter.create(500, 0.01);
+const [way, pageLevel, data, uniqueCount] = bf.exportState();
+const bf2 = await PageBloomFilter.restore(way, pageLevel, data, uniqueCount);
 ```
 ```rust
 // Rust

@@ -24,6 +24,7 @@ struct V128 {
 	uint64_t h;
 };
 
+static_assert(sizeof(V128) == 16, "V128 must remain 128 bits");
 
 extern V128 Hash(const uint8_t* msg, unsigned len) noexcept;
 

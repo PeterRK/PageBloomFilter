@@ -20,6 +20,8 @@ union V128X {
 #endif
 };
 
+static_assert(sizeof(V128X) == sizeof(V128), "V128 views must share one layout");
+
 static FORCE_INLINE uint32_t Rot32(uint32_t x, unsigned k) noexcept {
 	return (x << k) | (x >> (32U - k));
 }
