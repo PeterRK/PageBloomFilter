@@ -1,6 +1,8 @@
 import math
 import struct
+import sys
 import time
+import weakref
 
 from _pbf import PageBloomFilter as _NativePageBloomFilter
 
@@ -144,6 +146,72 @@ def _test_page_num_limit():
         raise AssertionError("page count at the exclusive limit must be rejected")
 
 
+def _test_bitmap_view_lifetime():
+    class NativeFilter(_NativePageBloomFilter):
+        pass
+
+    bf = NativeFilter(4, 6, 1)
+    baseline = sys.getrefcount(bf)
+    for _ in range(5):
+        view = bf.data
+        assert view.readonly
+        del view
+    assert sys.getrefcount(bf) == baseline
+
+    view = bf.data
+    assert not any(view)
+    assert bf.set(b"view lifetime")
+    assert any(view)
+    try:
+        view[0] = 1
+    except TypeError:
+        pass
+    else:
+        raise AssertionError("bitmap view must be read-only")
+    bf.clear()
+    assert not any(view)
+    assert bf.set(b"view lifetime")
+    expected = bytes(view)
+
+    reference = weakref.ref(bf)
+    del bf
+    assert reference() is not None
+    assert bytes(view) == expected
+    view.release()
+    assert reference() is None
+
+
+def _test_bitmap_view_reinitialization():
+    bf = _NativePageBloomFilter(4, 6, 1)
+    assert bf.set(b"existing key")
+    view = bf.data
+    derived = view[:]
+    view.release()
+    try:
+        bf.__init__(4, 6, 2)
+    except BufferError:
+        pass
+    else:
+        raise AssertionError("reinitialization must not invalidate bitmap views")
+    assert bf.page_num == 1
+    assert bf.test(b"existing key")
+    assert bytes(derived) == bytes(bf.data)
+    derived.release()
+    bf.__init__(4, 6, 2)
+    assert bf.page_num == 2
+    assert not any(bf.data)
+
+
+def _test_invalid_page_levels():
+    for page_level in (0, 5, 14, 31, 63, 64, 65, (1 << 32) - 1):
+        try:
+            _NativePageBloomFilter(4, page_level, 1)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("invalid page level must be rejected")
+
+
 def _test_stable_bitmap_layout():
     bf = PageBloomFilter.create(1, 0.01)
     keys = (
@@ -167,6 +235,9 @@ def _test_stable_bitmap_layout():
 def test():
     _test_create()
     _test_page_num_limit()
+    _test_bitmap_view_lifetime()
+    _test_bitmap_view_reinitialization()
+    _test_invalid_page_levels()
     _test_stable_bitmap_layout()
     for i in range(4, 9):
         _test_operate(i)

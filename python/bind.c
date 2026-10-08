@@ -14,6 +14,7 @@ typedef struct {
     size_t unique_cnt;
     Py_ssize_t data_size;
     PyObject* data;
+    Py_ssize_t exports;
 } PyPageBloomFilter;
 
 typedef struct {
@@ -25,7 +26,7 @@ typedef struct {
 
 static PyTypeObject PyPageBloomFilterType;
 
-static int validate_layout(unsigned way, unsigned page_level, unsigned page_num, Py_ssize_t data_size) {
+static int validate_layout(unsigned way, unsigned page_level, unsigned page_num) {
     unsigned min_page_level;
 
     if (way < 4 || way > 8) {
@@ -43,14 +44,6 @@ static int validate_layout(unsigned way, unsigned page_level, unsigned page_num,
     }
     if (page_num >= MAX_PAGE_NUM) {
         PyErr_SetString(PyExc_OverflowError, "page_num is too large");
-        return 0;
-    }
-    if (page_level >= 63) {
-        PyErr_SetString(PyExc_ValueError, "page_level is too large");
-        return 0;
-    }
-    if (data_size != ((Py_ssize_t)page_num << page_level)) {
-        PyErr_SetString(PyExc_ValueError, "data length does not match page_level/page_num");
         return 0;
     }
     return 1;
@@ -133,11 +126,12 @@ static int raw_test(unsigned way, const void* space, unsigned page_level, unsign
 static PyObject* new_filter_object(unsigned way, unsigned page_level, unsigned page_num,
                                    size_t unique_cnt, const char* init_data) {
     PyPageBloomFilter* self;
-    Py_ssize_t data_size = (Py_ssize_t)page_num << page_level;
+    Py_ssize_t data_size;
 
-    if (!validate_layout(way, page_level, page_num, data_size)) {
+    if (!validate_layout(way, page_level, page_num)) {
         return NULL;
     }
+    data_size = (Py_ssize_t)page_num << page_level;
 
     self = (PyPageBloomFilter*)PyPageBloomFilterType.tp_alloc(&PyPageBloomFilterType, 0);
     if (self == NULL) {
@@ -210,6 +204,7 @@ static PyObject* PyPageBloomFilter_new(PyTypeObject* type, PyObject* args, PyObj
         self->unique_cnt = 0;
         self->data_size = 0;
         self->data = NULL;
+        self->exports = 0;
     }
     return (PyObject*)self;
 }
@@ -236,10 +231,15 @@ static int PyPageBloomFilter_init(PyPageBloomFilter* self, PyObject* args, PyObj
     }
     unique_cnt = (size_t)unique_cnt_arg;
 
-    data_size = (Py_ssize_t)page_num << page_level;
-    if (!validate_layout(way, page_level, page_num, data_size)) {
+    if (!validate_layout(way, page_level, page_num)) {
         return -1;
     }
+    /* Exported views keep self alive, but also need this allocation to stay valid. */
+    if (self->exports != 0) {
+        PyErr_SetString(PyExc_BufferError, "cannot reinitialize while bitmap views exist");
+        return -1;
+    }
+    data_size = (Py_ssize_t)page_num << page_level;
 
     if (data_obj == Py_None) {
         bytearray = PyByteArray_FromStringAndSize(NULL, data_size);
@@ -388,14 +388,29 @@ static PyObject* PyPageBloomFilter_get_unique_cnt(PyPageBloomFilter* self, void*
     return PyLong_FromSize_t(self->unique_cnt);
 }
 
-static PyObject* PyPageBloomFilter_get_data(PyPageBloomFilter* self, void* closure) {
-    Py_buffer view;
+static int PyPageBloomFilter_getbuffer(PyObject* obj, Py_buffer* view, int flags) {
+    PyPageBloomFilter* self = (PyPageBloomFilter*)obj;
 
-    if (PyBuffer_FillInfo(&view, (PyObject*)self, PyByteArray_AS_STRING(self->data),
-                          self->data_size, 1, PyBUF_CONTIG_RO) != 0) {
-        return NULL;
+    if (self->data == NULL) {
+        PyErr_SetString(PyExc_BufferError, "filter has not been initialized");
+        return -1;
     }
-    return PyMemoryView_FromBuffer(&view);
+    if (PyBuffer_FillInfo(view, obj, PyByteArray_AS_STRING(self->data),
+                          self->data_size, 1, flags) != 0) {
+        return -1;
+    }
+    self->exports++;
+    return 0;
+}
+
+static void PyPageBloomFilter_releasebuffer(PyObject* obj, Py_buffer* view) {
+    PyPageBloomFilter* self = (PyPageBloomFilter*)obj;
+    self->exports--;
+}
+
+static PyObject* PyPageBloomFilter_get_data(PyPageBloomFilter* self, void* closure) {
+    /* The buffer protocol balances the exporter reference when views are released. */
+    return PyMemoryView_FromObject((PyObject*)self);
 }
 
 static PyMethodDef PyPageBloomFilter_methods[] = {
@@ -420,6 +435,10 @@ static PyGetSetDef PyPageBloomFilter_getset[] = {
 };
 
 static PySequenceMethods PyPageBloomFilter_as_sequence = {0};
+static PyBufferProcs PyPageBloomFilter_as_buffer = {
+    PyPageBloomFilter_getbuffer,
+    PyPageBloomFilter_releasebuffer
+};
 
 static PyTypeObject PyPageBloomFilterType = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -436,6 +455,7 @@ static void configure_page_bloom_filter_type(void) {
     PyPageBloomFilterType.tp_methods = PyPageBloomFilter_methods;
     PyPageBloomFilterType.tp_getset = PyPageBloomFilter_getset;
     PyPageBloomFilterType.tp_as_sequence = &PyPageBloomFilter_as_sequence;
+    PyPageBloomFilterType.tp_as_buffer = &PyPageBloomFilter_as_buffer;
     PyPageBloomFilterType.tp_init = (initproc)PyPageBloomFilter_init;
     PyPageBloomFilterType.tp_new = PyPageBloomFilter_new;
     PyPageBloomFilterType.tp_repr = (reprfunc)PyPageBloomFilter_repr;
