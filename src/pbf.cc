@@ -11,7 +11,8 @@ namespace pbf {
 void _PageBloomFilter::init(unsigned page_level, unsigned page_num, size_t unique_cnt, const uint8_t* data) {
 	m_page_level = page_level;
 	m_page_num = page_num;
-	auto space = std::make_unique<uint8_t[]>(data_size());
+	// Each branch initializes the entire bitmap; avoid zeroing it on allocation.
+	std::unique_ptr<uint8_t[]> space(new uint8_t[data_size()]);
 	if (data == nullptr) {
 		m_unique_cnt = 0;
 		memset(space.get(), 0, data_size());
